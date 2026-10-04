@@ -80,3 +80,52 @@ light; the grey man — fedora and overcoat under a street lamp, face completely
 - Portrait slots load image files from `public/suspects/<id>.webp` when present and fall back
   to the current SVG silhouettes, so art can be dropped in at any time.
 - "J" stays a silhouette in a fedora and overcoat under a street lamp — never a face.
+
+**Decision (owner):** rename Case 047's cast to match this reference.
+
+| Now | Becomes |
+| --- | --- |
+| Sarah Vale, freelance journalist | Rhea Malhotra, journalist, 32 |
+| Elena Cross, hotel general manager | Vandana Singh, hotel manager, 41 |
+| Marcus Reed, media executive | Arjun Mehta, media executive, 38 |
+| Noah Grant | Karan Sharma, student, 22 |
+| "J" | The Grey Man |
+| Blackwood Hotel | Grandview Hotel |
+| Reed Media / Halden (media side) | Nexus Media |
+
+Every record, statement, interview line, truth file entry and resolution text changes with it;
+the plot and clues stay the same. (Victim name and city to be confirmed.)
+
+---
+
+## 3. Interrogation room
+
+Files: `03-interrogation/a-tiled-room-fluorescent.png`, `03-interrogation/b-skylight-desk-lamp.webp`
+
+**A — police box room, game render.** Cold teal-grey. Two-tone glazed tile walls (dark green
+below a pale band), concrete floor. A single fluorescent tube straight overhead makes a bright
+hot spot and hard shadows of the chairs on the floor. The one-way mirror is a dark rectangle on
+the back wall reflecting the tube. Metal table with a tape recorder, a fedora, papers, a
+handcuff bar. A red EXIT sign is the only colour in the room. Coat thrown over the near chair:
+the detective's side.
+
+**B — empty room, single shaft.** Almost monochrome blue-grey. One square ceiling light throws a
+visible shaft (haze) down onto a bare table; a small desk lamp adds a warm accent. Long shadow
+under the table, two chairs facing each other, a mirror on the left wall, a video camera on a
+tripod in the foreground watching.
+
+**What works**
+- One overhead source; everything outside the cone falls to near-black. The table is the stage.
+- Cold room / warm accent (A's red EXIT, B's desk lamp): a single warm point draws the eye.
+- The one-way mirror and the camera say "you are being watched" without a word.
+- Visible haze in the light shaft — atmosphere without clutter.
+- Empty chair opposite: the suspect's seat.
+
+**What CASEFILE will do**
+- Interview screen staged as this room: cold tiled wall with a mirror panel behind the suspect,
+  a visible light cone from one fluorescent fixture, haze in the beam, hard table edge in the
+  foreground, the detective's side marked by a coat over the chair.
+- The suspect's portrait sits across the table in the light; our side is in shadow.
+- One warm accent per scene: a red EXIT sign glow or the recorder's red REC light, which
+  pulses while the suspect is answering.
+- Pressure beats (a revised statement) briefly flare the overhead light; all CSS/SVG, cheap to render.
