@@ -53,7 +53,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
   });
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-ink-950">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#07090c]/70">
       {/* one lamp over the table */}
       <div className="pointer-events-none absolute left-1/2 top-0 h-full w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_55%_at_50%_0%,rgba(240,174,85,0.13),transparent_70%)]" />
       <div className="relative grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[180px_1fr_220px]">
@@ -179,12 +179,12 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
           <AnimatePresence>
             {picker && (
               <motion.div
-                className="panel absolute bottom-full left-0 right-0 z-20 mb-2 max-h-[55vh] overflow-hidden shadow-2xl md:left-auto md:right-6 md:w-[420px]"
+                className="panel fixed inset-x-0 bottom-0 z-50 !bg-ink-900 max-h-[78svh] overflow-hidden shadow-[0_-20px_60px_rgba(0,0,0,.7)] md:absolute md:inset-x-auto md:bottom-full md:right-6 md:mb-2 md:max-h-[55vh] md:w-[420px] md:shadow-2xl"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
               >
-                <div className="border-b border-ink-700 p-3">
+                <div className="flex items-center gap-2 border-b border-ink-700 p-3">
                   <input
                     autoFocus
                     value={query}
@@ -193,14 +193,17 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
                     aria-label="Find a record to present"
                     className="w-full border border-ink-600 bg-ink-950 px-3 py-2 text-sm outline-none focus:border-amber-500"
                   />
+                  <button type="button" className="shrink-0 px-3 py-2 text-steel-300 hover:text-bone-100 md:hidden" onClick={() => setPicker(false)} aria-label="Close">
+                    ✕
+                  </button>
                 </div>
-                <ul className="scrollbar-thin max-h-[42vh] overflow-y-auto py-1">
+                <ul className="scrollbar-thin max-h-[62svh] overflow-y-auto py-1 md:max-h-[42vh]">
                   {filtered.map((e) => (
                     <li key={e.id}>
                       <button
                         type="button"
                         onClick={() => act("PRESENT", e.id)}
-                        className="flex w-full items-baseline gap-3 px-4 py-2 text-left text-sm hover:bg-ink-800"
+                        className="flex w-full items-baseline gap-3 px-4 py-3 text-left text-sm hover:bg-ink-800 md:py-2"
                       >
                         <span className="font-mono text-[11px] text-steel-400">{evidenceCode(e.number)}</span>
                         <span className="flex-1">{e.title}</span>

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bodoni_Moda, IBM_Plex_Mono, IBM_Plex_Sans, Reenie_Beanie } from "next/font/google";
 import { SettingsProvider } from "@/components/settings/SettingsProvider";
+import { Atmosphere } from "@/components/ui/Atmosphere";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -61,13 +62,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bodoni.variable} ${plexSans.variable} ${plexMono.variable} ${reenie.variable} h-full antialiased`}
     >
-      <body className="grain min-h-full bg-ink-950 text-bone-100">
+      <body className="grain min-h-full text-bone-100">
         <a
           href="#main"
           className="sr-only z-[100] bg-amber-500 px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] text-ink-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         >
           Skip to content
         </a>
+        <Atmosphere />
         <SettingsProvider>{children}</SettingsProvider>
       </body>
     </html>

@@ -36,7 +36,7 @@ export function SectionInvestigate() {
   return (
     <section ref={ref} className="relative h-[150vh] min-h-[900px] overflow-hidden" aria-labelledby="investigate-heading">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(217,138,58,0.11)_0%,rgba(217,138,58,0.04)_40%,transparent_70%)]" />
       </div>
 
       <Floating progress={scrollYProgress} speed={180} rotate={-7} className="left-[4%] top-[8%] w-56 md:left-[8%] md:w-72">

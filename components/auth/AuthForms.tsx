@@ -77,7 +77,7 @@ export function AuthForms({
             aria-selected={mode === m}
             type="button"
             onClick={() => setMode(m)}
-            className={`-mb-px border-b-2 pb-3 font-mono text-[11px] uppercase tracking-[0.22em] ${
+            className={`-mb-px border-b-2 pb-3 pt-2 font-mono text-[11px] uppercase tracking-[0.22em] ${
               mode === m ? "border-crimson-600 text-[#1d1a14]" : "border-transparent text-[#1d1a14]/50 hover:text-[#1d1a14]"
             }`}
           >
@@ -140,7 +140,7 @@ export function AuthForms({
       {!isGuest && (
         <form action={guestAction} className="mt-6 text-center">
           <input type="hidden" name="next" value={next} />
-          <button type="submit" className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#1d1a14]/60 underline-offset-4 hover:text-[#1d1a14] hover:underline">
+          <button type="submit" className="py-3 font-mono text-[11px] uppercase tracking-[0.2em] text-[#1d1a14]/60 underline-offset-4 hover:text-[#1d1a14] hover:underline">
             Continue as a guest →
           </button>
         </form>

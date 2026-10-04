@@ -173,7 +173,7 @@ export function MapView({
             <ul className="mt-3 space-y-1.5">
               {linked.map((e) => (
                 <li key={e.id}>
-                  <button type="button" className="w-full text-left text-sm text-bone-100/80 hover:text-amber-300" onClick={() => onOpen(e.id)}>
+                  <button type="button" className="w-full py-1.5 text-left text-sm text-bone-100/80 hover:text-amber-300 md:py-0" onClick={() => onOpen(e.id)}>
                     <span className="font-mono text-[11px] text-steel-400">{evidenceCode(e.number)}</span> {e.title}
                   </button>
                 </li>

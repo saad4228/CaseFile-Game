@@ -91,7 +91,7 @@ export function ChatPanel({
   };
 
   const panel = (
-    <div className={`flex h-full flex-col ${inline ? "" : "border-l border-ink-700 bg-ink-900/[0.97] shadow-[-20px_0_60px_rgba(0,0,0,.5)] backdrop-blur"}`}>
+    <div className={`flex h-full flex-col ${inline ? "" : "border-l border-ink-700 bg-ink-900/[0.97] shadow-[-20px_0_60px_rgba(0,0,0,.5)]"}`}>
       {!inline && (
         <div className="flex items-center justify-between border-b border-ink-700 px-4 py-3">
           <p className="label !text-bone-100">Team channel</p>

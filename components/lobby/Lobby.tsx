@@ -34,7 +34,7 @@ export function Lobby() {
   if (!lobby) return null;
 
   return (
-    <main id="main" className="relative min-h-[100svh] overflow-hidden bg-ink-950">
+    <main id="main" className="relative min-h-[100svh] overflow-hidden">
       <Rain className="pointer-events-none absolute inset-0 h-full w-full opacity-40" density={0.5} />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[70%] w-[80%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_55%_at_50%_0%,rgba(240,174,85,0.14),transparent_70%)]" />
       <header className="relative flex items-center justify-between px-4 py-5 md:px-10">

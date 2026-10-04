@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "No such file" };
 
 export default function NotFound() {
   return (
-    <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ink-950 px-4">
+    <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4">
       <Rain className="absolute inset-0 h-full w-full opacity-50" density={0.5} />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[70%] w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(240,174,85,0.12),transparent_70%)]" />
       <div className="paper torn relative w-full max-w-lg px-8 py-10">

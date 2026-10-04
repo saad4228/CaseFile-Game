@@ -65,7 +65,7 @@ export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects:
   }, [stage, beat, meta.intro.length]);
 
   return (
-    <main id="main" className="relative min-h-[100svh] overflow-hidden bg-ink-950">
+    <main id="main" className="relative min-h-[100svh] overflow-hidden">
       <AnimatePresence mode="wait">
         {(stage === "file" || stage === "opening") && (
           <motion.section
@@ -115,9 +115,9 @@ export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects:
               <motion.div
                 key={beat}
                 className="relative text-center"
-                initial={{ opacity: 0, filter: "blur(6px)" }}
-                animate={{ opacity: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, filter: "blur(4px)" }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
                 transition={{ duration: 0.9 }}
                 aria-live="polite"
               >

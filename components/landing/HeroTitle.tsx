@@ -18,8 +18,8 @@ export function HeroTitle() {
           key={i}
           aria-hidden="true"
           className="inline-block"
-          initial={{ opacity: 0, y: reduce ? 0 : "0.12em", filter: reduce ? "none" : "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: reduce ? 0 : "0.12em" }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.4, delay: 0.25 + i * 0.09, ease: [0.22, 0.61, 0.36, 1] }}
         >
           {l}

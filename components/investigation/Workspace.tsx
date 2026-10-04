@@ -95,7 +95,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
   }
 
   return (
-    <div className="flex h-[100svh] flex-col overflow-hidden bg-ink-950">
+    <div className="flex h-[100svh] flex-col overflow-hidden">
       <header className="relative z-40 flex flex-wrap items-center gap-x-2 border-b border-ink-700 bg-ink-950 px-3 md:flex-nowrap md:gap-5 md:px-5">
         <Link href="/archive" className="hidden font-display text-lg tracking-[0.08em] xl:block" aria-label="CASEFILE archive">
           CASEFILE

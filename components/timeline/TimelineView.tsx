@@ -103,7 +103,7 @@ export function TimelineView({ onOpen, onToast }: { onOpen: (id: string) => void
               type="button"
               aria-pressed={scale === s}
               onClick={() => setScale(s)}
-              className={`border px-2 py-1 font-mono text-[10px] ${scale === s ? "border-amber-500 text-amber-300" : "border-ink-600 text-steel-300"}`}
+              className={`min-w-9 border px-2 py-2 font-mono text-[10px] md:py-1 ${scale === s ? "border-amber-500 text-amber-300" : "border-ink-600 text-steel-300"}`}
             >
               {s === 5 ? "3h" : s === 9 ? "90m" : "45m"}
             </button>
@@ -125,7 +125,7 @@ export function TimelineView({ onOpen, onToast }: { onOpen: (id: string) => void
                     ? onToast("That record is private to you. Share it with the team to put it on the timeline.")
                     : dispatch({ t: "timeline.place", id: e.id })
                 }
-                className="shrink-0 border border-ink-600 px-3 py-1.5 text-left font-mono text-[11px] text-bone-100/80 hover:border-amber-500 hover:text-bone-100"
+                className="shrink-0 border border-ink-600 px-3 py-2.5 text-left font-mono text-[11px] text-bone-100/80 hover:border-amber-500 hover:text-bone-100 md:py-1.5"
                 title={`Place ${e.title} on the timeline`}
               >
                 <span className="text-amber-300">{e.time}</span> {evidenceCode(e.number)} {e.title} <span aria-hidden="true">＋</span>

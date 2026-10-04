@@ -70,7 +70,7 @@ export function EvidenceViewer({
     <AnimatePresence>
       {e && (
         <motion.div
-          className="fixed inset-0 z-50 flex flex-col bg-ink-950/95 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex flex-col bg-ink-950/[0.97]"
           role="dialog"
           aria-modal="true"
           aria-labelledby="viewer-title"

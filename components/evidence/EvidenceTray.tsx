@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { EVIDENCE_DRAG_TYPE } from "@/components/board/constants";
 import { useGame } from "@/components/game/GameContext";
+import { useIsSmallScreen } from "@/lib/client/settings";
 import type { EvidenceCategory } from "@/lib/game-engine/types";
 import { EvidenceCard } from "./EvidenceCard";
 
@@ -19,24 +20,32 @@ const groups: { id: string; label: string; cats: EvidenceCategory[] }[] = [
 export function EvidenceTray({ onOpen, fresh }: { onOpen: (id: string) => void; fresh: string[] }) {
   const { evidence, personal, shared, holders, mode } = useGame();
   const [group, setGroup] = useState("all");
-  const [collapsed, setCollapsed] = useState(false);
+  // Phones start with the tray folded away so the view above gets the screen; one tap opens it.
+  const small = useIsSmallScreen();
+  const [userCollapsed, setCollapsed] = useState<boolean | null>(null);
+  const collapsed = userCollapsed ?? small;
   const g = groups.find((x) => x.id === group)!;
   const shown = evidence.filter((e) => g.cats.length === 0 || g.cats.includes(e.category));
   const unseen = evidence.filter((e) => !personal.seen.includes(e.id)).length;
   const privateCount = mode === "TEAM" ? evidence.filter((e) => holders[e.id] === "me").length : 0;
 
   return (
-    <section className="relative z-20 border-t border-ink-700 bg-ink-950" aria-label="Evidence tray">
+    <section className="desk-surface relative z-20 border-t border-[#2a2219]" aria-label="Evidence tray">
       <div className="flex items-center gap-3 px-3 py-2 md:px-5">
         <button
           type="button"
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={() => setCollapsed(!collapsed)}
           aria-expanded={!collapsed}
-          className="flex shrink-0 items-center gap-2 font-mono text-[11px] uppercase tracking-[0.22em] text-bone-100"
+          className="-my-1 flex shrink-0 items-center gap-2 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-bone-100 md:py-1"
         >
           <span className={`inline-block transition-transform ${collapsed ? "-rotate-90" : ""}`}>▾</span>
           Evidence · {evidence.length}
-          {unseen > 0 && <span className="hidden text-amber-300 sm:inline">· {unseen} unexamined</span>}
+          {unseen > 0 && (
+            <span className="text-amber-300">
+              · {unseen}
+              <span className="hidden sm:inline"> unexamined</span>
+            </span>
+          )}
           {privateCount > 0 && <span className="hidden text-steel-300 md:inline">· {privateCount} private</span>}
         </button>
         <div className="scrollbar-thin ml-auto flex gap-1 overflow-x-auto">
@@ -49,7 +58,7 @@ export function EvidenceTray({ onOpen, fresh }: { onOpen: (id: string) => void; 
                 setGroup(x.id);
                 setCollapsed(false);
               }}
-              className={`shrink-0 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.15em] ${
+              className={`shrink-0 px-2.5 py-2.5 font-mono text-[10px] uppercase tracking-[0.15em] md:py-1 ${
                 group === x.id ? "bg-ink-700 text-bone-100" : "text-steel-400 hover:text-bone-100"
               }`}
             >

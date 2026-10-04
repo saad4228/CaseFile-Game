@@ -45,7 +45,7 @@ export function UserMenu() {
   if (!me.database) return null;
   if (!me.user) {
     return (
-      <Link href="/login" className="label transition-colors hover:text-bone-100">
+      <Link href="/login" className="label whitespace-nowrap py-2 transition-colors hover:text-bone-100">
         Sign in
       </Link>
     );

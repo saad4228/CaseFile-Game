@@ -68,7 +68,7 @@ export function Desk({
     <AnimatePresence>
       {open && (
         <motion.aside
-          className="absolute inset-y-0 right-0 z-30 flex w-full max-w-[440px] flex-col border-l border-ink-700 bg-ink-900/[0.97] shadow-[-20px_0_60px_rgba(0,0,0,.5)] backdrop-blur"
+          className="absolute inset-y-0 right-0 z-30 flex w-full max-w-[440px] flex-col border-l border-ink-700 bg-ink-900/[0.97] shadow-[-20px_0_60px_rgba(0,0,0,.5)]"
           initial={{ x: "100%" }}
           animate={{ x: 0 }}
           exit={{ x: "100%" }}

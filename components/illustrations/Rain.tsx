@@ -28,69 +28,100 @@ export function Rain({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    // Rain is soft by nature: draw at 1× and let the browser scale it. That alone cuts the
+    // fill cost 4–9× on high-density screens.
+    const LAYERS = 4;
     let w = 0;
     let h = 0;
     let raf = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let visible = true;
+    let last = 0;
 
-    type Drop = { x: number; y: number; len: number; speed: number; depth: number };
+    type Drop = { x: number; y: number; len: number; speed: number; layer: number };
     let drops: Drop[] = [];
 
-    const resize = () => {
-      w = canvas.clientWidth;
-      h = canvas.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.floor(((w * h) / 9000) * density);
-      drops = Array.from({ length: count }, () => spawn(true));
-    };
-
     const spawn = (anywhere = false): Drop => {
-      const depth = Math.random();
+      const layer = Math.floor(Math.random() * LAYERS);
+      const depth = (layer + Math.random()) / LAYERS;
       return {
         x: Math.random() * (w + 200) - 100,
         y: anywhere ? Math.random() * h : -20 - Math.random() * 100,
         len: 10 + depth * 22,
         speed: 7 + depth * 13,
-        depth,
+        layer,
       };
     };
 
-    const tick = () => {
+    const resize = () => {
+      w = canvas.clientWidth;
+      h = canvas.clientHeight;
+      canvas.width = w;
+      canvas.height = h;
+      // Fewer drops on small screens; the eye reads density, not count.
+      const perPixel = w < 768 ? 14000 : 9000;
+      const count = Math.min(260, Math.floor(((w * h) / perPixel) * density));
+      drops = Array.from({ length: count }, () => spawn(true));
+    };
+
+    const colour = (layer: number, lit: boolean) => {
+      const d = (layer + 0.5) / LAYERS;
+      return lit ? `rgba(240, 174, 85, ${0.25 + d * 0.45})` : `rgba(170, 190, 205, ${0.06 + d * 0.16})`;
+    };
+    const styles = Array.from({ length: LAYERS }, (_, l) => [colour(l, false), colour(l, true)] as const);
+
+    const draw = (t: number) => {
+      raf = requestAnimationFrame(draw);
+      // Movement is scaled by elapsed time, so a slow device drops frames, not speed.
+      const step = last ? Math.min(3, (t - last) / 16.7) : 1;
+      last = t;
       ctx.clearRect(0, 0, w, h);
       ctx.lineCap = "round";
+      // One path per depth layer (and one for lamp-lit drops) instead of one per drop.
+      for (let layer = 0; layer < LAYERS; layer++) {
+        for (const lit of glowX === undefined ? [false] : [false, true]) {
+          ctx.beginPath();
+          for (const d of drops) {
+            if (d.layer !== layer) continue;
+            const isLit = glowX !== undefined && Math.abs(d.x / w - glowX) < 0.09 && d.y < h * 0.75;
+            if (isLit !== lit) continue;
+            const dx = d.len * angle;
+            ctx.moveTo(d.x, d.y);
+            ctx.lineTo(d.x - dx, d.y + d.len);
+          }
+          ctx.strokeStyle = styles[layer][lit ? 1 : 0];
+          ctx.lineWidth = 0.6 + ((layer + 0.5) / LAYERS) * 0.8;
+          ctx.stroke();
+        }
+      }
       for (const d of drops) {
-        const dx = d.len * angle;
-        const lit = glowX !== undefined && Math.abs(d.x / w - glowX) < 0.09 && d.y < h * 0.75;
-        ctx.strokeStyle = lit
-          ? `rgba(240, 174, 85, ${0.25 + d.depth * 0.45})`
-          : `rgba(170, 190, 205, ${0.06 + d.depth * 0.16})`;
-        ctx.lineWidth = 0.6 + d.depth * 0.8;
-        ctx.beginPath();
-        ctx.moveTo(d.x, d.y);
-        ctx.lineTo(d.x - dx, d.y + d.len);
-        ctx.stroke();
-        d.y += d.speed;
-        d.x -= d.speed * angle;
+        d.y += d.speed * step;
+        d.x -= d.speed * angle * step;
         if (d.y > h + 20) Object.assign(d, spawn());
       }
-      raf = requestAnimationFrame(tick);
+    };
+
+    const start = () => {
+      cancelAnimationFrame(raf);
+      last = 0;
+      if (visible && !document.hidden) raf = requestAnimationFrame(draw);
     };
 
     resize();
-    tick();
+    start();
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
-    const onVisibility = () => {
-      cancelAnimationFrame(raf);
-      if (!document.hidden) tick();
-    };
-    document.addEventListener("visibilitychange", onVisibility);
+    // Stop drawing when the canvas is scrolled away or the tab is in the background.
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      start();
+    });
+    io.observe(canvas);
+    document.addEventListener("visibilitychange", start);
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      document.removeEventListener("visibilitychange", onVisibility);
+      io.disconnect();
+      document.removeEventListener("visibilitychange", start);
     };
   }, [density, glowX, angle, calm]);
 

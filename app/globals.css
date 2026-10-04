@@ -31,16 +31,20 @@
 
 :root {
   color-scheme: dark;
-  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.04 .9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .27 0 0 0 0 .18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  /* Pre-rendered tiles (scripts/generate-textures.mjs) — far cheaper to paint than SVG filters. */
+  --noise: url("/textures/grain.png");
+  --ink: url("/textures/ink.png");
+  --fibre: url("/textures/paper.png");
+  --wall: url("/textures/wall.png");
 }
 
 html {
   background: var(--color-ink-950);
 }
 
+/* The page background is the fixed .atmosphere layer (components/ui/Atmosphere.tsx), so the
+   body itself stays transparent. */
 body {
-  background: var(--color-ink-950);
   color: var(--color-bone-100);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -57,26 +61,78 @@ body {
   outline-offset: 3px;
 }
 
-/* Film grain over everything, very faint. */
+/* Film grain over everything, very faint. A plain translucent layer (no blend mode, which
+   forced the whole page to be re-blended every frame), nudged on the compositor only. */
 .grain::after {
   content: "";
   position: fixed;
-  inset: -50%;
+  inset: -64px;
   pointer-events: none;
   z-index: 60;
   background-image: var(--noise);
-  opacity: 0.05;
-  mix-blend-mode: overlay;
-  animation: grain 1.2s steps(6) infinite;
+  background-size: 128px;
+  opacity: 0.07;
+  will-change: transform;
+  animation: grain 1s steps(5) infinite;
 }
 
 @keyframes grain {
-  0% { transform: translate(0, 0); }
-  20% { transform: translate(-3%, 2%); }
-  40% { transform: translate(2%, -3%); }
-  60% { transform: translate(-2%, -1%); }
-  80% { transform: translate(3%, 3%); }
-  100% { transform: translate(0, 0); }
+  0% { transform: translate3d(0, 0, 0); }
+  20% { transform: translate3d(-22px, 14px, 0); }
+  40% { transform: translate3d(16px, -26px, 0); }
+  60% { transform: translate3d(-14px, -8px, 0); }
+  80% { transform: translate3d(24px, 20px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Phones and tablets: keep the texture, skip the motion (battery, fill rate). */
+@media (max-width: 768px), (pointer: coarse) {
+  .grain::after {
+    animation: none;
+  }
+}
+
+/* ── Atmosphere: the room every page sits in ──────────────────────────────
+   A cold plaster wall, a desk lamp off to the right, light through venetian blinds and a
+   vignette. Static layers on a fixed element: painted once, never on scroll. */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: #0b0f14;
+  background-image:
+    radial-gradient(ellipse 60% 50% at 82% -6%, rgba(240, 174, 85, 0.11), rgba(240, 174, 85, 0.03) 45%, transparent 70%),
+    radial-gradient(ellipse 55% 45% at 6% 108%, rgba(92, 122, 152, 0.12), transparent 70%),
+    var(--wall),
+    radial-gradient(ellipse 120% 100% at 50% 28%, #151d27 0%, #0d1219 52%, #07090c 100%);
+  background-size: auto, auto, 256px, auto;
+}
+.atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: -25%;
+  background: repeating-linear-gradient(-32deg, rgba(240, 174, 85, 0.06) 0 20px, transparent 20px 50px);
+  -webkit-mask-image: radial-gradient(ellipse 42% 38% at 30% 38%, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 75%);
+  mask-image: radial-gradient(ellipse 42% 38% at 30% 38%, #000 0%, rgba(0, 0, 0, 0.5) 45%, transparent 75%);
+}
+.atmosphere::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 80% at 50% 45%, transparent 50%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* The detective's desk: dark varnished wood under the evidence tray. */
+.desk-surface {
+  background-color: #110e0b;
+  background-image:
+    linear-gradient(180deg, rgba(255, 214, 160, 0.06), transparent 30%),
+    var(--fibre),
+    linear-gradient(180deg, #1a1511 0%, #120f0c 60%, #0c0a08 100%);
+  background-size: auto, 256px 128px, auto;
+  box-shadow: 0 -18px 40px -20px rgba(0, 0, 0, 0.9);
 }
 
 /* ── Surfaces ──────────────────────────────────────────────────────────── */
@@ -84,6 +140,7 @@ body {
 .paper {
   background-color: var(--color-paper-100);
   background-image: var(--fibre), radial-gradient(120% 90% at 30% 20%, #ddd0b2 0%, #cbbb98 60%, #b8a67f 100%);
+  background-size: 256px, auto;
   color: #1d1a14;
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.25) inset,
@@ -94,6 +151,7 @@ body {
 .paper-aged {
   background-color: var(--color-paper-300);
   background-image: var(--fibre), radial-gradient(110% 80% at 70% 10%, #c7b48c 0%, #b29c71 70%, #9a855c 100%);
+  background-size: 256px, auto;
   color: #1d1a14;
   box-shadow:
     0 18px 30px -12px rgba(0, 0, 0, 0.75),
@@ -148,10 +206,10 @@ body {
   outline: 1px solid currentColor;
   outline-offset: 2px;
   transform: rotate(-6deg);
-  -webkit-mask-image: var(--noise);
-  mask-image: var(--noise);
-  -webkit-mask-size: 140px;
-  mask-size: 140px;
+  -webkit-mask-image: var(--ink);
+  mask-image: var(--ink);
+  -webkit-mask-size: 128px;
+  mask-size: 128px;
 }
 
 /* ── Controls ─────────────────────────────────────────────────────────── */
@@ -247,10 +305,16 @@ html[data-motion="reduce"] *::after {
 }
 
 /* ── Investigation board (React Flow) ─────────────────────────────────── */
+/* The board is a lit wall: a hanging lamp pools warm light at the top, the plaster cools
+   towards the edges. */
 .casefile-board {
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(217, 138, 58, 0.08), transparent 70%),
-    var(--color-ink-900);
+  background-color: #111820;
+  background-image:
+    radial-gradient(ellipse 40% 48% at 50% -6%, rgba(240, 174, 85, 0.2), rgba(240, 174, 85, 0.06) 45%, transparent 72%),
+    radial-gradient(ellipse 110% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.5) 100%),
+    var(--wall),
+    linear-gradient(180deg, #1b2530 0%, #141c25 55%, #0e141b 100%);
+  background-size: auto, auto, 256px, auto;
 }
 .casefile-board .react-flow__edge-path {
   stroke-linecap: round;
@@ -284,4 +348,19 @@ html[data-motion="reduce"] *::after {
 }
 .casefile-board .react-flow__attribution a {
   color: var(--color-steel-400);
+}
+
+/* Touch screens have no hover: show the thread handles on pinned items, with a fingertip-sized
+   hit area. */
+@media (pointer: coarse) {
+  .casefile-board .react-flow__handle {
+    opacity: 1 !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .casefile-board .react-flow__handle::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+  }
 }

@@ -9,7 +9,7 @@ export default function ErrorPage({ error, retry }: { error: Error & { digest?: 
   }, [error]);
 
   return (
-    <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ink-950 px-4">
+    <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-4">
       <div className="pointer-events-none absolute left-1/2 top-0 h-[70%] w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(156,41,41,0.16),transparent_70%)]" />
       <div className="paper torn relative w-full max-w-lg px-8 py-10">
         <p className="label-ink">Archive — Connection interrupted</p>

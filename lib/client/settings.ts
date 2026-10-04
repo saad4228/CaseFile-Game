@@ -78,3 +78,15 @@ function subscribeMotion(cb: () => void) {
 function systemReduced() {
   return window.matchMedia(MOTION_QUERY).matches;
 }
+
+const SMALL_QUERY = "(max-width: 767px)";
+function subscribeSmall(cb: () => void) {
+  const mq = window.matchMedia(SMALL_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+/** True on phone-sized screens. False during server render; corrects itself on hydration. */
+export function useIsSmallScreen(): boolean {
+  return useSyncExternalStore(subscribeSmall, () => window.matchMedia(SMALL_QUERY).matches, () => false);
+}

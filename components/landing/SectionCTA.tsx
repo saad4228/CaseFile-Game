@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fog } from "@/components/illustrations/Fog";
 import { NoirCity } from "@/components/illustrations/NoirCity";
 import { Rain } from "@/components/illustrations/Rain";
+import { creator } from "@/data/creator";
 
 export function SectionCTA() {
   return (
@@ -34,7 +35,10 @@ export function Footer() {
   return (
     <footer className="border-t border-ink-700">
       <div className="mx-auto flex max-w-[1600px] flex-col gap-4 px-4 py-10 md:flex-row md:items-center md:justify-between md:px-10">
-        <p className="font-display text-lg tracking-[0.08em]">CASEFILE</p>
+        <div>
+          <p className="font-display text-lg tracking-[0.08em]">CASEFILE</p>
+          <p className="label mt-1 normal-case tracking-[0.1em] text-bone-100/70">{creator.credit}</p>
+        </div>
         <p className="label max-w-xl normal-case tracking-[0.1em]">
           A multiplayer deduction game. All people, places and organizations in CASEFILE are fictional.
         </p>

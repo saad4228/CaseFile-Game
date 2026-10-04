@@ -1,6 +1,7 @@
 import { Hero } from "@/components/landing/Hero";
 import { SectionCase } from "@/components/landing/SectionCase";
 import { SectionConnect } from "@/components/landing/SectionConnect";
+import { SectionCreator } from "@/components/landing/SectionCreator";
 import { Footer, SectionCTA } from "@/components/landing/SectionCTA";
 import { SectionInvestigate } from "@/components/landing/SectionInvestigate";
 import { SectionProve } from "@/components/landing/SectionProve";
@@ -21,6 +22,7 @@ export default function Landing() {
         <SectionProve />
         <SectionSolve />
         <SectionCTA />
+        <SectionCreator />
       </main>
       <Footer />
     </>

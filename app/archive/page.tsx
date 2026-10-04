@@ -32,7 +32,7 @@ export default async function ArchivePage() {
       <main id="main" className="relative min-h-screen overflow-hidden pb-40">
         {/* a shaft of window light across the wall */}
         <div
-          className="pointer-events-none absolute -top-40 left-[10%] h-[140%] w-[45%] -rotate-[24deg] bg-gradient-to-b from-amber-300/[0.07] via-amber-300/[0.03] to-transparent blur-2xl"
+          className="pointer-events-none absolute -top-40 left-[10%] h-[140%] w-[45%] -rotate-[24deg] bg-gradient-to-b from-amber-300/[0.07] via-amber-300/[0.03] to-transparent"
           aria-hidden="true"
         />
         <div className="relative mx-auto max-w-[1400px] px-4 pt-16 md:px-10 md:pt-24">

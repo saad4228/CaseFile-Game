@@ -368,7 +368,7 @@ function BoardInner({
           fitViewOptions={{ padding: 0.3, maxZoom: 1 }}
           className="casefile-board"
         >
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#2c343d" />
+          <Background variant={BackgroundVariant.Dots} gap={44} size={1.4} color="rgba(0,0,0,0.35)" />
           <Controls showInteractive={false} className="casefile-controls" position="bottom-right" />
           {!readOnly && (
             <Panel position="top-left" className="!m-3 flex flex-wrap gap-2">
@@ -415,6 +415,7 @@ function BoardInner({
             </Panel>
           )}
         </ReactFlow>
+        <BoardLamp />
 
         {shared.board.nodes.length === 0 && (
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
@@ -480,5 +481,27 @@ export function Board(props: {
     <ReactFlowProvider>
       <BoardInner {...props} />
     </ReactFlowProvider>
+  );
+}
+
+/** A green-shaded banker's lamp hanging over the wall; the light pool is in `.casefile-board`. */
+function BoardLamp() {
+  return (
+    <svg
+      className="pointer-events-none absolute left-1/2 top-0 z-[5] hidden h-12 w-28 -translate-x-1/2 md:block"
+      viewBox="0 0 112 48"
+      aria-hidden="true"
+    >
+      <defs>
+        <radialGradient id="board-lamp-bulb" cx="50%" cy="0%" r="70%">
+          <stop offset="0%" stopColor="#ffd9a0" stopOpacity="0.95" />
+          <stop offset="100%" stopColor="#f0ae55" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <line x1="56" y1="0" x2="56" y2="16" stroke="#05070a" strokeWidth="2" />
+      <path d="M40 30 L72 30 L64 16 L48 16 Z" fill="#0a0d11" stroke="#1d252e" strokeWidth="1" />
+      <ellipse cx="56" cy="31" rx="17" ry="3" fill="#2b2014" />
+      <ellipse cx="56" cy="34" rx="22" ry="9" fill="url(#board-lamp-bulb)" />
+    </svg>
   );
 }

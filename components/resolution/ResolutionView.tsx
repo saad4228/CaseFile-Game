@@ -43,7 +43,7 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
   });
 
   return (
-    <div className="scrollbar-thin h-full overflow-y-auto bg-ink-950">
+    <div className="scrollbar-thin h-full overflow-y-auto">
       {/* Case closed */}
       <section className="relative flex min-h-[80vh] flex-col items-center justify-center overflow-hidden px-4 py-20 text-center">
         <div className="pointer-events-none absolute left-1/2 top-0 h-full w-[80%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_55%_at_50%_0%,rgba(240,174,85,0.16),transparent_70%)]" />
@@ -52,8 +52,8 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
         </motion.p>
         <motion.h1
           className="font-display mt-6 text-6xl leading-[0.9] md:text-9xl"
-          initial={{ opacity: 0, filter: "blur(10px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.4, delay: 0.4 }}
         >
           Case resolution
