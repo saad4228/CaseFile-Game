@@ -1,0 +1,226 @@
+// CASEFILE data model.
+// Case *content* (evidence, suspects, scripts, truth) is versioned code in data/cases/ and
+// never stored in the database; these tables hold players, sessions and results.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/db/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Accounts ────────────────────────────────────────────────────────────────
+
+model User {
+  id            String   @id @default(cuid())
+  email         String?  @unique
+  emailVerified Boolean  @default(false)
+  passwordHash  String?
+  codename      String
+  image         String?
+  isGuest       Boolean  @default(false)
+  role          String   @default("PLAYER") // PLAYER | ADMIN
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  authSessions AuthSession[]
+  accounts     Account[]
+  profile      DetectiveProfile?
+  players      CasePlayer[]
+  achievements Achievement[]
+  messages     Message[]
+}
+
+model AuthSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  userAgent String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  provider          String // google | github
+  providerAccountId String
+  userId            String
+  createdAt         DateTime @default(now())
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+/// Aggregated detective record, updated whenever a case result is filed.
+model DetectiveProfile {
+  userId            String   @id
+  casesSolved       Int      @default(0)
+  casesFailed       Int      @default(0)
+  bestScore         Int      @default(0)
+  totalScore        Int      @default(0)
+  deductionTotal    Int      @default(0)
+  evidenceTotal     Int      @default(0)
+  logicTotal        Int      @default(0)
+  contradictionTotal Int     @default(0)
+  totalSolveSeconds Int      @default(0)
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String
+  sessionId String?
+  earnedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+}
+
+// ─── Cases ───────────────────────────────────────────────────────────────────
+
+/// Publication state for a case whose content lives in data/cases/<id>.
+model CaseFile {
+  id          String   @id
+  published   Boolean  @default(true)
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}
+
+// ─── Game sessions ───────────────────────────────────────────────────────────
+
+model GameSession {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  caseId         String
+  mode           String // SOLO | TEAM
+  phase          String // LOBBY | ACTIVE | RESOLVED
+  hostId         String
+  /// Bumped on every change; clients sync against it.
+  version        Int       @default(0)
+  /// Shared investigation state: board, timeline, conflict marks, theories, verdict draft.
+  state          Json
+  timeBudgetMin  Int       @default(50)
+  createdAt      DateTime  @default(now())
+  startedAt      DateTime?
+  endedAt        DateTime?
+  lastActivityAt DateTime  @default(now())
+
+  players    CasePlayer[]
+  evidence   SessionEvidence[]
+  leads      LeadFollow[]
+  messages   Message[]
+  interviews Interview[]
+  result     CaseResult?
+
+  @@index([caseId])
+  @@index([lastActivityAt])
+}
+
+model CasePlayer {
+  id         String      @id @default(cuid())
+  sessionId  String
+  userId     String
+  /// Comma-separated roles: DETECTIVE, ANALYST, FORENSICS, CYBER, FIELD.
+  roles      String      @default("")
+  isHost     Boolean     @default(false)
+  ready      Boolean     @default(false)
+  /// Personal state: examined records, private observations.
+  personal   Json
+  joinedAt   DateTime    @default(now())
+  lastSeenAt DateTime    @default(now())
+  session    GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([userId])
+}
+
+/// A discovered record. holderId = null means shared with the whole team.
+model SessionEvidence {
+  id             String      @id @default(cuid())
+  sessionId      String
+  evidenceId     String
+  holderId       String?
+  discoveredById String?
+  via            String // BRIEF | ROLE | LEAD | INTERVIEW
+  createdAt      DateTime    @default(now())
+  sharedAt       DateTime?
+  session        GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, evidenceId])
+}
+
+model LeadFollow {
+  id        String      @id @default(cuid())
+  sessionId String
+  leadId    String
+  byId      String
+  createdAt DateTime    @default(now())
+  session   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, leadId])
+}
+
+/// One interview action. Transcripts are re-rendered from the case script, so only
+/// references are stored.
+model Interview {
+  id        Int         @id @default(autoincrement())
+  sessionId String
+  suspectId String
+  askedById String
+  kind      String // ASK | PRESENT
+  ref       String
+  createdAt DateTime    @default(now())
+  session   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+}
+
+model Message {
+  id        Int         @id @default(autoincrement())
+  sessionId String
+  userId    String?
+  kind      String      @default("TEXT") // TEXT | SYSTEM
+  body      String
+  refs      String[]
+  pinned    Boolean     @default(false)
+  reactions Json        @default("{}")
+  createdAt DateTime    @default(now())
+  session   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user      User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([sessionId, id])
+}
+
+model CaseResult {
+  id          String      @id @default(cuid())
+  sessionId   String      @unique
+  caseId      String
+  mode        String
+  verdict     Json
+  scores      Json
+  final       Int
+  rank        String
+  solved      Boolean
+  durationSec Int
+  createdAt   DateTime    @default(now())
+  session     GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([caseId])
+}
+
+// ─── Infrastructure ──────────────────────────────────────────────────────────
+
+model RateLimit {
+  key     String   @id
+  count   Int
+  resetAt DateTime
+}
