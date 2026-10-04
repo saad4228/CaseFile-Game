@@ -3,11 +3,13 @@ import Link from "next/link";
 import { connection } from "next/server";
 import { purgeStaleAction, setCasePublishedAction } from "@/app/actions/admin";
 import { TopNav } from "@/components/landing/TopNav";
-import { adminOverview, requireAdmin } from "@/lib/admin.server";
+import { adminOverview, adminTitle, requireAdmin } from "@/lib/admin.server";
 import { bundleIds, requireBundle } from "@/lib/game-engine/cases.server";
 import { validateCase } from "@/lib/game-engine/validate.server";
 
-export const metadata: Metadata = { title: "Admin", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: await adminTitle("Admin"), robots: { index: false } };
+}
 
 const when = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
 

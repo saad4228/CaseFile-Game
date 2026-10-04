@@ -14,6 +14,13 @@ export async function requireAdmin() {
   return user;
 }
 
+/** Page title for an admin route: the real one for admins, the 404's for everyone else. */
+export async function adminTitle(title: string) {
+  if (!hasDatabase()) return "No such file";
+  const user = await getCurrentUser();
+  return user?.isAdmin ? title : "No such file";
+}
+
 export async function adminOverview() {
   const weekAgo = new Date(Date.now() - 7 * 86400_000);
   const [registered, guests, active, lobby, resolvedWeek, results, solved, sessions, flags] = await Promise.all([

@@ -22,8 +22,9 @@ the Blackwood Hotel, four people with something to hide, and 34 records to find.
 - **Team rooms (1–4 players)** — invite link or room code, roles that each start with records
   nobody else holds, private leads, sharing, team chat with `#012` record references and
   `@mentions`, reactions and pins, a shared board and a shared verdict sheet.
-- **ORACLE** — a records assistant that only knows what you've found. It points at times, names
-  and records that disagree; it never says who did it.
+- **ORACLE** — a built-in records assistant that only knows what you've found. It follows people
+  through the night, checks travel times against windows, finds silences in the timeline, compares
+  records and points at what disagrees; it never says who did it. No API key needed.
 - **Accounts** — email + password, Google, GitHub, or play as a guest and register later
   without losing anything. A detective file with your record, history and commendations.
 - **Atmosphere** — rain, film grain, synthesised paper/typewriter/shutter/stamp sounds and an
@@ -57,7 +58,7 @@ npm run dev
 docker compose up --build   # Postgres + migrations + app on http://localhost:3000
 ```
 
-Put optional settings (`APP_URL`, `ADMIN_EMAILS`, `ANTHROPIC_API_KEY`, OAuth keys) in a `.env`
+Put optional settings (`APP_URL`, `ADMIN_EMAILS`, OAuth keys) in a `.env`
 file next to `docker-compose.yml` or export them in your shell.
 
 ## Configuration
@@ -71,19 +72,19 @@ Every variable is optional; see `.env.example`.
 | `DATABASE_POOL_MAX` | Connections per server instance (default 5). Keep it small on serverless. |
 | `APP_URL` | Public URL, no trailing slash. Used for OAuth callbacks, invite links, share cards and the sitemap. Recommended in production. |
 | `ADMIN_EMAILS` | Comma-separated emails that get the admin area at `/admin`. |
-| `ANTHROPIC_API_KEY` | Lets ORACLE answer in natural language (see below). Without it ORACLE uses deterministic record search. |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google sign-in. Callback: `<APP_URL>/api/auth/oauth/google/callback` |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | GitHub sign-in. Callback: `<APP_URL>/api/auth/oauth/github/callback` |
 | `SKIP_MIGRATIONS` | `1` stops `npm run build` from running `prisma migrate deploy`. |
 
-### ORACLE and Claude
+### ORACLE
 
-With `ANTHROPIC_API_KEY` set, ORACLE sends the asking player's **discovered** records (never the
-solution) to Claude (`claude-opus-5-5`) with low effort and prompt caching, and with Anthropic's
-server-side fallback turned on (`fallbacks: "default"`): if the primary model declines or can't
-serve a request, the API may answer with its default fallback model. If the call still fails —
-or Claude refuses — ORACLE quietly answers with its record search instead. Requests are rate
-limited per player.
+ORACLE is built in and needs no API key or outside service. It reads only the records the
+asking player has found, plus the public map and suspect files, and answers questions such as
+*where was someone at 23:30*, *could they get from the garage to the hotel in time*, *what's
+missing between 23:00 and midnight*, *compare #005 and #018*, *which records disagree* and
+*what's filed as unverified*. It forgives typos in names and places, cites record numbers you
+can open, suggests follow-up questions, and never names a culprit. Requests are rate limited
+per player.
 
 ## Deploying
 

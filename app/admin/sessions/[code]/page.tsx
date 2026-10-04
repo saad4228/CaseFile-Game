@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { TopNav } from "@/components/landing/TopNav";
-import { requireAdmin } from "@/lib/admin.server";
+import { adminTitle, requireAdmin } from "@/lib/admin.server";
 import { db } from "@/lib/db/prisma";
 import { getBundle } from "@/lib/game-engine/cases.server";
 import { normalizeShared } from "@/lib/game-engine/state";
 
-export const metadata: Metadata = { title: "Investigation", robots: { index: false } };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: await adminTitle("Investigation"), robots: { index: false } };
+}
 
 const when = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "UTC" });
 

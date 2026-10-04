@@ -16,7 +16,6 @@ export const env = {
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean),
-  anthropicApiKey: trim(process.env.ANTHROPIC_API_KEY),
   isProduction: process.env.NODE_ENV === "production",
 };
 

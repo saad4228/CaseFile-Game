@@ -60,7 +60,7 @@ export interface GameApi extends CasePublic {
   react: (messageId: number, emoji: string) => Promise<Result>;
   pin: (messageId: number) => Promise<Result>;
   submitVerdict: () => Promise<Result>;
-  askOracle: (question: string) => Promise<Result<{ text: string; refs: string[]; source: "search" | "claude" }>>;
+  askOracle: (question: string) => Promise<Result<{ text: string; refs: string[]; suggestions: string[] }>>;
   restart?: () => void;
   /** Team rooms only, before the investigation starts. */
   lobby?: {

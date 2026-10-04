@@ -22,7 +22,7 @@ export async function oracleSessionAction(sessionId: string, question: string): 
     if (!user) return { error: "Sign in first." };
     await rateLimit(`oracle:${user.id}`, 20, 60);
     const ctx = await oracleContext(String(sessionId), user);
-    return { ok: true, ...(await askOracle(ctx.bundle, ctx.evidence, ctx.conflicts, q)) };
+    return { ok: true, ...askOracle(ctx.bundle, ctx.evidence, ctx.conflicts, q) };
   } catch (e) {
     return actionError(e);
   }
@@ -37,7 +37,7 @@ export async function oracleLocalAction(caseId: string, claims: LocalClaims, que
     const bundle = requireBundle(String(caseId));
     const { have, actions } = sanitizeLocal(bundle, claims?.discovered, claims?.interviews);
     const play = buildPlayView(bundle, { visible: have, followed: [], actions });
-    return { ok: true, ...(await askOracle(bundle, play.evidence, play.conflicts, q)) };
+    return { ok: true, ...askOracle(bundle, play.evidence, play.conflicts, q) };
   } catch (e) {
     return actionError(e);
   }

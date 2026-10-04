@@ -7,9 +7,8 @@
    receives what the player has legitimately discovered.
 2. **Layers stay separate.** Case data ≠ game engine ≠ UI ≠ AI. Each can change without
    touching the others.
-3. **Deterministic core, AI on the edge.** The truth engine decides what happened. ORACLE
-   (optionally backed by Claude) only *presents* — and only over records the asking player
-   holds.
+3. **Deterministic throughout.** The truth engine decides what happened. ORACLE only
+   *presents* — and only over records the asking player holds. No model, no API key.
 4. **Runs anywhere.** One Node process and one Postgres database. No websocket service, no
    external auth provider, no object storage. Without a database it still runs, in a
    single-device demo mode.
@@ -30,7 +29,7 @@ PLAYER ACTIONS                        server actions + two JSON routes (ops, syn
 UI (app/, components/)                renders only discovered, public data
    │
    ▼
-ORACLE (lib/oracle)                   search or Claude over discovered records — never the truth
+ORACLE (lib/oracle)                   question engine over discovered records — never the truth
 ```
 
 ## 2. Stack
@@ -44,7 +43,6 @@ ORACLE (lib/oracle)                   search or Claude over discovered records �
 | Database | PostgreSQL via Prisma 7 (`prisma-client` generator + `@prisma/adapter-pg`) |
 | Auth | Own: scrypt passwords, hashed database session tokens, Google/GitHub OAuth via `arctic` |
 | Realtime | Versioned polling (`/api/sessions/:id/sync`) — no websocket service required |
-| AI | `@anthropic-ai/sdk`, optional (`ANTHROPIC_API_KEY`) |
 | Tests | Vitest (engine, scoring, auth, spoiler safety), Playwright (end-to-end) |
 
 ## 3. Folder layout

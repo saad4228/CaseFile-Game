@@ -19,7 +19,11 @@ test("device-only mode saves progress in the browser and ORACLE searches it", as
 
   await page.getByRole("button", { name: /^Desk/ }).click();
   await page.getByRole("button", { name: "Oracle" }).click();
-  await page.getByRole("button", { name: "What happened between 23:40 and 23:50?" }).click();
+  await page.getByLabel("Ask ORACLE").fill("What happened between 23:40 and 23:50?");
+  await page.getByRole("button", { name: "Ask", exact: true }).click();
   await expect(page.getByText(/records? you hold mention a time/)).toBeVisible();
+  // Follow-up questions appear under the answer and can be asked with one tap.
+  await page.getByRole("group", { name: "Ask next" }).getByRole("button").first().click();
+  await expect(page.locator("p.font-display.italic", { hasText: /^“.*”$/ })).toHaveCount(2);
   check();
 });

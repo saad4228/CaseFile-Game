@@ -39,6 +39,7 @@ test("unknown pages get the in-world 404", async ({ page }) => {
 test("the admin area does not announce itself", async ({ page }) => {
   const res = await page.goto("/admin");
   expect(res?.status()).toBe(404);
+  await expect(page).not.toHaveTitle(/admin/i);
 });
 
 test("health endpoint reports the database", async ({ request }) => {
