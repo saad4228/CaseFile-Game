@@ -337,3 +337,44 @@ bottom: an extreme close-up of an eye with a single **red** iris. Cold green-gre
   master keycard at the lock, shoes on Service Stair B, the phone sinking in the river.
 - The culprit reveal gets a diagonal slash panel: the room above, a close-up below.
 - Panels reveal as you scroll (cheap opacity/translate, no filters); reduced motion shows them all.
+
+### Batch 2
+
+Files: `f-aftermath-two-panel.jpg`, `g-tension-page-screentone.jpg`, `h-silhouettes-red-eyes.jpg`,
+`i-lantern-crosshatch.jpg`
+
+**F — aftermath, two panels.** Top: a face on the ground, eyes open, close and quiet; bottom: the
+wide street shot with an overturned burning car and the body small in the foreground. Big
+hand-lettered sound effect crossing both panels. Close → wide to explain what we just saw.
+
+**G — tension page.** Three tall slim panels in a row (a sweating eye, a gun under a coat in
+speed-line tone, a man glancing back on the street), then a wide dark panel with heavy grain
+(rain, a blurred face), then a big calm close-up of the man in a scarf. Line tones and halftone
+grain build pressure; the final calm face is the payoff.
+
+**H — silhouettes with eyes.** A group of pure black silhouettes against a pale grey gradient,
+only the eyes drawn — white with small red irises. Ink dripping/streaking down at the bottom.
+Everyone is watching; nobody is identified.
+
+**I — lantern, crosshatch.** Pen-and-ink only: a figure holding a lantern in darkness; the light
+is a circle of white made by radiating hatch lines; papers scattered on the floor. Light drawn
+with line, not gradient.
+
+**What works (adds to batch 1)**
+- Close → wide pairs to deliver a fact (F).
+- Triptych of slim panels for split-second tension (G).
+- The silhouette line-up with only eyes (H) — a perfect "suspects" image: all of them watching.
+- Light rendered as hatching around a single source (I) — the lamp motif in pure ink.
+
+**What doesn't fit**
+- Gore (F) and guns (G) — Case 047 is a quiet poisoning. Keep violence off-panel; show
+  consequences (an empty glass, a closed door, a light going out).
+
+**What CASEFILE will do (adds to batch 1)**
+- Resolution opens with the line-up (H): all five suspects as black silhouettes with only their
+  eyes, before the reveal; then four sets of eyes close and one stays open — the culprit.
+- Tension triptych (G) for 23:41–23:47: hand at the door / the glass / the keycard reader.
+- Close → wide pairs (F) for the discovery at 00:31 and the phone in the river.
+- Lamp light drawn as radiating ink hatching (I) in the comic panels, consistent with the
+  lamp motif elsewhere.
+- No blood, no weapons on screen.
