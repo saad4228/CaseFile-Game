@@ -211,3 +211,38 @@ thin white streaks *through* the light; reflections on the ground as broken ink 
 - Case intro: the balcony view (B) — the city at night with the Blackwood's sign lit.
 - Map: flat-shape city blocks (A) with lit windows; the rain layer stays above the map, light.
 - Keep the figure's cigarette smoke as just drifting breath/fog — no smoking.
+
+---
+
+## 6. The hotel at night
+
+Files: `06-hotel/a-corner-hotel-neon-aerial.jpg`, `06-hotel/b-narrow-building-fog-lamp.jpg`
+
+**A — corner hotel from above (painting).** High three-quarter view down onto a brick corner
+building. A red-pink neon HOTEL sign on the roof edge in front of an empty billboard frame; a blue
+vertical "BLUE OCEAN BAR" sign; a cream "POOL" blade sign; arched windows, only a few lit warm.
+Wet street below, one figure with an umbrella. Everything else is grey-brown and soft.
+
+**B — narrow tenement in fog (render).** A tall thin building alone on a corner, deep teal
+night, heavy fog. One sodium street lamp with a visible glow cone, a green pharmacy cross sign,
+a street name sign. Exactly one lit window high up (curtain drawn), a fire escape down the side,
+a faded shop sign over the ground floor, a soft light at the doorway.
+
+**What works**
+- The building is a character: alone, tall, mostly dark, with **one lit window** — the room
+  where something happened (B). Room 314 should be that window.
+- High angle looking down (A) — the detective's eye, perfect for a map/overview.
+- Neon as the single saturated colour (red HOTEL in A) against brick, fog and teal.
+- Fog and a sodium lamp cone (B) — depth without detail.
+- Small human scale: one umbrella figure makes the building feel huge.
+
+**What CASEFILE will do**
+- The Blackwood Hotel illustration (SVG): a narrow nine-storey corner building (B's proportions,
+  A's brick and arched windows), a red neon BLACKWOOD / HOTEL sign on the roof, a blade sign for
+  the Mercury Bar next door, fire escape on the side street.
+- Third floor, east wing: one lit window (Room 314). In the resolution and intro the light in that
+  window goes out.
+- Used in: case intro (establishing shot), map location card for the hotel, archive folder art,
+  and the hotel-related scene photos.
+- Fog layer at street level, one sodium lamp with a cone; live rain visible in the cone.
+- Map overview takes A's high angle: the hotel block seen from above among flat city blocks.
