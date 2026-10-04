@@ -85,6 +85,22 @@ light; the grey man — fedora and overcoat under a street lamp, face completely
 Noah Grant, "J"; Blackwood Hotel). This sheet is a style reference only: the card format,
 per-character scenes and lighting apply to the current characters.
 
+**Update — `02-characters/b-suspect-portraits-current-cast.png` (the target look).**
+Same five-panel format, re-cast to match Case 047's characters:
+- **Sarah Vale** — curly auburn hair, olive trench coat, satchel strap, spiral notebook; newsroom
+  wall behind her with a front page ("Truth still matters"). Warm desk light, side glance.
+- **Elena Cross** — blonde hair pinned up, pearl earrings, black blazer with a staff name badge;
+  hotel lobby with table lamps and a brass hotel sign. Warm amber, poised, red lips. Composed.
+- **Marcus Reed** — dark slicked hair, stubble, navy suit, tie, wristwatch, hand at his chin;
+  office window onto a night skyline and a company logo. Cold blue; calculating.
+- **Noah Grant** — curly hair under a grey hood, headphones round the neck, backpack strap;
+  rainy street, cyan neon. Wary sideways look.
+- **"J"** — fedora and overcoat under a street lamp, face fully in shadow.
+
+Signs in the backgrounds (Grandview Hotel, Nexus Media) become the Blackwood Hotel and Reed
+Media in our art. Marcus reads younger here than the case notes (50s) — portrait wins; his age in
+the case text can move to the 40s.
+
 ---
 
 ## 3. Interrogation room
