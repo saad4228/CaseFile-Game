@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createRoomAction, startSoloAction } from "@/app/actions/session";
+import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
 import { Rain } from "@/components/illustrations/Rain";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import { Stamp } from "@/components/ui/Stamp";
@@ -111,6 +112,7 @@ export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects:
             transition={{ duration: 1 }}
             onClick={() => (beat < meta.intro.length - 1 ? setBeat(beat + 1) : setStage("brief"))}
           >
+            <BlackwoodHotel bare className="pointer-events-none absolute bottom-0 right-[4%] hidden h-[88%] opacity-45 [mask-image:linear-gradient(to_top,transparent,#000_25%)] md:block" />
             <Rain className="absolute inset-0 h-full w-full opacity-60" density={0.6} />
             <div className="vignette absolute inset-0" />
             <AnimatePresence mode="wait">

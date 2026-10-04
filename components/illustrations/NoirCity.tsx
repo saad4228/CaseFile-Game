@@ -1,4 +1,5 @@
 import { mulberry32 } from "@/lib/random";
+import { BlackwoodFacade } from "./Blackwood";
 import { DetectivePath } from "./Detective";
 
 interface Building {
@@ -95,6 +96,8 @@ export function NoirCity({
   showDetective = true,
   lampX = 1385,
   align = "xMidYMax",
+  hotelX = 1010,
+  showHotel = true,
 }: {
   className?: string;
   seed?: number;
@@ -102,6 +105,9 @@ export function NoirCity({
   lampX?: number;
   /** SVG preserveAspectRatio alignment; the scene is always cropped to fill. */
   align?: "xMidYMax" | "xMaxYMax" | "xMinYMax";
+  /** Where the Blackwood Hotel stands in the near row. */
+  hotelX?: number;
+  showHotel?: boolean;
 }) {
   const ground = 780;
   const uid = `nc-${seed}-${align}`;
@@ -139,6 +145,10 @@ export function NoirCity({
           <stop offset="0" stopColor="#0d1116" />
           <stop offset="1" stopColor="#050607" />
         </linearGradient>
+        <linearGradient id={`${uid}-cone`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#f0ae55" stopOpacity="0.32" />
+          <stop offset="1" stopColor="#f0ae55" stopOpacity="0.03" />
+        </linearGradient>
         <linearGradient id={`${uid}-reflect`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#f0ae55" stopOpacity="0.5" />
           <stop offset="1" stopColor="#f0ae55" stopOpacity="0" />
@@ -167,13 +177,21 @@ export function NoirCity({
       ))}
       <Windows buildings={near} ground={ground} seed={seed + 12} warm={0.08} cold={0.02} size={9} />
 
+      {/* The Blackwood, in the near row */}
+      {showHotel && (
+        <g transform={`translate(${hotelX} ${ground - 520 * 0.92}) scale(0.92)`}>
+          <BlackwoodFacade uid={`${uid}-bw`} />
+        </g>
+      )}
+
       {/* Street */}
       <rect y={ground} width="1600" height={900 - ground} fill={ref("street")} />
       <rect x={lampX - 70} y={ground + 2} width="140" height="118" fill={ref("reflect")} opacity="0.55" />
       <rect x={lampX - 4} y={ground + 2} width="8" height="110" fill="#f0ae55" opacity="0.25" />
 
-      {/* Lamp */}
+      {/* Lamp: halo and a defined cone of light down to the street (reference 5C) */}
       <circle cx={lampX} cy={ground - 330} r="260" fill={ref("halo")} />
+      <path d={`M${lampX - 14} ${ground - 322} L${lampX - 210} ${ground + 40} L${lampX + 210} ${ground + 40} L${lampX + 14} ${ground - 322} Z`} fill={ref("cone")} />
       <g fill="#07090b">
         <rect x={lampX - 4} y={ground - 320} width="8" height="320" />
         <rect x={lampX - 12} y={ground - 10} width="24" height="10" />

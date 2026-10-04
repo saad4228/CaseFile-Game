@@ -10,7 +10,14 @@ export function Hero() {
       <NoirCity className="absolute inset-0 -z-20 hidden h-full w-full md:block" />
       <NoirCity className="absolute inset-0 -z-20 h-full w-full md:hidden" align="xMaxYMax" />
       <Fog className="absolute inset-0 -z-10" />
-      <Rain className="absolute inset-0 -z-10 h-full w-full" glowX={0.86} />
+      <Rain
+        className="absolute inset-0 -z-10 hidden h-full w-full md:block"
+        anchor={{ x: 1385, y: 450, ground: 780, vw: 1600, vh: 900, alignX: "mid" }}
+      />
+      <Rain
+        className="absolute inset-0 -z-10 h-full w-full md:hidden"
+        anchor={{ x: 1385, y: 450, ground: 780, vw: 1600, vh: 900, alignX: "max" }}
+      />
       <div className="vignette absolute inset-0 -z-10" />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-ink-950 via-ink-950/60 to-transparent" />
 

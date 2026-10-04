@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { evidenceCode } from "@/components/evidence/format";
+import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
 import type { Evidence, Location, Route } from "@/lib/game-engine/types";
 
 function shortestPath(routes: Route[], from: string, to: string) {
@@ -137,6 +138,11 @@ export function MapView({
       </div>
 
       <aside className="scrollbar-thin w-full shrink-0 overflow-auto border-t border-ink-700 bg-ink-900 p-6 lg:w-[360px] lg:border-l lg:border-t-0">
+        {selected === "blackwood_hotel" && (
+          <div className="photo-print mb-5 w-full max-w-[220px] -rotate-1">
+            <BlackwoodHotel className="block w-full" />
+          </div>
+        )}
         <p className="label">{sel.district}</p>
         <h3 className="font-display mt-1 text-3xl">{sel.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-bone-100/80">{sel.description}</p>
