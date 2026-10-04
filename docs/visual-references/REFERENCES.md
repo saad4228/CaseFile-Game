@@ -246,3 +246,47 @@ a faded shop sign over the ground floor, a soft light at the doorway.
   and the hotel-related scene photos.
 - Fog layer at street level, one sodium lamp with a cone; live rain visible in the cone.
 - Map overview takes A's high angle: the hotel block seen from above among flat city blocks.
+
+---
+
+## 7. Case folder / file design
+
+Files: `07-case-file/a-kraft-folder-tape-label.jpg`, `07-case-file/b-open-dossier-profile.jpg`
+
+**A — closed kraft folder on slate.** A plain brown kraft folder lying on dark grey slate under
+a soft overhead light; a film-reel shadow out of focus in the corner. Torn masking tape across
+the top carries the title in bold stencil-ish type ("CASE FILE CLOSED. THANK YOU!"). Grey paper
+index tabs stick out of the right edge, a fourth tab on the left. A red push pin top-right; a
+round brown rubber stamp (TOP SECRET / CONFIDENTIAL) bottom-left; a small QR code in the middle.
+
+**B — open ring-bound dossier.** Kraft folder open across a desk under warm light. Left page: a
+black-and-white photo held by a red paper clip; a zip evidence bag with an SD card and SIM; a
+USB stick; a small envelope with "ID cards" handwritten. Right page, in a two-ring binder: a
+printed profile form ("CENTRAL INTELLIGENCE PROFILE") with black header bars, typed fields (name,
+date of birth, codename, file no.), a portrait, a red TOP SECRET stamp at an angle, an APPEARANCE
+section and a FINGERPRINTS grid. Punched holes and tabbed dividers down the side.
+
+**What works**
+- Kraft brown + slate grey is a perfect match for our palette (paper vs. wall).
+- Masking tape as a label: casual, physical, handwritten-feeling titles.
+- Index tabs = navigation. A folder with tabs is a natural UI for sections (Brief, People,
+  Records, Map...).
+- Form layout (B): black header bars, typed label/value fields, photo top-right, stamp across the
+  form, fingerprint grid — instantly "official record".
+- Physical evidence: zip bags, SD card, envelope, paper clips, ring binder.
+
+**What doesn't fit**
+- "Thank you" and the QR code are marketing; skip them. B's spy-agency framing → our police
+  department (Vesper City PD).
+
+**What CASEFILE will do**
+- Archive folders: kraft folders on the slate wall, title on torn masking tape, red push pin,
+  round rubber stamp in a corner (SEALED / UNSOLVED / SOLVED), index tabs on the edge.
+- Case intro: the folder opens like B — ring binder on the right with the briefing typed on a
+  form, photos paper-clipped on the left.
+- Suspect files (People view): police profile forms in B's layout — header bar, typed fields,
+  photo top-right, angled red stamp, an "On record" section; the portrait card format from
+  reference 2 stays for the gallery.
+- Records: physical-evidence records (phone, keycard, drive) shown in zip evidence bags with a
+  typed evidence tag; documents with punch holes and a paper clip.
+- Workspace views as folder tabs on desktop (Board / Timeline / Map / People / Theories / Verdict).
