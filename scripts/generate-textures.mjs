@@ -125,3 +125,18 @@ function write(name, w, h, pixel) {
     return [0, 0, 0, worn ? 70 + speck[i] * 60 : 235 + speck[i] * 20];
   });
 }
+
+// Cork: granular, irregular specks — light and dark crumbs over a transparent base, laid over
+// a dark cork colour in CSS.
+{
+  const W = 256, H = 256;
+  const grain = normalize(blur(white(W, H), W, H, 1, 1));
+  const clump = normalize(blur(white(W, H), W, H, 5, 5));
+  const fine = white(W, H);
+  write("cork.png", W, H, (i) => {
+    const g = grain[i] * 0.6 + clump[i] * 0.25 + fine[i] * 0.15;
+    if (g > 0.62) return [214, 178, 128, (g - 0.62) * 2.6 * 90];
+    if (g < 0.4) return [12, 8, 4, (0.4 - g) * 2.5 * 130];
+    return [0, 0, 0, 0];
+  });
+}

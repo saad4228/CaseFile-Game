@@ -6,6 +6,7 @@ import { categoryLabel, evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import { Detective } from "@/components/illustrations/Detective";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { InterrogationRoom } from "./InterrogationRoom";
 import type { Suspect } from "@/lib/game-engine/types";
 import { play } from "@/lib/client/sound";
 
@@ -17,6 +18,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
   const [picker, setPicker] = useState(false);
   const [query, setQuery] = useState("");
   const [unlocked, setUnlocked] = useState<string[]>([]);
+  const [flare, setFlare] = useState(0);
   const endRef = useRef<HTMLDivElement>(null);
   const readOnly = phase === "RESOLVED";
   const byId = useMemo(() => new Map(evidence.map((e) => [e.id, e])), [evidence]);
@@ -43,6 +45,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
     if (!r.ok) setError(r.error);
     else if (r.unlocks.length) {
       setUnlocked(r.unlocks);
+      setFlare((f) => f + 1);
       play("reveal");
     }
   };
@@ -53,15 +56,14 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
   });
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#07090c]/70">
-      {/* one lamp over the table */}
-      <div className="pointer-events-none absolute left-1/2 top-0 h-full w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_55%_at_50%_0%,rgba(240,174,85,0.13),transparent_70%)]" />
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#07090c]">
+      <InterrogationRoom key={flare} recording={busy} flare={flare > 0} />
       <div className="relative grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[180px_1fr_220px]">
         <div className="relative hidden items-end justify-center lg:flex" aria-hidden="true">
           <Detective className="h-[340px] -scale-x-100 opacity-90" fill="#040506" rim="#f0ae55" />
         </div>
 
-        <div className="scrollbar-thin relative min-h-0 overflow-y-auto px-5 py-6 md:px-8" aria-live="polite">
+        <div className="scrollbar-thin relative min-h-0 overflow-y-auto bg-gradient-to-r from-transparent via-[#05080a]/55 to-transparent px-5 py-6 md:px-8" aria-live="polite">
           <p className="label">Interview — {suspect.name}</p>
           <div className="mt-4 space-y-6">
             {view.transcript.map((entry) => (

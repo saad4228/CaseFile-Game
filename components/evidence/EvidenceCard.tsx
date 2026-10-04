@@ -1,6 +1,7 @@
 "use client";
 
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
+import { RecordIcon } from "@/components/ui/RecordIcon";
 import type { Evidence } from "@/lib/game-engine/types";
 import { categoryLabel, evidenceCode } from "./format";
 
@@ -19,8 +20,12 @@ export function EvidenceCard({
   privateRecord?: boolean;
 }) {
   const isPhoto = e.body.kind === "photo";
+  const kind = e.body.kind;
+  // Each kind of record has its own paper: statements are police forms, handwriting is on a
+  // yellow legal pad, everything else a typed slip.
+  const surface = isPhoto ? "photo-print" : kind === "handwritten" ? "legal-pad" : "paper";
   return (
-    <div className={`relative ${isPhoto ? "photo-print" : "paper"} ${compact ? "w-40" : "w-48"} text-left`}>
+    <div className={`relative ${surface} ${compact ? "w-40" : "w-48"} text-left`}>
       {unseen && (
         <span className="absolute -right-1.5 -top-1.5 z-10 h-3 w-3 rounded-full bg-amber-500 ring-2 ring-ink-950" aria-label="Not yet examined" />
       )}
@@ -41,9 +46,17 @@ export function EvidenceCard({
         </>
       ) : (
         <div className={compact ? "px-3 py-2.5" : "px-3.5 py-3"}>
-          <p className="label-ink !text-[9px]">
-            {evidenceCode(e.number)} · {categoryLabel[e.category]}
-          </p>
+          {kind === "statement" && (
+            <p className="-mx-3 -mt-2.5 mb-2 bg-[#1d1a14] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.25em] text-[#e9e4d8]">
+              Statement
+            </p>
+          )}
+          <div className="flex items-start justify-between gap-2">
+            <p className="label-ink !text-[9px]">
+              {evidenceCode(e.number)} · {categoryLabel[e.category]}
+            </p>
+            <RecordIcon category={e.category} className="h-4 w-4 shrink-0 text-[#1d1a14]/55" />
+          </div>
           <p className={`mt-1.5 font-display leading-tight text-[#1d1a14] ${compact ? "text-[15px]" : "text-base"} line-clamp-2`}>
             {e.title}
           </p>

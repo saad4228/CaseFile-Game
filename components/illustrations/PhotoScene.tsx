@@ -27,6 +27,15 @@ export function PhotoScene({
       {scenes[scene]}
       {cctv && (
         <g fontFamily="var(--font-plex-mono), monospace" fontSize="11" fill="#e7e2d8" opacity="0.85">
+          {/* camera viewfinder corner brackets */}
+          <path
+            d="M6 34V26h10 M384 26h10v8 M394 266v8h-10 M16 274H6v-8"
+            fill="none"
+            stroke="#e7e2d8"
+            strokeWidth="1.5"
+            opacity="0.7"
+            transform="translate(0 0)"
+          />
           <text x="10" y="18">{cctv.cam}</text>
           <text x="390" y="18" textAnchor="end">
             NOV 14 {cctv.time}

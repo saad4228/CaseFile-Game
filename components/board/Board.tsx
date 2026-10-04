@@ -1,13 +1,10 @@
 "use client";
 
 import {
-  Background,
-  BackgroundVariant,
   BaseEdge,
   ConnectionMode,
   Controls,
   EdgeLabelRenderer,
-  getBezierPath,
   Handle,
   Panel,
   Position,
@@ -61,12 +58,7 @@ function Handles() {
 }
 
 function Pin() {
-  return (
-    <span
-      className="absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 rounded-full bg-crimson-600 shadow-[0_2px_3px_rgba(0,0,0,.6),inset_-2px_-2px_3px_rgba(0,0,0,.35)]"
-      aria-hidden="true"
-    />
-  );
+  return <span className="pin absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 rounded-full" aria-hidden="true" />;
 }
 
 const selectedCls = (selected: boolean) => (selected ? "outline outline-2 outline-offset-4 outline-amber-500" : "");
@@ -83,7 +75,12 @@ function EvidenceNode({ data, selected }: NodeProps<Node<NodeData>>) {
     );
   }
   return (
-    <div className={`group relative ${selectedCls(selected)}`} onDoubleClick={() => onOpen(e.id)} title="Double-click to inspect">
+    <div
+      className={`group relative ${selectedCls(selected)}`}
+      style={{ rotate: `${tilt(e.id)}deg` }}
+      onDoubleClick={() => onOpen(e.id)}
+      title="Double-click to inspect"
+    >
       <Pin />
       <EvidenceCard e={e} compact unseen={unseen.has(e.id)} />
       <Handles />
@@ -96,11 +93,12 @@ function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
   const s = data.ref ? suspects.get(data.ref) : undefined;
   if (!s) return null;
   return (
-    <div className={`group relative ${selectedCls(selected)}`}>
+    <div className={`group relative ${selectedCls(selected)}`} style={{ rotate: `${tilt(s.id)}deg` }}>
       <Pin />
       <div className="photo-print w-28">
         <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full" />
-        <p className="mt-1 text-center font-mono text-[9px] uppercase tracking-[0.12em] text-[#1d1a14]">{s.name}</p>
+        <p className="mt-1 text-center font-hand text-xl leading-none text-[#1d1a14]">{s.name}</p>
+        <p className="text-center font-mono text-[8px] uppercase tracking-[0.18em] text-[#1d1a14]/60">{s.code}</p>
       </div>
       <Handles />
     </div>
@@ -111,13 +109,14 @@ function NoteNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
   const { dispatch } = useGame();
   const { readOnly } = useBoard();
   return (
-    <div className={`group relative ${selectedCls(selected)}`}>
-      <div className="paper-aged w-48 rotate-[-1.5deg] px-3 py-2">
+    <div className={`group relative ${selectedCls(selected)}`} style={{ rotate: `${tilt(id) * 1.4}deg` }}>
+      <Pin />
+      <div className="sticky-note w-48 px-3 pb-2 pt-3">
         <textarea
           aria-label="Note"
           readOnly={readOnly}
           maxLength={600}
-          className="font-hand nodrag h-24 w-full resize-none bg-transparent text-2xl leading-6 text-[#1f2c55] outline-none placeholder:text-[#1f2c55]/40"
+          className="font-hand nodrag h-28 w-full resize-none bg-transparent text-2xl leading-6 text-[#1f2c55] outline-none placeholder:text-[#1f2c55]/45"
           placeholder="write it down…"
           value={data.text ?? ""}
           onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
@@ -133,13 +132,14 @@ function UnknownNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
   const { readOnly } = useBoard();
   return (
     <div className={`group relative ${selectedCls(selected)}`}>
-      <div className="w-44 border border-dashed border-steel-400/70 bg-ink-950/80 px-3 py-3 text-center">
-        <p className="font-mono text-lg tracking-[0.3em] text-steel-300">?????</p>
+      <Pin />
+      <div className="w-44 border-2 border-dashed border-[#1d1a14]/50 bg-[#e9e4d8] px-3 py-3 text-center shadow-[0_12px_18px_-10px_rgba(0,0,0,.7)]">
+        <p className="font-hand text-4xl leading-none text-crimson-600">?</p>
         <input
           aria-label="Unknown event"
           readOnly={readOnly}
           maxLength={160}
-          className="nodrag mt-1 w-full bg-transparent text-center font-mono text-[11px] uppercase tracking-[0.12em] text-bone-100 outline-none placeholder:text-steel-400"
+          className="nodrag mt-1 w-full bg-transparent text-center font-mono text-[11px] uppercase tracking-[0.12em] text-[#1d1a14] outline-none placeholder:text-[#1d1a14]/45"
           placeholder="what happened here?"
           value={data.text ?? ""}
           onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
@@ -152,39 +152,66 @@ function UnknownNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
 
 const nodeTypes = { evidence: EvidenceNode, suspect: SuspectNode, note: NoteNode, unknown: UnknownNode, location: NoteNode };
 
-function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected }: EdgeProps<Edge<{ kind: EdgeKind }>>) {
+/** A small stable tilt per item so the board looks hand-pinned (−2.5° … 2.5°). */
+function tilt(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+  return ((Math.abs(h) % 50) - 25) / 10;
+}
+
+/** Thread as a rope pinned at both ends: sags under its own weight, casts a shadow, shows a twist. */
+function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, data, selected }: EdgeProps<Edge<{ kind: EdgeKind }>>) {
   const { editEdge, readOnly, judged } = useBoard();
   const kind = data?.kind ?? "ASSOCIATED_WITH";
   const style = edgeKinds[kind];
-  const [path, lx, ly] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, curvature: 0.35 });
+  const dist = Math.hypot(targetX - sourceX, targetY - sourceY);
+  const sag = Math.min(90, dist * 0.14);
+  const cx = (sourceX + targetX) / 2;
+  const cy = (sourceY + targetY) / 2 + sag;
+  const path = `M ${sourceX} ${sourceY} Q ${cx} ${cy} ${targetX} ${targetY}`;
+  const shadow = `M ${sourceX + 2} ${sourceY + 5} Q ${cx + 3} ${cy + 9} ${targetX + 2} ${targetY + 5}`;
+  const lx = (sourceX + 2 * cx + targetX) / 4;
+  const ly = (sourceY + 2 * cy + targetY) / 4;
+  const width = selected ? style.width + 1.2 : style.width;
   const verdict = judged?.[id];
+  const plain = kind === "ASSOCIATED_WITH";
   return (
     <>
+      <path d={shadow} fill="none" stroke="rgba(0,0,0,0.38)" strokeWidth={width + 1.5} strokeDasharray={style.dash} strokeLinecap="round" />
       <BaseEdge
         id={id}
         path={path}
-        style={{ stroke: style.color, strokeWidth: selected ? style.width + 1.2 : style.width, strokeDasharray: style.dash }}
+        style={{ stroke: style.color, strokeWidth: width, strokeDasharray: style.dash, strokeLinecap: "round" }}
         markerEnd={style.arrow === "end" ? `url(#arrow-${kind})` : undefined}
         markerStart={style.arrow === "start" ? `url(#arrow-${kind})` : undefined}
       />
+      {!style.dash && (
+        <path d={path} fill="none" stroke="rgba(255,235,210,0.35)" strokeWidth={Math.max(0.8, width / 3)} strokeDasharray="2 4" pointerEvents="none" />
+      )}
       <EdgeLabelRenderer>
         <button
           type="button"
-          className="nodrag nopan absolute border bg-ink-950 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em]"
+          className={`nodrag nopan absolute font-mono text-[9px] uppercase tracking-[0.18em] ${
+            plain && !selected && !verdict ? "h-4 w-4 rounded-full" : "border bg-[#e9e4d8] px-2 py-0.5 text-[#1d1a14] shadow-[0_4px_8px_rgba(0,0,0,.45)]"
+          }`}
           style={{
             transform: `translate(-50%, -50%) translate(${lx}px, ${ly}px)`,
             pointerEvents: readOnly ? "none" : "all",
             borderColor: style.color,
-            color: style.color,
+            background: plain && !selected && !verdict ? style.color : undefined,
+            boxShadow: plain && !selected && !verdict ? "0 2px 3px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.25)" : undefined,
           }}
           onClick={() => editEdge(id)}
           aria-label={`${style.label} — change connection`}
+          title={style.label}
         >
-          {style.label}
-          {verdict && verdict !== "neutral" && (
-            <span className={`ml-1.5 ${verdict === "correct" ? "text-[#9fd49a]" : "text-crimson-400"}`}>
-              {verdict === "correct" ? "✓" : "✗"}
-            </span>
+          {!(plain && !selected && !verdict) && (
+            <>
+              <span style={{ color: kind === "CONTRADICTS" ? "#1d1a14" : style.color === "#e7e2d8" ? "#1d1a14" : undefined }}>{style.label}</span>
+              {verdict && verdict !== "neutral" && (
+                <span className={`ml-1.5 ${verdict === "correct" ? "text-[#3d7a38]" : "text-crimson-600"}`}>{verdict === "correct" ? "✓" : "✗"}</span>
+              )}
+            </>
           )}
         </button>
       </EdgeLabelRenderer>
@@ -368,7 +395,6 @@ function BoardInner({
           fitViewOptions={{ padding: 0.3, maxZoom: 1 }}
           className="casefile-board"
         >
-          <Background variant={BackgroundVariant.Dots} gap={44} size={1.4} color="rgba(0,0,0,0.35)" />
           <Controls showInteractive={false} className="casefile-controls" position="bottom-right" />
           {!readOnly && (
             <Panel position="top-left" className="!m-3 flex flex-wrap gap-2">
@@ -415,7 +441,22 @@ function BoardInner({
             </Panel>
           )}
         </ReactFlow>
+        <div className="board-cone" aria-hidden="true" />
+        <div className="board-frame" aria-hidden="true" />
         <BoardLamp />
+        <p
+          className="pointer-events-none absolute right-8 top-5 z-[5] hidden -rotate-3 font-hand text-5xl leading-none text-[#e9e4d8]/70 md:block"
+          aria-hidden="true"
+        >
+          Evidence
+        </p>
+        <div
+          className="sticky-note pointer-events-none absolute right-10 top-20 z-[5] hidden h-20 w-20 rotate-6 items-center justify-center lg:flex"
+          aria-hidden="true"
+        >
+          <span className="pin absolute -top-2 left-1/2 h-3.5 w-3.5 -translate-x-1/2 rounded-full" />
+          <span className="font-hand text-3xl text-[#1f2c55]">who?</span>
+        </div>
 
         {shared.board.nodes.length === 0 && (
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">

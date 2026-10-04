@@ -36,6 +36,7 @@
   --ink: url("/textures/ink.png");
   --fibre: url("/textures/paper.png");
   --wall: url("/textures/wall.png");
+  --cork: url("/textures/cork.png");
 }
 
 html {
@@ -161,6 +162,20 @@ body {
 /* Irregular, slightly torn edge. */
 .torn {
   clip-path: polygon(0% 1%, 6% 0%, 14% 1.2%, 23% 0.2%, 35% 1%, 47% 0%, 58% 0.9%, 70% 0.1%, 82% 1.1%, 93% 0.2%, 100% 0.8%, 99.4% 22%, 100% 47%, 99.3% 71%, 100% 99%, 88% 99.6%, 75% 98.9%, 61% 100%, 49% 99.1%, 36% 99.8%, 22% 98.8%, 11% 99.7%, 0% 99%, 0.6% 76%, 0% 52%, 0.5% 27%);
+}
+
+/* Yellow legal pad: ruled lines and a red margin. */
+.legal-pad {
+  background-color: #efe0a0;
+  background-image:
+    linear-gradient(90deg, transparent 22px, rgba(194, 74, 63, 0.55) 22px, rgba(194, 74, 63, 0.55) 23px, transparent 23px),
+    repeating-linear-gradient(180deg, transparent 0 17px, rgba(60, 90, 140, 0.28) 17px 18px),
+    var(--fibre);
+  background-size: auto, auto, 256px;
+  color: #1d1a14;
+  box-shadow:
+    0 18px 30px -12px rgba(0, 0, 0, 0.7),
+    0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .photo-print {
@@ -305,16 +320,68 @@ html[data-motion="reduce"] *::after {
 }
 
 /* ── Investigation board (React Flow) ─────────────────────────────────── */
-/* The board is a lit wall: a hanging lamp pools warm light at the top, the plaster cools
-   towards the edges. */
+/* The board: dark cork inside a wooden frame, lit from above by one hanging lamp
+   (references 1B and H). The frame and the light cone are overlays in Board.tsx. */
 .casefile-board {
-  background-color: #111820;
+  background-color: #2b2219;
   background-image:
-    radial-gradient(ellipse 40% 48% at 50% -6%, rgba(240, 174, 85, 0.2), rgba(240, 174, 85, 0.06) 45%, transparent 72%),
-    radial-gradient(ellipse 110% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.5) 100%),
-    var(--wall),
-    linear-gradient(180deg, #1b2530 0%, #141c25 55%, #0e141b 100%);
-  background-size: auto, auto, 256px, auto;
+    radial-gradient(ellipse 46% 60% at 50% -4%, rgba(255, 200, 130, 0.2), rgba(255, 200, 130, 0.06) 45%, transparent 72%),
+    radial-gradient(ellipse 110% 95% at 50% 38%, transparent 45%, rgba(0, 0, 0, 0.62) 100%),
+    var(--cork),
+    linear-gradient(180deg, #33281e 0%, #2a2118 55%, #1f1812 100%);
+  background-size: auto, auto, 192px, auto;
+}
+.board-frame {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  box-shadow:
+    inset 0 0 0 9px #1b120b,
+    inset 0 0 0 10px #3b2a1b,
+    inset 0 0 0 12px #0d0906,
+    inset 0 18px 30px -10px rgba(0, 0, 0, 0.75),
+    inset 0 -14px 24px -10px rgba(0, 0, 0, 0.6);
+}
+/* A defined cone of lamplight falling onto the board. */
+.board-cone {
+  pointer-events: none;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  z-index: 3;
+  width: min(1100px, 92%);
+  height: 100%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(255, 214, 150, 0.13) 0%, rgba(255, 214, 150, 0.05) 55%, transparent 90%);
+  clip-path: polygon(46.5% 0, 53.5% 0, 100% 100%, 0 100%);
+  -webkit-mask-image: radial-gradient(ellipse 50% 85% at 50% 0%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 50% 85% at 50% 0%, #000 30%, transparent 75%);
+}
+@media (max-width: 767px) {
+  .board-cone {
+    display: none;
+  }
+  .board-frame {
+    box-shadow:
+      inset 0 0 0 5px #1b120b,
+      inset 0 0 0 6px #3b2a1b,
+      inset 0 12px 20px -10px rgba(0, 0, 0, 0.75);
+  }
+}
+/* Sticky notes and pins on the board. */
+.sticky-note {
+  background: linear-gradient(170deg, #f3dd7a 0%, #e9cd5c 70%, #dcbd4b 100%);
+  color: #2a2410;
+  box-shadow:
+    0 14px 18px -10px rgba(0, 0, 0, 0.7),
+    0 2px 3px rgba(0, 0, 0, 0.35);
+}
+.pin {
+  background: radial-gradient(circle at 35% 30%, #ff8a7a 0%, #c22a26 32%, #7a1414 75%, #4a0a0a 100%);
+  box-shadow:
+    0 3px 3px rgba(0, 0, 0, 0.55),
+    1px 6px 6px -2px rgba(0, 0, 0, 0.45);
 }
 .casefile-board .react-flow__edge-path {
   stroke-linecap: round;
@@ -363,4 +430,164 @@ html[data-motion="reduce"] *::after {
     position: absolute;
     inset: -12px;
   }
+}
+.legal-pad > div {
+  padding-left: 30px;
+}
+
+/* ── Record surfaces (references 7, 10) ──────────────────────────────────── */
+
+/* Continuous tractor-feed printout: sprocket strips down both sides. */
+.printout {
+  background-color: #ece6d6;
+  background-image:
+    radial-gradient(circle at 12px 12px, #0b0f14 0 4px, transparent 4.5px),
+    radial-gradient(circle at calc(100% - 12px) 12px, #0b0f14 0 4px, transparent 4.5px),
+    linear-gradient(90deg, transparent 22px, rgba(29, 26, 20, 0.15) 22px 23px, transparent 23px calc(100% - 23px), rgba(29, 26, 20, 0.15) calc(100% - 23px) calc(100% - 22px), transparent calc(100% - 22px)),
+    var(--fibre);
+  background-size: 100% 24px, 100% 24px, auto, 256px;
+  background-repeat: repeat-y, repeat-y, no-repeat, repeat;
+  color: #1d1a14;
+  box-shadow:
+    0 18px 30px -12px rgba(0, 0, 0, 0.7),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Ticket stub: scalloped ends cut out of aged card. */
+.ticket {
+  background-color: #e3d6b4;
+  background-image: var(--fibre), radial-gradient(120% 90% at 30% 20%, #ece1c3 0%, #d9c9a1 100%);
+  background-size: 256px, auto;
+  -webkit-mask:
+    radial-gradient(circle at 0 50%, transparent 14px, #000 14.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 14px, #000 14.5px) right / 51% 100% no-repeat;
+  mask:
+    radial-gradient(circle at 0 50%, transparent 14px, #000 14.5px) left / 51% 100% no-repeat,
+    radial-gradient(circle at 100% 50%, transparent 14px, #000 14.5px) right / 51% 100% no-repeat;
+  filter: drop-shadow(0 16px 18px rgba(0, 0, 0, 0.55));
+}
+
+/* Old paper: darkened, uneven edges. */
+.aged-edges {
+  box-shadow:
+    inset 0 0 40px rgba(90, 60, 20, 0.35),
+    inset 0 0 6px rgba(60, 40, 10, 0.4),
+    0 18px 30px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* CCTV playback on an old monitor (references 10A, 10F). */
+.crt {
+  background: #0d0f12;
+  padding: 18px 18px 12px;
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 2px #23272d,
+    inset 0 2px 0 rgba(255, 255, 255, 0.05),
+    0 24px 40px -14px rgba(0, 0, 0, 0.85);
+}
+.crt-glass {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px / 18px;
+  filter: saturate(0.35) contrast(1.08);
+}
+.crt-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 75% 65% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(180deg, rgba(150, 190, 220, 0.08), rgba(150, 190, 220, 0.02));
+}
+.rec-dot {
+  animation: rec 1.4s steps(2) infinite;
+}
+@keyframes rec {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Phone for message records. */
+.phone {
+  border-radius: 34px;
+  padding: 14px;
+  background: linear-gradient(160deg, #2a2d33, #0d0e10 60%);
+  box-shadow:
+    inset 0 0 0 2px #3c4048,
+    0 24px 40px -14px rgba(0, 0, 0, 0.85);
+}
+.phone-screen {
+  position: relative;
+  min-height: 420px;
+  border-radius: 24px;
+  background: #07090c;
+  overflow: hidden;
+}
+.phone-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 55%, rgba(255, 255, 255, 0.07) 56%, transparent 75%);
+}
+
+/* ── Interrogation room (reference 3) ──────────────────────────────────── */
+.interrogation-wall {
+  background-color: #121a1b;
+  background-image:
+    /* tile joints on the lower wall */
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 56px),
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 28px),
+    /* pale band and darker glazed tiles */
+    linear-gradient(180deg, #1b2425 0%, #1b2425 40%, #28322f 40%, #28322f 42%, #142220 42%, #0f1918 100%),
+    var(--wall);
+  background-size: 100% 58%, 100% 58%, auto, 256px;
+  background-position: bottom, bottom, center, center;
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+}
+.interrogation-wall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 70% at 60% 30%, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+}
+.interrogation-mirror {
+  background:
+    linear-gradient(118deg, transparent 30%, rgba(200, 230, 225, 0.07) 31%, rgba(200, 230, 225, 0.02) 45%, transparent 46%),
+    linear-gradient(180deg, #0a0f10, #050708);
+  box-shadow:
+    inset 0 0 0 3px #2b3332,
+    inset 0 0 0 5px #0a0d0d,
+    0 10px 30px rgba(0, 0, 0, 0.6);
+}
+.interrogation-beam {
+  left: 50%;
+  width: min(760px, 120%);
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, rgba(210, 240, 232, 0.16), rgba(210, 240, 232, 0.05) 60%, transparent 92%);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  -webkit-mask-image: radial-gradient(ellipse 55% 90% at 50% 0%, #000 35%, transparent 80%);
+  mask-image: radial-gradient(ellipse 55% 90% at 50% 0%, #000 35%, transparent 80%);
+}
+@media (min-width: 1024px) {
+  .interrogation-beam {
+    left: auto;
+    right: -12%;
+    width: 60%;
+    transform: none;
+  }
+}
+.interrogation-flare {
+  animation: flare 0.9s steps(1) 1;
+}
+@keyframes flare {
+  0% { opacity: 1; }
+  10% { opacity: 0.2; }
+  20% { opacity: 1.6; }
+  35% { opacity: 0.4; }
+  50% { opacity: 1.8; }
+  100% { opacity: 1; }
 }
