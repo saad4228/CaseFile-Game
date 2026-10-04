@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createRoomAction, startSoloAction } from "@/app/actions/session";
@@ -10,6 +10,8 @@ import { Stamp } from "@/components/ui/Stamp";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Typewriter } from "@/components/ui/Typewriter";
 import type { CaseMeta, Suspect } from "@/lib/game-engine/types";
+import { useCalm } from "@/lib/client/settings";
+import { play } from "@/lib/client/sound";
 
 type Stage = "file" | "opening" | "intro" | "brief";
 
@@ -24,7 +26,7 @@ export interface StartOptions {
 export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect[]; start: StartOptions }) {
   const [stage, setStage] = useState<Stage>(start.error ? "brief" : "file");
   const [beat, setBeat] = useState(0);
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
 
   // file → opening → intro
   useEffect(() => {
@@ -63,7 +65,7 @@ export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects:
   }, [stage, beat, meta.intro.length]);
 
   return (
-    <main className="relative min-h-[100svh] overflow-hidden bg-ink-950">
+    <main id="main" className="relative min-h-[100svh] overflow-hidden bg-ink-950">
       <AnimatePresence mode="wait">
         {(stage === "file" || stage === "opening") && (
           <motion.section
@@ -77,7 +79,15 @@ export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects:
             <AnimatePresence>
               {stage === "file" && (
                 <motion.div className="mt-14 flex flex-col items-center gap-4" exit={{ opacity: 0 }}>
-                  <button type="button" className="btn btn-primary" onClick={() => setStage("opening")} autoFocus>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => {
+                      play("paper");
+                      setStage("opening");
+                    }}
+                    autoFocus
+                  >
                     Open file
                   </button>
                   <Link href="/archive" className="label hover:text-bone-100">
@@ -173,7 +183,7 @@ function IntroLine({ line, index, emphasis }: { line: string; index: number; emp
 }
 
 function ClosedFile({ meta, opening }: { meta: CaseMeta; opening: boolean }) {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   const docs = [
     { x: -260, y: -40, r: -14, label: "Incident report" },
     { x: 240, y: -70, r: 11, label: "Call log" },

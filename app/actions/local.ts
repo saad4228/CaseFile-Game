@@ -54,7 +54,12 @@ export async function localFollowLead(caseId: string, leadId: string, claims: Lo
     const { have, followed } = sanitizeLocal(bundle, claims?.discovered, claims?.interviews);
     const found = followLead(bundle, String(leadId), have, followed, have);
     const next = snapshot(caseId, { discovered: [...have, ...found], interviews: claims?.interviews ?? [] });
-    return { ok: true as const, found, ...next, followed: [...new Set([...next.followed, String(leadId)])] };
+    return {
+      ok: true as const,
+      found: found.map((id) => ({ id, title: bundle.evidenceById.get(id)?.title ?? id })),
+      ...next,
+      followed: [...new Set([...next.followed, String(leadId)])],
+    };
   } catch (e) {
     return actionError(e);
   }

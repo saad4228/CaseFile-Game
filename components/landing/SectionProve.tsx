@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { SectionMark } from "@/components/ui/SectionMark";
+import { useCalm } from "@/lib/client/settings";
 
 const assumptions = [
   { text: "She could open the door to Room 314", tags: [] as string[] },
@@ -15,7 +16,7 @@ const assumptions = [
 export function SectionProve() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: "-25% 0px" });
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
 
   return (
     <section className="relative py-28 md:py-40" aria-labelledby="prove-heading">

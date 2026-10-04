@@ -126,7 +126,10 @@ export async function startTeamAction(sessionId: string): Promise<ActionResult> 
   }
 }
 
-export async function followLeadAction(sessionId: string, leadId: string): Promise<ActionResult<{ found: string[] }>> {
+export async function followLeadAction(
+  sessionId: string,
+  leadId: string,
+): Promise<ActionResult<{ found: { id: string; title: string }[] }>> {
   try {
     const { found } = await followLeadInSession(str(sessionId), await requireUser(), str(leadId, 12));
     return { ok: true, found };

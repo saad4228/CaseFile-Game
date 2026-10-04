@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "Investigation", robots: { index: fal
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ink-950 px-4">
+    <main id="main" className="relative flex min-h-[100svh] items-center justify-center overflow-hidden bg-ink-950 px-4">
       <Rain className="absolute inset-0 h-full w-full opacity-50" density={0.5} />
       <div className="relative w-full max-w-lg">{children}</div>
     </main>

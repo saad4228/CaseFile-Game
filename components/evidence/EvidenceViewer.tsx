@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "@/components/game/GameContext";
 import { EvidenceBody } from "./EvidenceBody";
 import { categoryLabel, evidenceCode, reliabilityStyle } from "./format";
+import { play } from "@/lib/client/sound";
 
 export function EvidenceViewer({
   openId,
@@ -43,6 +44,7 @@ export function EvidenceViewer({
 
   useEffect(() => {
     if (!e) return;
+    play(e.category === "PHOTO" || e.category === "CCTV" ? "shutter" : "paper");
     if (!personal.seen.includes(e.id)) dispatchPersonal({ t: "seen", id: e.id });
     closeRef.current?.focus();
     // eslint-disable-next-line react-hooks/exhaustive-deps

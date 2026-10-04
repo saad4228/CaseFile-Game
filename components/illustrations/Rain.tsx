@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useCalm } from "@/lib/client/settings";
 
 /**
  * Canvas rain. Thin diagonal streaks with depth; a few catch the lamp light when they fall
@@ -19,11 +20,11 @@ export function Rain({
   angle?: number;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const calm = useCalm();
 
   useEffect(() => {
     const canvas = ref.current;
-    if (!canvas) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!canvas || calm) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -91,7 +92,7 @@ export function Rain({
       ro.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
     };
-  }, [density, glowX, angle]);
+  }, [density, glowX, angle, calm]);
 
   return <canvas ref={ref} className={className} aria-hidden="true" />;
 }

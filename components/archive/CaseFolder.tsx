@@ -1,12 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
 import { RingSymbol } from "@/components/ui/RingSymbol";
 import { Stamp } from "@/components/ui/Stamp";
 import type { CaseProgress } from "@/lib/archive-types";
 import type { CaseMeta } from "@/lib/game-engine/types";
+import { useCalm } from "@/lib/client/settings";
 
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
 
@@ -22,7 +23,7 @@ export function CaseFolder({
   teaser?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   const tilt = [-1.5, 1.2, -0.6, 1.8, -1.1][index % 5];
   const sealed = !c.playable;
   const status = progress?.state === "SOLVED" ? "SOLVED" : progress?.state === "CLOSED" ? "CLOSED" : progress?.state === "OPEN" ? "IN PROGRESS" : c.status;

@@ -12,7 +12,7 @@ export default function Landing() {
   return (
     <>
       <TopNav />
-      <main>
+      <main id="main">
         <Hero />
         <SectionCase />
         <SectionInvestigate />

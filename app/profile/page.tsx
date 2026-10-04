@@ -64,7 +64,7 @@ export default async function ProfilePage(props: PageProps<"/profile">) {
   return (
     <>
       <TopNav tone="solid" />
-      <main className="relative min-h-[calc(100svh-77px)] overflow-hidden px-4 py-14 md:px-10">
+      <main id="main" className="relative min-h-[calc(100svh-77px)] overflow-hidden px-4 py-14 md:px-10">
         <Rain className="absolute inset-0 h-full w-full opacity-30" density={0.35} />
         <div className="relative mx-auto max-w-6xl">
           {error && (
@@ -84,8 +84,8 @@ export default async function ProfilePage(props: PageProps<"/profile">) {
                 {rank}
                 {user.isGuest ? " · Guest" : ""}
               </p>
-              <div className="absolute right-6 top-6">
-                <Stamp tone={user.isGuest ? "crimson" : "ink"} rotate={8} size="sm">
+              <div className="absolute bottom-7 right-6">
+                <Stamp tone={user.isGuest ? "crimson" : "ink"} rotate={-8} size="sm">
                   {user.isGuest ? "Temporary" : "On file"}
                 </Stamp>
               </div>

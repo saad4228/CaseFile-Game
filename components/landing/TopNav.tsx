@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserMenu } from "@/components/auth/UserMenu";
+import { SettingsMenu } from "@/components/settings/SettingsMenu";
 
 export function TopNav({ tone = "overlay" }: { tone?: "overlay" | "solid" }) {
   return (
@@ -23,6 +24,7 @@ export function TopNav({ tone = "overlay" }: { tone?: "overlay" | "solid" }) {
           <Link href="/rooms/new" className="label hidden transition-colors hover:text-bone-100 md:inline">
             Team play
           </Link>
+          <SettingsMenu />
           <UserMenu />
           <Link href="/cases/047" className="btn btn-ghost btn-sm">
             Play demo case

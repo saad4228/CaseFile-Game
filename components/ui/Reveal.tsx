@@ -1,7 +1,8 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { useCalm } from "@/lib/client/settings";
 
 /** Fade up out of the dark when scrolled into view. */
 export function Reveal({
@@ -17,7 +18,7 @@ export function Reveal({
   className?: string;
   as?: "div" | "section" | "li" | "span";
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   const Comp = motion[as];
   return (
     <Comp

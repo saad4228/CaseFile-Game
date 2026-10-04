@@ -26,7 +26,7 @@ export default async function LoginPage(props: PageProps<"/login">) {
   return (
     <>
       <TopNav tone="solid" />
-      <main className="relative flex min-h-[calc(100svh-77px)] items-center justify-center overflow-hidden px-4 py-16">
+      <main id="main" className="relative flex min-h-[calc(100svh-77px)] items-center justify-center overflow-hidden px-4 py-16">
         <Rain className="absolute inset-0 h-full w-full opacity-50" density={0.5} />
         <div className="pointer-events-none absolute left-1/2 top-0 h-[70%] w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(240,174,85,0.14),transparent_70%)]" />
         <div className="relative grid w-full max-w-5xl items-center gap-14 lg:grid-cols-2">

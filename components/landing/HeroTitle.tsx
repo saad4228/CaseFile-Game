@@ -1,12 +1,13 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useCalm } from "@/lib/client/settings";
 
 const letters = "CASEFILE".split("");
 
 /** The wordmark, letters surfacing out of the dark one by one. */
 export function HeroTitle() {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   return (
     <h1
       className="font-display -ml-[0.05em] text-[19vw] leading-[0.8] tracking-[-0.02em] text-bone-100 md:text-[15.5vw] 2xl:text-[15rem]"

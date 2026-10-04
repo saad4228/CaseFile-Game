@@ -52,7 +52,8 @@ export interface GameApi extends CasePublic {
 
   dispatch: (op: SharedOp) => void;
   dispatchPersonal: (op: PersonalOp) => void;
-  followLead: (leadId: string) => Promise<Result<{ found: string[] }>>;
+  /** Follow a lead; returns the records it turned up (now on file for the player). */
+  followLead: (leadId: string) => Promise<Result<{ found: { id: string; title: string }[] }>>;
   interview: (suspectId: string, kind: "ASK" | "PRESENT", ref: string) => Promise<Result<{ unlocks: string[] }>>;
   share: (ids: string[]) => Promise<Result>;
   sendMessage: (body: string) => Promise<Result>;

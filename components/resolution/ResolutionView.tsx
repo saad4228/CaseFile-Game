@@ -1,14 +1,17 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
+import { useEffect } from "react";
 import { useGame } from "@/components/game/GameContext";
 import { RingSymbol } from "@/components/ui/RingSymbol";
+import { play } from "@/lib/client/sound";
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
 import { Stamp } from "@/components/ui/Stamp";
 import { ACHIEVEMENTS } from "@/lib/achievements";
 import { PROOF_SLOTS, VERDICT_FIELDS } from "@/lib/game-engine/types";
 import { WEIGHTS } from "@/lib/scoring/types";
+import { useCalm } from "@/lib/client/settings";
 
 const QUESTION = { who: "Who", how: "How", when: "When", where: "Where", why: "Why" } as const;
 const DIMENSIONS: { key: keyof typeof WEIGHTS; label: string }[] = [
@@ -25,7 +28,11 @@ const fmt = (s: number) => `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, 
 
 export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void; onPlayAgain?: () => void }) {
   const { result, mode, suspects } = useGame();
-  const reduce = useReducedMotion();
+  useEffect(() => {
+    const t = setTimeout(() => play("stamp"), 1650);
+    return () => clearTimeout(t);
+  }, []);
+  const reduce = useCalm();
   if (!result) return null;
   const { score, truth } = result;
   const fade = (delay = 0) => ({

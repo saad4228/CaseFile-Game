@@ -1,6 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useCalm } from "@/lib/client/settings";
 
 const tones = {
   crimson: "text-crimson-600",
@@ -25,7 +26,7 @@ export function Stamp({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   const sizes = { sm: "text-[10px]", md: "text-xs", lg: "text-xl md:text-2xl" };
   const cls = `stamp ${tones[tone]} ${sizes[size]} ${className}`;
   if (!animate) {

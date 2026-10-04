@@ -7,6 +7,7 @@ import { useGame } from "@/components/game/GameContext";
 import { Detective } from "@/components/illustrations/Detective";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import type { Suspect } from "@/lib/game-engine/types";
+import { play } from "@/lib/client/sound";
 
 export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (id: string) => void }) {
   const { interviews, evidence, interview, phase } = useGame();
@@ -40,7 +41,10 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
     const r = await interview(suspect.id, kind, ref);
     setBusy(false);
     if (!r.ok) setError(r.error);
-    else if (r.unlocks.length) setUnlocked(r.unlocks);
+    else if (r.unlocks.length) {
+      setUnlocked(r.unlocks);
+      play("reveal");
+    }
   };
 
   const filtered = evidence.filter((e) => {

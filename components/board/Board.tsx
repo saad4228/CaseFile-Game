@@ -30,6 +30,7 @@ import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import type { EdgeKind, Evidence, Suspect } from "@/lib/game-engine/types";
 import { EVIDENCE_DRAG_TYPE } from "./constants";
 import { edgeKindOrder, edgeKinds } from "./edgeKinds";
+import { play } from "@/lib/client/sound";
 
 interface BoardCtx {
   evidence: Map<string, Evidence>;
@@ -307,6 +308,7 @@ function BoardInner({
       if (readOnly || !c.source || !c.target || c.source === c.target) return;
       const id = newId();
       dispatch({ t: "edge.add", edge: { id, source: c.source, target: c.target, kind: "ASSOCIATED_WITH" } });
+      play("thread");
       setEditing(id);
     },
     [dispatch, newId, readOnly],

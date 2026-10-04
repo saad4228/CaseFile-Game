@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Bodoni_Moda, IBM_Plex_Mono, IBM_Plex_Sans, Reenie_Beanie } from "next/font/google";
+import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import "./globals.css";
 
 const bodoni = Bodoni_Moda({
@@ -30,13 +31,24 @@ const reenie = Reenie_Beanie({
   display: "swap",
 });
 
+const description =
+  "A cinematic multiplayer deduction game. Inspect evidence, reconstruct timelines, challenge testimony and build a proof together.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL?.replace(/\/$/, "") || "http://localhost:3000"),
   title: {
     default: "CASEFILE — Every clue tells a story",
     template: "%s · CASEFILE",
   },
-  description:
-    "A cinematic multiplayer deduction game. Inspect evidence, reconstruct timelines, challenge testimony and build a proof together.",
+  description,
+  applicationName: "CASEFILE",
+  openGraph: {
+    type: "website",
+    siteName: "CASEFILE",
+    title: "CASEFILE — Every clue tells a story",
+    description,
+  },
+  twitter: { card: "summary_large_image", title: "CASEFILE — Every clue tells a story", description },
 };
 
 export const viewport: Viewport = {
@@ -49,7 +61,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${bodoni.variable} ${plexSans.variable} ${plexMono.variable} ${reenie.variable} h-full antialiased`}
     >
-      <body className="grain min-h-full bg-ink-950 text-bone-100">{children}</body>
+      <body className="grain min-h-full bg-ink-950 text-bone-100">
+        <a
+          href="#main"
+          className="sr-only z-[100] bg-amber-500 px-4 py-3 font-mono text-xs uppercase tracking-[0.2em] text-ink-950 focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+        >
+          Skip to content
+        </a>
+        <SettingsProvider>{children}</SettingsProvider>
+      </body>
     </html>
   );
 }

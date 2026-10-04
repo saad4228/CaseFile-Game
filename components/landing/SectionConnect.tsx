@@ -1,10 +1,11 @@
 "use client";
 
-import { motion, useInView, useReducedMotion } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import { SectionMark } from "@/components/ui/SectionMark";
+import { useCalm } from "@/lib/client/settings";
 
 // Positions in a 1000×560 board, as percentages for the HTML cards.
 const nodes = {
@@ -32,7 +33,7 @@ function sag(a: { x: number; y: number }, b: { x: number; y: number }) {
 export function SectionConnect() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.3 });
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
 
   return (
     <section className="relative py-28 md:py-40" aria-labelledby="connect-heading">
@@ -149,7 +150,7 @@ function BoardCard({
   show: boolean;
   children: React.ReactNode;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   return (
     <motion.div
       className="absolute -translate-x-1/2 -translate-y-1/2"

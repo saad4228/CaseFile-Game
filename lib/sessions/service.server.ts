@@ -459,7 +459,7 @@ export async function followLeadInSession(sessionId: string, user: CurrentUser, 
       );
     }
     await bump(tx, sessionId);
-    return { found };
+    return { found: found.map((id) => ({ id, title: bundle.evidenceById.get(id)?.title ?? id })) };
   });
 }
 

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import { OraclePanel } from "@/components/oracle/OraclePanel";
+import { play } from "@/lib/client/sound";
 import type { ConflictMark } from "@/lib/game-engine/types";
 
 const marks: { id: ConflictMark; label: string }[] = [
@@ -48,11 +49,11 @@ export function Desk({
       setError(r.error);
       return;
     }
-    const titles = r.found.map((f) => byId.get(f)?.title ?? f);
+    play(r.found.length ? "paper" : "tick");
     onFound(
-      r.found,
+      r.found.map((f) => f.id),
       r.found.length
-        ? `New record${r.found.length > 1 ? "s" : ""}${mode === "TEAM" ? " (private to you)" : ""} · ${titles.join(" · ")}`
+        ? `New record${r.found.length > 1 ? "s" : ""}${mode === "TEAM" ? " (private to you)" : ""} · ${r.found.map((f) => f.title).join(" · ")}`
         : "Nothing new turned up.",
     );
   };

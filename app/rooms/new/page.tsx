@@ -27,7 +27,7 @@ export default async function NewRoomPage(props: PageProps<"/rooms/new">) {
   return (
     <>
       <TopNav tone="solid" />
-      <main className="relative min-h-[calc(100svh-77px)] overflow-hidden px-4 py-16 md:px-10">
+      <main id="main" className="relative min-h-[calc(100svh-77px)] overflow-hidden px-4 py-16 md:px-10">
         <Rain className="absolute inset-0 h-full w-full opacity-40" density={0.45} />
         <div className="pointer-events-none absolute left-1/2 top-0 h-[70%] w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(240,174,85,0.12),transparent_70%)]" />
         <div className="relative mx-auto max-w-6xl">

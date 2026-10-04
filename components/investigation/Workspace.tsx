@@ -10,10 +10,12 @@ import { EvidenceViewer } from "@/components/evidence/EvidenceViewer";
 import { boardSlot } from "@/components/game/boardSlot";
 import { useGame } from "@/components/game/GameContext";
 import { ResolutionView } from "@/components/resolution/ResolutionView";
+import { SettingsMenu } from "@/components/settings/SettingsMenu";
 import { PeopleView } from "@/components/suspects/PeopleView";
 import { TheoriesView } from "@/components/theories/TheoriesView";
 import { TimelineView } from "@/components/timeline/TimelineView";
 import { VerdictView } from "@/components/verdict/VerdictView";
+import { play } from "@/lib/client/sound";
 import { Desk, type DeskTab } from "./Desk";
 import { MapView } from "./MapView";
 
@@ -66,6 +68,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
     const mention = incoming.find((m) => m.userId !== me.userId && m.body.toLowerCase().includes(`@${first}`));
     const shareMsg = incoming.find((m) => m.kind === "SYSTEM" && m.body.includes(" shared ") && !m.body.startsWith(me.codename));
     const note = mention && panel !== "chat" ? `${mention.codename} mentioned you: “${mention.body.slice(0, 80)}”` : shareMsg?.body;
+    if (incoming.some((m) => m.userId && m.userId !== me.userId)) play("tick");
     if (note) queueMicrotask(() => setToast(note));
   }, [messages, me, panel]);
 
@@ -167,6 +170,9 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
             {unread > 0 && <span className="bg-amber-500 px-1.5 text-ink-950">{unread}</span>}
           </button>
         )}
+        <div className="hidden sm:block">
+          <SettingsMenu />
+        </div>
         <div className="relative">
           <button type="button" className="px-2 py-2 text-steel-300 hover:text-bone-100" aria-label="Case menu" aria-expanded={menu} onClick={() => setMenu((m) => !m)}>
             ⋮
@@ -238,7 +244,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
         </div>
       )}
 
-      <main className="relative min-h-0 flex-1">
+      <main id="main" className="relative min-h-0 flex-1">
         <div className="absolute inset-0">
           {view === "board" && <Board onOpen={setOpenId} onToast={setToast} />}
           {view === "timeline" && <TimelineView onOpen={setOpenId} onToast={setToast} />}

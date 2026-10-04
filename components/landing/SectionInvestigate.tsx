@@ -1,9 +1,10 @@
 "use client";
 
-import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef } from "react";
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
 import { SectionMark } from "@/components/ui/SectionMark";
+import { useCalm } from "@/lib/client/settings";
 
 function Floating({
   progress,
@@ -18,7 +19,7 @@ function Floating({
   className: string;
   children: React.ReactNode;
 }) {
-  const reduce = useReducedMotion();
+  const reduce = useCalm();
   const y = useTransform(progress, [0, 1], reduce ? [0, 0] : [speed, -speed]);
   const r = useTransform(progress, [0, 1], reduce ? [rotate, rotate] : [rotate - 4, rotate + 4]);
   return (
