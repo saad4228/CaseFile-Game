@@ -9,6 +9,8 @@ import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import { Stamp } from "@/components/ui/Stamp";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Typewriter } from "@/components/ui/Typewriter";
+import { SuspectCard } from "@/components/suspects/SuspectCard";
+import { DeskProps } from "@/components/ui/DeskProps";
 import type { CaseMeta, Suspect } from "@/lib/game-engine/types";
 import { useCalm } from "@/lib/client/settings";
 import { play } from "@/lib/client/sound";
@@ -292,7 +294,8 @@ function StartControls({ meta, start }: { meta: CaseMeta; start: StartOptions })
 function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect[]; start: StartOptions }) {
   const [typed, setTyped] = useState(0);
   return (
-    <div className="relative min-h-[100svh] px-4 py-16 md:px-10 md:py-20">
+    <div className="desk-top relative min-h-[100svh] px-4 py-16 md:px-10 md:py-20">
+      <DeskProps />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_10%,rgba(240,174,85,0.12),transparent_70%)]" />
       <div className="relative mx-auto max-w-[1300px]">
         <div className="flex flex-wrap items-baseline justify-between gap-4">
@@ -313,6 +316,9 @@ function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect
             animate={{ opacity: 1, x: 0, rotate: -2 }}
             transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
           >
+            <svg className="absolute left-1/2 top-1 z-10 h-16 w-6 -translate-x-[70px] -rotate-6" viewBox="0 0 24 64" aria-hidden="true">
+              <path d="M8 40V10a5 5 0 0 1 10 0v40a8 8 0 0 1-16 0V16" fill="none" stroke="#9aa3ab" strokeWidth="2.2" strokeLinecap="round" />
+            </svg>
             <div className="photo-print mx-auto w-40 rotate-2">
               <SuspectPortrait spec={{ hair: "short", collar: "coat" }} label={meta.victim.name} tone="warm" className="block w-full" />
             </div>
@@ -326,13 +332,22 @@ function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect
 
           {/* brief */}
           <motion.div
-            className="paper torn relative px-6 py-8 md:px-12 md:py-10"
+            className="paper relative overflow-hidden pb-8"
             initial={{ opacity: 0, y: 40, rotate: 3 }}
             animate={{ opacity: 1, y: 0, rotate: 0.6 }}
             transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 0.61, 0.36, 1] }}
           >
-            <p className="label-ink">Summary of facts</p>
-            <ol className="mt-5 space-y-3 font-mono text-[13px] leading-relaxed text-[#1d1a14] md:text-sm">
+            <div className="flex items-center justify-between gap-4 bg-[#1d1a14] px-6 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#e9e4d8] md:px-12">
+              <span>Vesper City PD — Summary of facts</span>
+              <span className="hidden text-[#e9e4d8]/70 sm:inline">Case {meta.number}</span>
+            </div>
+            {/* binder rings down the edge */}
+            <div className="pointer-events-none absolute inset-y-0 left-1.5 hidden flex-col justify-around py-16 md:flex" aria-hidden="true">
+              {[0, 1].map((k) => (
+                <span key={k} className="h-6 w-6 rounded-full border-[3px] border-[#8d959c] bg-transparent shadow-[0_2px_3px_rgba(0,0,0,.5)]" />
+              ))}
+            </div>
+            <ol className="mt-6 space-y-3 px-6 md:px-12 font-mono text-[13px] leading-relaxed text-[#1d1a14] md:text-sm">
               {meta.brief.map((line, i) => (
                 <li key={line} className="grid grid-cols-[2rem_1fr]">
                   <span className="text-[#1d1a14]/50">{String(i + 1).padStart(2, "0")}</span>
@@ -344,7 +359,7 @@ function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect
                 </li>
               ))}
             </ol>
-            <div className="mt-8 border-l-4 border-crimson-600 bg-[#1d1a14]/[0.06] px-5 py-4">
+            <div className="mx-6 mt-8 border-l-4 border-crimson-600 bg-[#1d1a14]/[0.06] px-5 py-4 md:mx-12">
               <p className="label-ink !text-crimson-600">Objective</p>
               <p className="font-display mt-2 text-2xl leading-snug text-[#1d1a14] md:text-3xl">{meta.objective}</p>
             </div>
@@ -358,15 +373,12 @@ function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect
             {suspects.map((s, i) => (
               <motion.li
                 key={s.id}
-                className="photo-print relative w-36 shrink-0 snap-start md:w-auto"
+                className="relative w-44 shrink-0 snap-start md:w-auto"
                 initial={{ opacity: 0, y: -24, rotate: 0 }}
-                animate={{ opacity: 1, y: 0, rotate: [-3, 2, -1.5, 3, -2][i] }}
+                animate={{ opacity: 1, y: 0, rotate: [-1.5, 1, -0.8, 1.4, -1][i] }}
                 transition={{ duration: 0.6, delay: 0.6 + i * 0.1 }}
               >
-                <span className="absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 rounded-full bg-crimson-600 shadow-[0_2px_3px_rgba(0,0,0,.6)]" aria-hidden="true" />
-                <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full" />
-                <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-[#1d1a14]">{s.name}</p>
-                <p className="text-[11px] leading-snug text-[#1d1a14]/70">{s.relation}</p>
+                <SuspectCard suspect={s} />
               </motion.li>
             ))}
           </ul>

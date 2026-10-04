@@ -4,8 +4,9 @@ import { useState } from "react";
 import { evidenceCode } from "@/components/evidence/format";
 import { boardSlot } from "@/components/game/boardSlot";
 import { useGame } from "@/components/game/GameContext";
-import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { InterviewRoom } from "./InterviewRoom";
+import { SuspectCard } from "./SuspectCard";
 
 export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
   const { suspects, evidence, shared, dispatch, newId, interviews, phase } = useGame();
@@ -33,7 +34,7 @@ export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
                 p.id === selected ? "border-amber-500 bg-amber-500/5" : "border-ink-700 hover:border-ink-600"
               }`}
             >
-              <SuspectPortrait spec={p.portrait} label={p.name} className="h-14 w-11 shrink-0" />
+              <SuspectPhoto suspect={p} className="h-14 w-11 shrink-0" />
               <span>
                 <span className="block font-display text-lg leading-tight">{p.name}</span>
                 <span className="label !text-[9px]">{p.code}</span>
@@ -70,12 +71,7 @@ export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
           <div className="scrollbar-thin min-h-0 flex-1 overflow-auto p-6 md:p-10">
             <div className="grid gap-10 xl:grid-cols-[260px_1fr]">
               <div>
-                <div className="photo-print w-56 -rotate-2">
-                  <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full" />
-                  <p className="mt-2 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-[#1d1a14]">
-                    {s.code} · {s.name}
-                  </p>
-                </div>
+                <SuspectCard suspect={s} className="w-56 -rotate-1" short />
                 <div className="mt-8 flex flex-col gap-2">
                   {canInterview && (
                     <button type="button" className="btn btn-primary btn-sm" onClick={() => setTab("interview")}>
@@ -96,13 +92,29 @@ export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
               </div>
 
               <div>
-                <p className="label">{s.role}</p>
-                <h2 className="font-display mt-1 text-5xl">{s.name}</h2>
-                <p className="mt-2 font-mono text-xs uppercase tracking-[0.18em] text-steel-300">
-                  {s.age ? `${s.age} · ` : ""}
-                  {s.relation}
-                </p>
-                <p className="mt-5 max-w-2xl text-base leading-relaxed text-bone-100/85">{s.summary}</p>
+                {/* police profile form (reference 7B) */}
+                <div className="paper relative max-w-2xl overflow-hidden">
+                  <div className="flex items-center justify-between gap-4 bg-[#1d1a14] px-5 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#e9e4d8]">
+                    <span>Vesper City PD — Person of interest</span>
+                    <span className="text-[#e9e4d8]/70">{s.code}</span>
+                  </div>
+                  <div className="px-5 pb-6 pt-5">
+                    <h2 className="font-display text-4xl text-[#1d1a14] md:text-5xl">{s.name}</h2>
+                    <dl className="mt-4 grid grid-cols-[120px_1fr] gap-y-1.5 font-mono text-[12px] text-[#1d1a14]">
+                      <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Occupation</dt>
+                      <dd>{s.role}</dd>
+                      <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Age</dt>
+                      <dd>{s.age ?? "Unknown"}</dd>
+                      <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Connection</dt>
+                      <dd>{s.relation}</dd>
+                    </dl>
+                    <div className="mt-4 bg-[#1d1a14] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.25em] text-[#e9e4d8]">Notes</div>
+                    <p className="mt-3 font-mono text-[13px] leading-relaxed text-[#1d1a14]/90">{s.summary}</p>
+                  </div>
+                  {!s.statements.length && (
+                    <span className="stamp absolute right-5 top-14 text-sm text-crimson-600 md:text-base">Unidentified</span>
+                  )}
+                </div>
 
                 <div className="mt-10">
                   <p className="label">On record</p>

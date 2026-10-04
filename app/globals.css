@@ -591,3 +591,41 @@ html[data-motion="reduce"] *::after {
   50% { opacity: 1.8; }
   100% { opacity: 1; }
 }
+
+/* ── Case files (reference 7) ─────────────────────────────────────────── */
+.kraft {
+  background-color: #a07c55;
+  background-image: var(--fibre), radial-gradient(120% 90% at 30% 15%, #b38e64 0%, #9a764e 60%, #86643f 100%);
+  background-size: 256px, auto;
+  color: #1d1a14;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 20px 30px -12px rgba(0, 0, 0, 0.75),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+/* Torn strip of masking tape carrying a typed or stencilled label. */
+.tape {
+  display: inline-block;
+  background: linear-gradient(180deg, rgba(240, 232, 205, 0.92), rgba(226, 214, 180, 0.9));
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  clip-path: polygon(0 8%, 3% 0, 7% 9%, 11% 1%, 89% 2%, 93% 10%, 97% 0, 100% 8%, 99% 92%, 96% 100%, 92% 91%, 88% 100%, 12% 98%, 8% 90%, 4% 100%, 1% 93%);
+}
+.seal-stamp {
+  border: 2px solid currentColor;
+  border-radius: 9999px;
+  -webkit-mask-image: var(--ink);
+  mask-image: var(--ink);
+  -webkit-mask-size: 128px;
+  mask-size: 128px;
+}
+
+/* ── The detective's desk from above (reference 4) ─────────────────────── */
+.desk-top {
+  background-color: #1d140d;
+  background-image:
+    radial-gradient(ellipse 55% 45% at 50% 18%, rgba(255, 196, 120, 0.2), rgba(255, 196, 120, 0.06) 45%, transparent 72%),
+    radial-gradient(ellipse 100% 90% at 50% 40%, transparent 45%, rgba(4, 8, 14, 0.75) 100%),
+    var(--fibre),
+    linear-gradient(90deg, #24180f, #2c1d12 30%, #22170e 60%, #2a1c11);
+  background-size: auto, auto, 512px 160px, auto;
+}

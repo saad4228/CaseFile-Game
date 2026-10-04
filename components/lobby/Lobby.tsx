@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { useGame } from "@/components/game/GameContext";
 import { Rain } from "@/components/illustrations/Rain";
+import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import { Stamp } from "@/components/ui/Stamp";
 import type { Role } from "@/lib/game-engine/types";
@@ -189,7 +190,7 @@ export function Lobby() {
           <div className="mt-14 hidden gap-4 opacity-60 md:flex" aria-hidden="true">
             {suspects.slice(0, 4).map((s) => (
               <div key={s.id} className="w-20">
-                <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full grayscale" />
+                <SuspectPhoto suspect={s} className="block w-full grayscale" />
               </div>
             ))}
           </div>

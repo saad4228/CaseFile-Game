@@ -119,7 +119,7 @@ export function EvidenceViewer({
 
           <div className="scrollbar-thin flex min-h-0 flex-1 flex-col overflow-auto lg:flex-row lg:overflow-hidden">
             {/* body */}
-            <div className="scrollbar-thin relative px-4 py-8 md:px-10 lg:min-h-0 lg:flex-1 lg:overflow-auto">
+            <div className="desk-top scrollbar-thin relative px-4 py-10 md:px-12 lg:min-h-0 lg:flex-1 lg:overflow-auto">
               <div className="pointer-events-none absolute left-1/2 top-0 h-[60%] w-[70%] -translate-x-1/2 bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,rgba(240,174,85,0.10),transparent_70%)]" />
               {e.body.kind === "photo" && (
                 <div className="relative z-10 mb-4 flex justify-center gap-2">

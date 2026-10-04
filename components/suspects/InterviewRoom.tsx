@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { categoryLabel, evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import { Detective } from "@/components/illustrations/Detective";
-import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { InterrogationRoom } from "./InterrogationRoom";
 import type { Suspect } from "@/lib/game-engine/types";
 import { play } from "@/lib/client/sound";
@@ -114,12 +114,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
         </div>
 
         <div className="relative hidden items-end justify-center lg:flex">
-          <SuspectPortrait
-            spec={suspect.portrait}
-            label={suspect.name}
-            tone="warm"
-            className="block w-[85%] opacity-90 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]"
-          />
+          <SuspectPhoto suspect={suspect} className="block w-[85%] opacity-90 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]" />
         </div>
       </div>
 

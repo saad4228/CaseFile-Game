@@ -26,13 +26,13 @@ export const suspects: Suspect[] = [
           "I called the front desk because… I had a feeling. That's all. I'm a journalist; I have feelings about doors.",
       },
     ],
-    portrait: { hair: "long", collar: "coat" },
+    portrait: { hair: "long", collar: "coat", backdrop: "newsroom" },
   },
   {
     id: "marcus_reed",
     code: "S-02",
     name: "Marcus Reed",
-    age: 52,
+    age: 48,
     role: "Publisher, Reed Media",
     relation: "Daniel's employer",
     summary:
@@ -53,7 +53,7 @@ export const suspects: Suspect[] = [
           "Daniel's series was months from publication. I had no reason to stop it. I had every reason to sell it.",
       },
     ],
-    portrait: { hair: "swept", collar: "suit", glasses: true },
+    portrait: { hair: "swept", collar: "suit", backdrop: "skyline" },
   },
   {
     id: "elena_cross",
@@ -80,7 +80,7 @@ export const suspects: Suspect[] = [
           "The third-floor camera failed. It happens. The fault was reported to our vendor the next morning.",
       },
     ],
-    portrait: { hair: "bun", collar: "blouse" },
+    portrait: { hair: "bun", collar: "blouse", backdrop: "lobby" },
   },
   {
     id: "noah_grant",
@@ -105,7 +105,7 @@ export const suspects: Suspect[] = [
         quote: "I don't know what that is. Should I?",
       },
     ],
-    portrait: { hair: "short", collar: "hood" },
+    portrait: { hair: "short", collar: "hood", backdrop: "street" },
   },
   {
     id: "j",
@@ -117,7 +117,7 @@ export const suspects: Suspect[] = [
     summary:
       "No confirmed identity. Appears in Daniel's notebook more than once. No statement.",
     statements: [],
-    portrait: { hair: "none", collar: "coat", hat: true, unknown: true },
+    portrait: { hair: "none", collar: "coat", hat: true, unknown: true, backdrop: "lamp" },
   },
 ];
 

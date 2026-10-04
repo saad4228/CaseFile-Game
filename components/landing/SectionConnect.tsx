@@ -102,7 +102,7 @@ export function SectionConnect() {
 
           <BoardCard at={nodes.sarah} rotate={-4} delay={0} show={inView}>
             <div className="photo-print w-20 md:w-28">
-              <SuspectPortrait spec={{ hair: "long", collar: "coat" }} label="Sarah Vale" className="block w-full" />
+              <SuspectPortrait spec={{ hair: "long", collar: "coat", backdrop: "newsroom" }} label="Sarah Vale" className="block w-full" />
               <p className="mt-1 text-center font-mono text-[8px] tracking-[0.15em] text-[#3a3428] md:text-[9px]">S. VALE</p>
             </div>
           </BoardCard>

@@ -102,6 +102,8 @@ export interface PortraitSpec {
   hat?: boolean;
   glasses?: boolean;
   unknown?: boolean;
+  /** The place behind them in their portrait (reference 2): who they are, where they belong. */
+  backdrop?: "newsroom" | "lobby" | "skyline" | "street" | "lamp";
 }
 
 export interface Location {

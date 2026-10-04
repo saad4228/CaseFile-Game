@@ -23,7 +23,7 @@ import "@xyflow/react/dist/base.css";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { EvidenceCard } from "@/components/evidence/EvidenceCard";
 import { useGame } from "@/components/game/GameContext";
-import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import type { EdgeKind, Evidence, Suspect } from "@/lib/game-engine/types";
 import { EVIDENCE_DRAG_TYPE } from "./constants";
 import { edgeKindOrder, edgeKinds } from "./edgeKinds";
@@ -96,7 +96,7 @@ function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
     <div className={`group relative ${selectedCls(selected)}`} style={{ rotate: `${tilt(s.id)}deg` }}>
       <Pin />
       <div className="photo-print w-28">
-        <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full" />
+        <SuspectPhoto suspect={s} className="block w-full" />
         <p className="mt-1 text-center font-hand text-xl leading-none text-[#1d1a14]">{s.name}</p>
         <p className="text-center font-mono text-[8px] uppercase tracking-[0.18em] text-[#1d1a14]/60">{s.code}</p>
       </div>

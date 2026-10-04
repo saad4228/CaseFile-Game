@@ -51,15 +51,19 @@ export function CaseFolder({
         </div>
       </motion.div>
       {/* tab */}
-      <div className="paper-aged absolute -top-6 left-6 z-10 px-4 pb-3 pt-1.5 font-mono text-[11px] tracking-[0.3em] text-paper-900">
+      <div className="kraft absolute -top-6 left-6 z-10 px-4 pb-3 pt-1.5 font-mono text-[11px] tracking-[0.3em] text-[#2a1f12]">
         CASE {c.number}
       </div>
-      <div className="paper-aged relative z-10 min-h-[300px] px-6 pb-6 pt-8">
-        <p className="label-ink">Case {c.number}</p>
-        <h2 className="font-display mt-2 text-3xl uppercase leading-[0.95] tracking-wide text-[#1d1a14] md:text-[2.1rem]">
+      {/* index tabs sticking out of the side */}
+      <div className="absolute -right-2.5 top-16 z-0 h-14 w-6 bg-[#c9c6bd] shadow-[2px_2px_4px_rgba(0,0,0,.4)]" aria-hidden="true" />
+      <div className="absolute -right-2.5 top-36 z-0 h-12 w-6 bg-[#b9b5ab] shadow-[2px_2px_4px_rgba(0,0,0,.4)]" aria-hidden="true" />
+      <div className="kraft relative z-10 min-h-[300px] px-6 pb-6 pt-8">
+        <span className="pin absolute right-5 top-4 h-4 w-4 rounded-full" aria-hidden="true" />
+        <p className="label-ink !text-[#2a1f12]/80">Case {c.number}</p>
+        <h2 className="tape mt-2 -rotate-1 px-4 py-2 font-display text-[1.65rem] uppercase leading-[0.95] tracking-wide text-[#1d1a14] md:text-3xl">
           {c.title}
         </h2>
-        <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[#1d1a14]/20 pt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-[#1d1a14]">
+        <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-[#1d1a14]/30 pt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-[#1d1a14]">
           <div>
             <dt className="label-ink !text-[9px]">Classification</dt>
             <dd className="mt-0.5">{c.classification}</dd>
@@ -94,6 +98,16 @@ export function CaseFolder({
             )}
           </div>
         </dl>
+        <span
+          className="seal-stamp pointer-events-none absolute bottom-5 left-24 flex h-16 w-16 rotate-[-14deg] items-center justify-center text-center font-mono text-[7px] font-semibold uppercase leading-tight tracking-[0.12em] text-[#4a2c16]/70"
+          aria-hidden="true"
+        >
+          Vesper
+          <br />
+          City PD
+          <br />
+          Records
+        </span>
         <div className="absolute bottom-6 right-5">
           <Stamp tone={sealed ? "ink" : progress?.state === "SOLVED" ? "amber" : "crimson"} rotate={-8} size="sm">
             {status}

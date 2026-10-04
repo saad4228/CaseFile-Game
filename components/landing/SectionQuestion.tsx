@@ -107,7 +107,7 @@ export function SectionQuestion() {
 
           <div className="relative hidden items-end justify-center pb-0 md:flex">
             <div className="relative w-[78%]">
-              <SuspectPortrait spec={{ hair: "swept", collar: "suit", glasses: true }} label="Marcus Reed" tone="warm" className="block w-full opacity-90 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]" />
+              <SuspectPortrait spec={{ hair: "swept", collar: "suit", backdrop: "skyline" }} label="Marcus Reed" tone="warm" className="block w-full opacity-90 [mask-image:linear-gradient(to_bottom,black_70%,transparent)]" />
             </div>
           </div>
         </div>
