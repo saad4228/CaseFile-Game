@@ -134,3 +134,43 @@ tripod in the foreground watching.
 - One warm accent per scene: a red EXIT sign glow or the recorder's red REC light, which
   pulses while the suspect is answering.
 - Pressure beats (a revised statement) briefly flare the overhead light; all CSS/SVG, cheap to render.
+
+---
+
+## 4. Detective desk, top-down
+
+Files: `04-desk/a-case-folder-closeup.jpg`, `04-desk/b-desk-overhead-lamp.jpg`
+
+**A — case folder close-up (illustrated, "The Big Sleep").** Warm, painterly, tight crop. An open
+manila folder on a clipboard: police report form with blood spatter, an "Evidence Card" with a
+big handwritten number and a yellow sticky note ("1 Day Left"), fountain pen across it. Photos
+scattered on top at angles, white borders, one with red marks. Around the edges: coffee mug
+with rings, ashtray, cigarette pack, crumpled paper, newspaper, a CONFIDENTIAL envelope with a red
+stamp, a yellow legal pad with a handwritten address, the green glass of a banker's lamp.
+
+**B — desk from directly above (3D render).** Dark walnut desk on a dark tiled floor. A black
+anglepoise lamp in the middle throws one warm pool; the corners fall into blue shadow. Objects
+are spread in a loose ring around the light: typewriter, rotary phone, cassette recorder,
+newspapers and a map in the centre, a notebook with handwriting and a pen, letters with stamps,
+coffee cup, crumpled paper balls. Paper overlaps, nothing is square to the desk.
+
+**What works**
+- Top-down = the player *is* the detective looking at their own desk.
+- One warm lamp pool, cool shadow at the edges (B); the eye goes to the centre.
+- Paper layering: things overlap at small angles, photos with white borders, sticky notes on top.
+- Material variety tells the era and job: typewriter, recorder, rotary phone, fountain pen,
+  stamped envelopes, CONFIDENTIAL stamp, legal pad.
+- Clutter belongs at the rim; the working area stays clear.
+
+**What doesn't fit**
+- A's blood spatter and cigarettes push it toward pulp horror; keep CASEFILE grounded and
+  quieter (no gore, no smoking props on the main screens).
+
+**What CASEFILE will do**
+- Case briefing becomes this desk seen from above: the case folder opens in the lamp pool;
+  props at the rim (typewriter, recorder, phone, coffee ring, crumpled notes) drawn as SVG.
+- Evidence viewer: the record lies on the desk under the lamp, slight angle, soft drop shadow;
+  details panel as a clipped index card. Stamps (CONFIDENTIAL / VERIFIED) in red ink.
+- Evidence tray: the desk edge (already walnut) — cards overlap slightly at small angles.
+- Sticky notes (yellow) for player notes; legal-pad yellow for observations.
+- Recorder and rotary phone icons for audio and phone records.
