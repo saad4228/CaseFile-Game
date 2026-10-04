@@ -1,0 +1,237 @@
+@import "tailwindcss";
+
+/* ── CASEFILE design tokens ─────────────────────────────────────────────── */
+@theme {
+  --color-ink-950: #080a0d;
+  --color-ink-900: #101419;
+  --color-ink-800: #161b21;
+  --color-ink-700: #20262d;
+  --color-ink-600: #2c343d;
+
+  --color-paper-100: #d4c5a5;
+  --color-paper-300: #bca982;
+  --color-paper-600: #81765f;
+  --color-paper-900: #3a3428;
+
+  --color-amber-500: #d98a3a;
+  --color-amber-300: #f0ae55;
+  --color-crimson-600: #9c2929;
+  --color-crimson-400: #c24a3f;
+  --color-steel-400: #718493;
+  --color-steel-300: #92a3b0;
+  --color-bone-100: #e7e2d8;
+
+  --font-display: var(--font-bodoni), "Bodoni 72", Didot, serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --font-hand: var(--font-reenie), "Comic Sans MS", cursive;
+
+  --ease-cinema: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:root {
+  color-scheme: dark;
+  --noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.04 .9' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .32 0 0 0 0 .27 0 0 0 0 .18 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+html {
+  background: var(--color-ink-950);
+}
+
+body {
+  background: var(--color-ink-950);
+  color: var(--color-bone-100);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--color-amber-500);
+  color: var(--color-ink-950);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-amber-300);
+  outline-offset: 3px;
+}
+
+/* Film grain over everything, very faint. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  pointer-events: none;
+  z-index: 60;
+  background-image: var(--noise);
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  animation: grain 1.2s steps(6) infinite;
+}
+
+@keyframes grain {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -1%); }
+  80% { transform: translate(3%, 3%); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ── Surfaces ──────────────────────────────────────────────────────────── */
+
+.paper {
+  background-color: var(--color-paper-100);
+  background-image: var(--fibre), radial-gradient(120% 90% at 30% 20%, #ddd0b2 0%, #cbbb98 60%, #b8a67f 100%);
+  color: #1d1a14;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.25) inset,
+    0 18px 30px -12px rgba(0, 0, 0, 0.7),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.paper-aged {
+  background-color: var(--color-paper-300);
+  background-image: var(--fibre), radial-gradient(110% 80% at 70% 10%, #c7b48c 0%, #b29c71 70%, #9a855c 100%);
+  color: #1d1a14;
+  box-shadow:
+    0 18px 30px -12px rgba(0, 0, 0, 0.75),
+    0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Irregular, slightly torn edge. */
+.torn {
+  clip-path: polygon(0% 1%, 6% 0%, 14% 1.2%, 23% 0.2%, 35% 1%, 47% 0%, 58% 0.9%, 70% 0.1%, 82% 1.1%, 93% 0.2%, 100% 0.8%, 99.4% 22%, 100% 47%, 99.3% 71%, 100% 99%, 88% 99.6%, 75% 98.9%, 61% 100%, 49% 99.1%, 36% 99.8%, 22% 98.8%, 11% 99.7%, 0% 99%, 0.6% 76%, 0% 52%, 0.5% 27%);
+}
+
+.photo-print {
+  background: #e9e4d8;
+  padding: 8px 8px 22px;
+  box-shadow:
+    0 16px 26px -10px rgba(0, 0, 0, 0.8),
+    0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.panel {
+  background: color-mix(in oklab, var(--color-ink-900) 92%, transparent);
+  border: 1px solid var(--color-ink-700);
+}
+
+/* Small uppercase metadata labels. */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-steel-300);
+}
+
+.label-ink {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #4f4636;
+}
+
+/* ── Stamps ───────────────────────────────────────────────────────────── */
+
+.stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.3em 0.7em;
+  border: 2px solid currentColor;
+  outline: 1px solid currentColor;
+  outline-offset: 2px;
+  transform: rotate(-6deg);
+  -webkit-mask-image: var(--noise);
+  mask-image: var(--noise);
+  -webkit-mask-size: 140px;
+  mask-size: 140px;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding: 0.95rem 1.6rem;
+  border: 1px solid currentColor;
+  cursor: pointer;
+  transition:
+    background-color 300ms var(--ease-cinema),
+    color 300ms var(--ease-cinema),
+    border-color 300ms var(--ease-cinema),
+    box-shadow 300ms var(--ease-cinema);
+}
+
+.btn-primary {
+  color: var(--color-ink-950);
+  background: var(--color-amber-500);
+  border-color: var(--color-amber-500);
+}
+.btn-primary:hover {
+  background: var(--color-amber-300);
+  border-color: var(--color-amber-300);
+  box-shadow: 0 0 40px -6px rgba(240, 174, 85, 0.55);
+}
+
+.btn-ghost {
+  color: var(--color-bone-100);
+  background: transparent;
+  border-color: color-mix(in oklab, var(--color-bone-100) 40%, transparent);
+}
+.btn-ghost:hover {
+  border-color: var(--color-bone-100);
+  background: color-mix(in oklab, var(--color-bone-100) 6%, transparent);
+}
+
+.btn-sm {
+  font-size: 0.6875rem;
+  padding: 0.55rem 0.9rem;
+  gap: 0.5rem;
+}
+
+/* ── Utilities ────────────────────────────────────────────────────────── */
+
+.vignette {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.78) 100%);
+}
+
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* CCTV scanlines, layered over a photo. */
+.scanlines {
+  position: relative;
+}
+.scanlines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+}
