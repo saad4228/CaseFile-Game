@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { CreatorPortrait } from "@/components/illustrations/CreatorPortrait";
 import { Reveal } from "@/components/ui/Reveal";
 import { Stamp } from "@/components/ui/Stamp";
 import { creator } from "@/data/creator";
@@ -36,7 +36,7 @@ export function SectionCreator() {
                       className="object-cover [filter:grayscale(0.25)_sepia(0.2)_contrast(1.05)]"
                     />
                   ) : (
-                    <SuspectPortrait spec={{ hair: "short", collar: "coat" }} label={creator.name} tone="warm" className="block h-full w-full" />
+                    <CreatorPortrait label={creator.name} className="block h-full w-full" />
                   )}
                 </div>
                 <figcaption className="mt-3 text-center font-hand text-3xl leading-none text-[#1d1a14]">{creator.name}</figcaption>

@@ -34,7 +34,7 @@ export function SectionInvestigate() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
 
   return (
-    <section ref={ref} className="relative h-[150vh] min-h-[900px] overflow-hidden" aria-labelledby="investigate-heading">
+    <section ref={ref} className="relative h-[120vh] min-h-[800px] overflow-hidden" aria-labelledby="investigate-heading">
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(circle,rgba(217,138,58,0.11)_0%,rgba(217,138,58,0.04)_40%,transparent_70%)]" />
       </div>
@@ -61,7 +61,7 @@ export function SectionInvestigate() {
         </div>
       </Floating>
 
-      <Floating progress={scrollYProgress} speed={120} rotate={3} className="bottom-[10%] left-[6%] w-60 md:bottom-[14%] md:left-[16%] md:w-72">
+      <Floating progress={scrollYProgress} speed={120} rotate={3} className="bottom-[4%] left-[6%] w-60 md:bottom-[5%] md:left-[16%] md:w-72">
         <div className="paper px-5 py-4">
           <p className="label-ink">Call log — D. Mercer</p>
           <p className="mt-3 font-mono text-xs leading-relaxed text-[#1d1a14]">
@@ -74,7 +74,7 @@ export function SectionInvestigate() {
         </div>
       </Floating>
 
-      <Floating progress={scrollYProgress} speed={220} rotate={-4} className="bottom-[6%] right-[4%] w-56 md:bottom-[12%] md:right-[14%] md:w-64">
+      <Floating progress={scrollYProgress} speed={220} rotate={-4} className="bottom-[2%] right-[4%] w-56 md:bottom-[4%] md:right-[14%] md:w-64">
         <div className="paper-aged px-6 py-5">
           <p className="font-hand text-4xl leading-none text-[#22305a]">J knows.</p>
           <p className="font-hand mt-3 text-2xl leading-none text-[#22305a]/70">don&apos;t use the room phone</p>

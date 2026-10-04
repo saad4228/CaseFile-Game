@@ -36,7 +36,7 @@ export function SectionConnect() {
   const reduce = useCalm();
 
   return (
-    <section className="relative py-28 md:py-40" aria-labelledby="connect-heading">
+    <section className="relative pb-28 pt-6 md:pb-40 md:pt-10" aria-labelledby="connect-heading">
       <div className="mx-auto max-w-[1400px] px-4 md:px-10">
         <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
           <div>
@@ -56,7 +56,7 @@ export function SectionConnect() {
 
         <div
           ref={ref}
-          className="relative mt-16 aspect-[1000/860] w-full overflow-hidden border border-ink-700 bg-ink-900 sm:aspect-[1000/560]"
+          className="relative mt-16 aspect-[1000/1250] w-full overflow-hidden border border-ink-700 bg-ink-900 sm:aspect-[1000/700] lg:aspect-[1000/560]"
           style={{
             backgroundImage:
               "radial-gradient(circle at 50% 30%, rgba(217,138,58,0.10), transparent 60%), radial-gradient(rgba(231,226,216,0.06) 1px, transparent 1px)",
@@ -66,19 +66,20 @@ export function SectionConnect() {
           <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1000 560" preserveAspectRatio="none" aria-hidden="true">
             {threads.map((t, i) => {
               const { d } = sag(nodes[t.from], nodes[t.to]);
+              const unknown = t.kind === "?";
+              // Full-length threads that fade in. (Animating pathLength here clipped the strings
+              // short: it overrides the dash pattern and ignores non-scaling strokes.)
               return (
-                <motion.path
+                <motion.g
                   key={i}
-                  d={d}
-                  fill="none"
-                  stroke={t.kind === "?" ? "#718493" : "#9c2929"}
-                  strokeWidth={2}
-                  strokeDasharray={t.dash}
-                  vectorEffect="non-scaling-stroke"
-                  initial={{ pathLength: reduce ? 1 : 0, opacity: 0 }}
-                  animate={inView ? { pathLength: 1, opacity: 1 } : {}}
-                  transition={{ duration: 1.1, delay: 0.4 + i * 0.35, ease: "easeInOut" }}
-                />
+                  initial={{ opacity: reduce ? 1 : 0 }}
+                  animate={inView ? { opacity: 1 } : {}}
+                  transition={{ duration: 0.8, delay: 0.4 + i * 0.3, ease: "easeOut" }}
+                >
+                  <path d={d} fill="none" stroke="#000" strokeOpacity={0.45} strokeWidth={4.5} strokeDasharray={t.dash} vectorEffect="non-scaling-stroke" transform="translate(0 3)" />
+                  <path d={d} fill="none" stroke={unknown ? "#718493" : "#b3282a"} strokeWidth={unknown ? 2 : 3} strokeDasharray={t.dash} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+                  {!unknown && !t.dash && <path d={d} fill="none" stroke="#e06a5f" strokeOpacity={0.35} strokeWidth={1} strokeDasharray="3 5" vectorEffect="non-scaling-stroke" />}
+                </motion.g>
               );
             })}
           </svg>
@@ -87,7 +88,7 @@ export function SectionConnect() {
             return (
               <motion.span
                 key={i}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 border px-2 py-1 font-mono text-[9px] tracking-[0.2em] md:text-[10px] ${
+                className={`absolute z-20 -translate-x-1/2 -translate-y-1/2 border px-2 py-1 font-mono text-[9px] tracking-[0.2em] md:text-[10px] ${
                   t.kind === "?" ? "border-steel-400/50 bg-ink-950 text-steel-300" : "border-crimson-600/60 bg-ink-950 text-[#e0a59e]"
                 }`}
                 style={{ left: `${lx / 10}%`, top: `${ly / 5.6}%` }}
