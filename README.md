@@ -29,7 +29,13 @@ Node 20.9+ required (Next.js 16).
 ## Status
 
 - [x] Docs, design system, landing page
-- [ ] Case archive, case introduction, investigation workspace
-- [ ] Theories, verdict, scoring, resolution
+- [x] Case archive, cinematic case introduction and briefing
+- [x] Investigation workspace — evidence tray and viewer (zoom, rotate, compare, notes),
+      leads, conflicts, board with typed threads, timeline, map with travel times, people
+- [x] Server-authoritative reveals: only the brief ships with the page; hidden records and
+      the solution never reach the browser bundle
+- [ ] Interrogation, theories ("what would have to be true?"), verdict, scoring, resolution
 - [ ] Accounts (Supabase Auth), Postgres via Prisma
-- [ ] Multiplayer rooms (Supabase Realtime)
+- [ ] Multiplayer rooms (Supabase Realtime), team chat, asymmetric roles
+
+Progress is saved per device (localStorage) until accounts land.

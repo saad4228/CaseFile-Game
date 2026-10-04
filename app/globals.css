@@ -235,3 +235,43 @@ body {
   pointer-events: none;
   background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
 }
+
+/* ── Investigation board (React Flow) ─────────────────────────────────── */
+.casefile-board {
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(217, 138, 58, 0.08), transparent 70%),
+    var(--color-ink-900);
+}
+.casefile-board .react-flow__edge-path {
+  stroke-linecap: round;
+}
+.casefile-board .react-flow__node {
+  cursor: grab;
+}
+.casefile-board .react-flow__node.dragging {
+  cursor: grabbing;
+}
+.casefile-controls {
+  box-shadow: none;
+  border: 1px solid var(--color-ink-700);
+}
+.casefile-controls button {
+  background: var(--color-ink-950);
+  border-bottom: 1px solid var(--color-ink-700);
+  color: var(--color-bone-100);
+  fill: var(--color-bone-100);
+  width: 30px;
+  height: 30px;
+}
+.casefile-controls button:hover {
+  background: var(--color-ink-800);
+}
+.casefile-board .react-flow__attribution {
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  opacity: 0.45;
+}
+.casefile-board .react-flow__attribution a {
+  color: var(--color-steel-400);
+}
