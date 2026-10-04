@@ -24,7 +24,7 @@ export default function NotFound() {
             Front desk
           </Link>
         </div>
-        <div className="absolute right-6 top-8">
+        <div className="absolute bottom-8 right-6 hidden sm:block md:bottom-auto md:top-8">
           <Stamp tone="crimson" rotate={-12} size="md">
             404
           </Stamp>

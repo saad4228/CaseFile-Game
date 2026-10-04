@@ -64,7 +64,7 @@ export default async function NewRoomPage(props: PageProps<"/rooms/new">) {
                 </p>
               )}
               <div className="mt-12 grid gap-8 lg:grid-cols-[1.3fr_1fr]">
-                <section className="paper relative px-7 py-8 md:px-10" aria-labelledby="open-room">
+                <section className="paper relative min-w-0 px-7 py-8 md:px-10" aria-labelledby="open-room">
                   <p className="label-ink">Open a room</p>
                   <h2 id="open-room" className="font-display mt-2 text-3xl text-[#1d1a14]">
                     Choose the file
@@ -72,7 +72,7 @@ export default async function NewRoomPage(props: PageProps<"/rooms/new">) {
                   <ul className="mt-6 space-y-3">
                     {playable.map((c) => (
                       <li key={c.id} className="flex flex-wrap items-center justify-between gap-4 border border-[#1d1a14]/20 px-5 py-4">
-                        <div>
+                        <div className="min-w-0">
                           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-[#1d1a14]/60">
                             Case {c.number} · {c.players} investigators · {c.estTime.toLowerCase()}
                           </p>
@@ -94,7 +94,7 @@ export default async function NewRoomPage(props: PageProps<"/rooms/new">) {
                   </p>
                 </section>
 
-                <section className="panel px-7 py-8" aria-labelledby="join-room">
+                <section className="panel min-w-0 px-7 py-8" aria-labelledby="join-room">
                   <p className="label">Join a room</p>
                   <h2 id="join-room" className="font-display mt-2 text-3xl">
                     Got a code?
