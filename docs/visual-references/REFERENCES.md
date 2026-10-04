@@ -397,3 +397,30 @@ No reference supplied — designed from the rest of this board. Principles:
 - **Icons:** hand-inked line icons (lamp, magnifier, recorder, phone, keycard, map pin, pin).
 - **Colour discipline:** slate + paper + amber light; red only for contradictions, stamps and
   the reveal.
+
+---
+
+## 10. Small props / evidence items (batch 1)
+
+Files in `10-props/`: `a-cctv-overlay.jpg`, `b-phone-frame.jpg`, `c-handwritten-letter.jpg`,
+`d-hotel-keycard.jpg`, `e-paper-ticket.jpg`. (A and D are watermarked stock images — reference only,
+never shipped.)
+
+- **A — CCTV still.** Desaturated high-angle stairwell, a dark figure mid-step, motion smear.
+  Camera overlay: corner brackets, "1080P", red REC dot, battery icon, running timecode box,
+  "TIME". → All CCTV records get this overlay: corner brackets, camera ID + date top-left,
+  REC + timecode, scanlines and slight blur on the moving figure. Service Stair B footage uses
+  exactly this angle.
+- **B — phone.** A glossy black handset with a dark screen and diagonal glare. → Phone/message
+  records shown inside a phone frame: dark screen, chat bubbles or call log typed inside, glare
+  sweep across the glass; cracked-screen variant for the recovered handset.
+- **C — handwritten letter.** Aged, stained, folded paper with burnt-looking edges and a looping
+  script; date top-right, signature bottom-right. → Handwritten records (Daniel's notebook pages,
+  notes) on stained paper with fold creases, our handwriting font, date and signature placement.
+- **D — hotel keycard.** Silver plastic card, maroon script logo, stars, "SUITE", insert arrow,
+  glossy band. → Keycard records as a Blackwood keycard: dark card, brass/maroon script logo,
+  insert arrow, room number, magnetic stripe on the back; the master card "MGR-01" variant.
+- **E — paper ticket.** Aged cream ticket stub, engraved border, perforated/scalloped edges, big
+  slab-serif TICKET, small mirrored print in side panels. → Tickets and receipts (parking garage
+  P2, bar tab, CCTV fault ticket) as stubs with perforated edges, slab-serif header, small typed
+  print, a punch hole or stamp.
