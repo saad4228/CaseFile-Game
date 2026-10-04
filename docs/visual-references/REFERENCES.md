@@ -290,3 +290,50 @@ section and a FINGERPRINTS grid. Punched holes and tabbed dividers down the side
 - Records: physical-evidence records (phone, keycard, drive) shown in zip evidence bags with a
   typed evidence tag; documents with punch holes and a paper clip.
 - Workspace views as folder tabs on desktop (Board / Timeline / Map / People / Theories / Verdict).
+
+---
+
+## 8. Comic-panel storytelling (batch 1 of 2)
+
+Files in `08-comic-panels/`: `a-webtoon-closeup-bubbles.jpg`, `b-manga-overhead-screentone.jpg`,
+`c-ink-page-hands.jpg`, `d-manga-footsteps-sequence.jpg`, `e-diagonal-split-red-eye.jpg`
+
+**A — vertical webtoon beat.** A tall single scroll: extreme low-angle close-up of a shouting
+mouth in cold blue shadow, a ceiling light behind, then a long dark gap before the last bubble
+("I AM a monster."). White oval speech bubbles, hand-lettered caps, the key word emphasised.
+Pacing comes from *empty space* while you scroll.
+
+**B — manga, overhead.** Wide letterbox panel of eyes under hair at the top; below, a straight-
+down view of a figure curled on a bed, heavy screentone, window light falling across the sheets.
+Pure black and white; texture does the shading.
+
+**C — clean ink page.** Five panels, lots of white: a thin strip of sweating eyes, two medium
+shots side by side, a wide black panel with two open hands (the realisation), then a hand over the
+face. Silent — no words. Rhythm: close → wide → close.
+
+**D — manga sequence, walking.** Shoes stepping on tiles, three tight jaw panels in a row (a
+breath, a decision), the next step, then the figure from behind as a door slides open (sound
+effect). Time is shown by cutting between small details.
+
+**E — diagonal split, one colour.** Top: a high angle into a wrecked room, a dark figure at the
+window, long shadow on the floorboards; a jagged white brush-stroke cuts the page diagonally;
+bottom: an extreme close-up of an eye with a single **red** iris. Cold green-grey + black + one red.
+
+**What works**
+- Show the story through details: hands, shoes, eyes, a door, a light — not wide action shots.
+- Panel rhythm: thin letterbox strips for close-ups, wide panels for place, silent beats.
+- Black-and-white ink with screentone texture; one accent colour (red) for the reveal.
+- Dramatic angles: straight down, low, over-the-shoulder, from behind.
+- Diagonal "slash" panel borders for the shock moment.
+- Webtoon pacing on scroll: space between panels is part of the timing (fits our vertical scroll).
+
+**What CASEFILE will do (resolution "What happened")**
+- Replace the 3-column grid with a vertical, scroll-paced strip: panels of varied shapes
+  (letterbox strip / wide / two side-by-side), gutters of black, short caption boxes in typewriter
+  type instead of speech bubbles.
+- Ink style: scenes redrawn as high-contrast black-and-white SVG with a screentone (halftone dot)
+  texture; red used only for the decisive moment (the drink, 23:41) and the final reveal.
+- Detail shots in the sequence: a hand switching off the camera console, the tray and glass, the
+  master keycard at the lock, shoes on Service Stair B, the phone sinking in the river.
+- The culprit reveal gets a diagonal slash panel: the room above, a close-up below.
+- Panels reveal as you scroll (cheap opacity/translate, no filters); reduced motion shows them all.
