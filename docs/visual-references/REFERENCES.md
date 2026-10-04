@@ -174,3 +174,40 @@ coffee cup, crumpled paper balls. Paper overlaps, nothing is square to the desk.
 - Evidence tray: the desk edge (already walnut) — cards overlap slightly at small angles.
 - Sticky notes (yellow) for player notes; legal-pad yellow for observations.
 - Recorder and rotary phone icons for audio and phone records.
+
+---
+
+## 5. Noir city at night
+
+Files: `05-city/a-snow-lamp-flat-shapes.jpg`, `05-city/b-skyline-balcony-rain.jpg`, `05-city/c-lamp-cone-rain-blue.jpg`
+
+**A — flat-shape painting, blue-grey.** Almost monochrome slate. Buildings are simple dark
+rectangles with a few pale square windows; a single globe street lamp with a soft halo; a lone
+figure in hat and long coat, smoke drifting, coat tails in the wind; big flat drift shapes in the
+foreground. Painted with visible brush texture, very few values.
+
+**B — skyline from a balcony, sepia print.** Warm brown-black, aged paper border and grain.
+The figure is a dark silhouette in the left foreground with his back to us, cigarette smoke
+curling; an iron railing; a dense skyline full of tiny lit windows with one spire; an old gas
+street lamp right; a vertical red neon HOTEL sign; diagonal rain over everything.
+
+**C — under the lamp, poster style.** Near-black with one electric-blue cone of light from a
+street lamp; the figure in the centre seen from behind, standing on wet tracks; rain as long
+thin white streaks *through* the light; reflections on the ground as broken ink strokes.
+
+**What works**
+- The lone figure seen from behind: we stand where he stands. (A, B, C)
+- One lamp, one cone of light, rain visible only where the light catches it. (C) — this is the
+  "live rain" the owner wants: rain should be bright inside lamp light and nearly invisible in the dark.
+- Very limited palette per scene: slate (A), sepia + one red neon (B), black + one blue (C).
+- Simple flat building shapes with scattered lit windows (A, B) — matches our SVG city.
+- Wet ground reflections as broken strokes (C).
+
+**What CASEFILE will do**
+- Live rain everywhere it's used: drops lit inside each lamp's cone (warm or cold), faint outside;
+  splashes and ripples where rain hits the ground in the light; occasional gusts that change the angle.
+- Landing hero: figure seen from behind under a lamp cone (C), our flat-shape city behind (A),
+  one red neon HOTEL sign for the Blackwood (B), wet street reflections of the lamp and windows.
+- Case intro: the balcony view (B) — the city at night with the Blackwood's sign lit.
+- Map: flat-shape city blocks (A) with lit windows; the rain layer stays above the map, light.
+- Keep the figure's cigarette smoke as just drifting breath/fog — no smoking.
