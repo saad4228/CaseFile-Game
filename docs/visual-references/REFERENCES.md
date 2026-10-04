@@ -81,20 +81,9 @@ light; the grey man — fedora and overcoat under a street lamp, face completely
   to the current SVG silhouettes, so art can be dropped in at any time.
 - "J" stays a silhouette in a fedora and overcoat under a street lamp — never a face.
 
-**Decision (owner):** rename Case 047's cast to match this reference.
-
-| Now | Becomes |
-| --- | --- |
-| Sarah Vale, freelance journalist | Rhea Malhotra, journalist, 32 |
-| Elena Cross, hotel general manager | Vandana Singh, hotel manager, 41 |
-| Marcus Reed, media executive | Arjun Mehta, media executive, 38 |
-| Noah Grant | Karan Sharma, student, 22 |
-| "J" | The Grey Man |
-| Blackwood Hotel | Grandview Hotel |
-| Reed Media / Halden (media side) | Nexus Media |
-
-Every record, statement, interview line, truth file entry and resolution text changes with it;
-the plot and clues stay the same. (Victim name and city to be confirmed.)
+**Decision (owner):** keep Case 047's existing cast (Sarah Vale, Elena Cross, Marcus Reed,
+Noah Grant, "J"; Blackwood Hotel). This sheet is a style reference only: the card format,
+per-character scenes and lighting apply to the current characters.
 
 ---
 
