@@ -222,3 +222,18 @@ function Backdrop({ kind, id }: { kind: NonNullable<PortraitSpec["backdrop"]>; i
       );
   }
 }
+
+/** Just the silhouette (head, hair, hat, shoulders) in the portrait's 120×150 space. */
+export function PortraitShape({ spec, fill = "#07090b" }: { spec: PortraitSpec; fill?: string }) {
+  return (
+    <g fill={fill}>
+      <Shoulders collar={spec.collar} />
+      <ellipse cx="60" cy="62" rx="19" ry="23" />
+      <rect x="52" y="78" width="16" height="16" />
+      <Hair hair={spec.hair} />
+      {spec.hat && (
+        <path d="M30 50 C30 46 40 44 44 43 L45 28 C50 23 70 23 75 28 L76 43 C80 44 90 46 90 50 C90 54 75 55 60 55 C45 55 30 54 30 50 Z" />
+      )}
+    </g>
+  );
+}

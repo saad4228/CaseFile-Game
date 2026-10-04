@@ -6,7 +6,8 @@ import { useEffect } from "react";
 import { useGame } from "@/components/game/GameContext";
 import { RingSymbol } from "@/components/ui/RingSymbol";
 import { play } from "@/lib/client/sound";
-import { PhotoScene } from "@/components/illustrations/PhotoScene";
+import { ComicStrip } from "./ComicStrip";
+import { LineUp } from "./LineUp";
 import { Stamp } from "@/components/ui/Stamp";
 import { ACHIEVEMENTS } from "@/lib/achievements";
 import { PROOF_SLOTS, VERDICT_FIELDS } from "@/lib/game-engine/types";
@@ -107,25 +108,23 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
           </div>
         </motion.section>
 
+        {/* The line-up */}
+        <section aria-labelledby="r-lineup">
+          <motion.h2 {...fade()} id="r-lineup" className="label">
+            The line-up
+          </motion.h2>
+          <div className="mt-6">
+            <LineUp suspects={suspects} culpritId={truth.answers.who.id} />
+          </div>
+        </section>
+
         {/* What happened — comic panels */}
         <section aria-labelledby="r-sequence">
           <motion.h2 {...fade()} id="r-sequence" className="font-display text-5xl md:text-6xl">
             What happened
           </motion.h2>
-          <div className="mt-10 grid gap-3 bg-black p-3 sm:grid-cols-2 lg:grid-cols-3">
-            {truth.sequence.map((s, i) => (
-              <motion.figure key={i} {...fade((i % 3) * 0.12)} className="relative overflow-hidden border-2 border-black bg-ink-900">
-                <div className="grayscale-[35%] contrast-125">
-                  <PhotoScene scene={s.scene} className="block w-full" />
-                </div>
-                <span className="absolute left-0 top-0 bg-paper-100 px-2 py-1 font-mono text-[11px] font-semibold text-[#1d1a14]">
-                  {s.time}
-                </span>
-                <figcaption className="paper absolute inset-x-2 bottom-2 px-3 py-2 font-mono text-[11.5px] leading-snug text-[#1d1a14]">
-                  {s.caption}
-                </figcaption>
-              </motion.figure>
-            ))}
+          <div className="mt-10">
+            <ComicStrip sequence={truth.sequence} />
           </div>
         </section>
 

@@ -14,15 +14,18 @@ export function PhotoScene({
   className,
   cctv,
   stamp,
+  slice,
 }: {
   scene: Scene;
   className?: string;
+  /** Crop to fill the box instead of fitting it. */
+  slice?: boolean;
   /** Overlay a CCTV timestamp/camera burn-in. */
   cctv?: { cam: string; time: string };
   stamp?: string;
 }) {
   return (
-    <svg className={className} viewBox="0 0 400 300" role="img" aria-label={labels[scene]}>
+    <svg className={className} viewBox="0 0 400 300" preserveAspectRatio={slice ? "xMidYMid slice" : undefined} role="img" aria-label={labels[scene]}>
       <rect width="400" height="300" fill="#1a2128" />
       {scenes[scene]}
       {cctv && (

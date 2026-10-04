@@ -1,6 +1,7 @@
 import "server-only";
 import type {
   ConflictId,
+  InkDetail,
   EdgeKind,
   EvidenceId,
   LeadId,
@@ -87,15 +88,15 @@ export const truth = {
     { time: "22:41", scene: "lobby" as PhotoScene, caption: "Sarah Vale arrives. At 22:47 Daniel gives her a drive: copies of the original Case 019 evidence log, for Noah." },
     { time: "22:53", scene: "bar" as PhotoScene, caption: "Marcus Reed calls Daniel and tells him to stop. Halden money has been slowing the series since August." },
     { time: "23:12", scene: "garage-plate" as PhotoScene, caption: "Noah Grant drives into the garage and texts Daniel from a burner: he's on P2." },
-    { time: "23:29", scene: "room-desk" as PhotoScene, caption: "From her office console, Elena Cross switches off the third-floor camera." },
-    { time: "23:35", scene: "conservatory" as PhotoScene, caption: "She signs out a turndown tray “from management”: a chocolate and a whisky laced with aconitine from her own monkshood." },
-    { time: "23:41", scene: "room-desk" as PhotoScene, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
+    { time: "23:29", scene: "room-desk" as PhotoScene, detail: "console" as InkDetail, caption: "From her office console, Elena Cross switches off the third-floor camera." },
+    { time: "23:35", scene: "conservatory" as PhotoScene, detail: "glass" as InkDetail, caption: "She signs out a turndown tray “from management”: a chocolate and a whisky laced with aconitine from her own monkshood." },
+    { time: "23:41", scene: "room-desk" as PhotoScene, detail: "keycard" as InkDetail, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
     { time: "23:41", scene: "garage" as PhotoScene, caption: "Two floors down, Sarah has handed Noah the drive and is walking to the Calder Street door." },
-    { time: "23:46", scene: "room-desk" as PhotoScene, caption: "The poison works fast. Elena lets herself back in — two-tone chime. Daniel calls the last number that texted him. Seven seconds: “Shh. Give it to me, Daniel.”" },
-    { time: "23:47", scene: "room-desk" as PhotoScene, caption: "Daniel Mercer dies. She swaps the tumbler for a clean one, wiped of prints, and takes the tray, his phone, and the top sheet of his notepad." },
-    { time: "23:49", scene: "garage" as PhotoScene, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
-    { time: "23:58", scene: "conservatory" as PhotoScene, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
-    { time: "01:06", scene: "lobby" as PhotoScene, caption: "Called back to the hotel, she prints the police a door report — filtered to hide her own card." },
+    { time: "23:46", scene: "room-desk" as PhotoScene, detail: "door" as InkDetail, caption: "The poison works fast. Elena lets herself back in — two-tone chime. Daniel calls the last number that texted him. Seven seconds: “Shh. Give it to me, Daniel.”" },
+    { time: "23:47", scene: "room-desk" as PhotoScene, detail: "window" as InkDetail, caption: "Daniel Mercer dies. She swaps the tumbler for a clean one, wiped of prints, and takes the tray, his phone, and the top sheet of his notepad." },
+    { time: "23:49", scene: "garage" as PhotoScene, detail: "stairs" as InkDetail, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
+    { time: "23:58", scene: "conservatory" as PhotoScene, detail: "river" as InkDetail, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
+    { time: "01:06", scene: "lobby" as PhotoScene, detail: "printout" as InkDetail, caption: "Called back to the hotel, she prints the police a door report — filtered to hide her own card." },
   ],
 
   /** Records filed with the wrong reliability, and what they really are. */

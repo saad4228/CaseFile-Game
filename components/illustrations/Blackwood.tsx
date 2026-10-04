@@ -109,10 +109,10 @@ export function BlackwoodFacade({ lit314 = true, uid }: { lit314?: boolean; uid:
 }
 
 /** The Blackwood alone on its corner at night: fog, one sodium lamp and its cone of light. */
-export function BlackwoodHotel({ className, lit314 = true, bare = false }: { className?: string; lit314?: boolean; bare?: boolean }) {
+export function BlackwoodHotel({ className, lit314 = true, bare = false, slice }: { className?: string; lit314?: boolean; bare?: boolean; slice?: boolean }) {
   const uid = bare ? "bw-bare" : "bw-solo";
   return (
-    <svg className={className} viewBox="0 0 420 640" role="img" aria-label="The Blackwood Hotel at night. One window on the third floor is lit.">
+    <svg className={className} viewBox="0 0 420 640" preserveAspectRatio={slice ? "xMidYMid slice" : undefined} role="img" aria-label="The Blackwood Hotel at night. One window on the third floor is lit.">
       <defs>
         <linearGradient id={`${uid}-sky`} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#0a1416" />

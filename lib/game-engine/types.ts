@@ -58,6 +58,9 @@ export type PhotoScene =
   | "bar"
   | "conservatory";
 
+/** Close-up ink panels for the resolution comic. */
+export type InkDetail = "console" | "glass" | "keycard" | "door" | "window" | "stairs" | "river" | "printout";
+
 export interface Evidence {
   id: EvidenceId;
   number: number;

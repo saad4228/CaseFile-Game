@@ -629,3 +629,17 @@ html[data-motion="reduce"] *::after {
     linear-gradient(90deg, #24180f, #2c1d12 30%, #22170e 60%, #2a1c11);
   background-size: auto, auto, 512px 160px, auto;
 }
+
+/* ── Resolution comic (reference 8) ────────────────────────────────────── */
+/* Scenes printed as high-contrast ink with a halftone dot screen. */
+.ink-panel {
+  filter: grayscale(1) brightness(1.9) contrast(1.35);
+}
+.ink-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.32) 0.9px, transparent 1.3px);
+  background-size: 5px 5px;
+}

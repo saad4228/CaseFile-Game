@@ -2,7 +2,7 @@
 // ResultView only exists once a verdict has been filed.
 
 import type { PersonalState, SharedState } from "@/lib/game-engine/state";
-import type { Evidence, PhotoScene, PlayView, Role, VerdictField } from "@/lib/game-engine/types";
+import type { Evidence, InkDetail, PhotoScene, PlayView, Role, VerdictField } from "@/lib/game-engine/types";
 import type { ScoreResult } from "@/lib/scoring/types";
 
 export const ROLES: Role[] = ["DETECTIVE", "ANALYST", "FORENSICS", "CYBER", "FIELD"];
@@ -60,7 +60,7 @@ export interface ResultView {
   truth: {
     answers: Record<VerdictField, { id: string; label: string }>;
     summary: Record<VerdictField, string>;
-    sequence: { time: string; scene: PhotoScene; caption: string }[];
+    sequence: { time: string; scene: PhotoScene; caption: string; detail?: InkDetail }[];
     conflicts: { id: string; number: number; prompt: string; explanation: string; implicates: string }[];
     redHerrings: { suspect: string; name: string; looksLike: string; actually: string }[];
     falsified: { id: string; number: number; title: string; filed: string; actual: string }[];
