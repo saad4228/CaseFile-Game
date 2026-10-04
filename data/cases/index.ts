@@ -15,7 +15,7 @@ const sealed = (
   classification: "CLASSIFIED",
   status: "SEALED",
   difficulty,
-  players: "2–5",
+  players: "1–4",
   estTime: "40–60 MIN",
   playable: false,
   date: "",

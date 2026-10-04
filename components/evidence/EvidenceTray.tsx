@@ -3,8 +3,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { EVIDENCE_DRAG_TYPE } from "@/components/board/constants";
-import { useInvestigation } from "@/components/investigation/store";
-import type { Evidence, EvidenceCategory } from "@/lib/game-engine/types";
+import { useGame } from "@/components/game/GameContext";
+import type { EvidenceCategory } from "@/lib/game-engine/types";
 import { EvidenceCard } from "./EvidenceCard";
 
 const groups: { id: string; label: string; cats: EvidenceCategory[] }[] = [
@@ -16,21 +16,14 @@ const groups: { id: string; label: string; cats: EvidenceCategory[] }[] = [
   { id: "forensic", label: "Forensic", cats: ["FORENSIC"] },
 ];
 
-export function EvidenceTray({
-  evidence,
-  onOpen,
-  fresh,
-}: {
-  evidence: Evidence[];
-  onOpen: (id: string) => void;
-  fresh: string[];
-}) {
-  const { state } = useInvestigation();
+export function EvidenceTray({ onOpen, fresh }: { onOpen: (id: string) => void; fresh: string[] }) {
+  const { evidence, personal, shared, holders, mode } = useGame();
   const [group, setGroup] = useState("all");
   const [collapsed, setCollapsed] = useState(false);
   const g = groups.find((x) => x.id === group)!;
   const shown = evidence.filter((e) => g.cats.length === 0 || g.cats.includes(e.category));
-  const unseen = evidence.filter((e) => !state.seen.includes(e.id)).length;
+  const unseen = evidence.filter((e) => !personal.seen.includes(e.id)).length;
+  const privateCount = mode === "TEAM" ? evidence.filter((e) => holders[e.id] === "me").length : 0;
 
   return (
     <section className="relative z-20 border-t border-ink-700 bg-ink-950" aria-label="Evidence tray">
@@ -44,6 +37,7 @@ export function EvidenceTray({
           <span className={`inline-block transition-transform ${collapsed ? "-rotate-90" : ""}`}>▾</span>
           Evidence · {evidence.length}
           {unseen > 0 && <span className="hidden text-amber-300 sm:inline">· {unseen} unexamined</span>}
+          {privateCount > 0 && <span className="hidden text-steel-300 md:inline">· {privateCount} private</span>}
         </button>
         <div className="scrollbar-thin ml-auto flex gap-1 overflow-x-auto">
           {groups.map((x) => (
@@ -94,7 +88,13 @@ export function EvidenceTray({
                     className="block cursor-grab active:cursor-grabbing"
                     aria-label={`Inspect ${e.title}`}
                   >
-                    <EvidenceCard e={e} compact unseen={!state.seen.includes(e.id)} pinned={state.board.nodes.some((n) => n.ref === e.id)} />
+                    <EvidenceCard
+                      e={e}
+                      compact
+                      unseen={!personal.seen.includes(e.id)}
+                      pinned={shared.board.nodes.some((n) => n.ref === e.id)}
+                      privateRecord={mode === "TEAM" && holders[e.id] === "me"}
+                    />
                   </button>
                 </motion.li>
               ))}

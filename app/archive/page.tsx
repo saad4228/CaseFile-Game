@@ -2,10 +2,28 @@ import type { Metadata } from "next";
 import { ArchiveView } from "@/components/archive/ArchiveView";
 import { TopNav } from "@/components/landing/TopNav";
 import { cases } from "@/data/cases";
+import { archiveProgress } from "@/lib/archive.server";
+import type { CaseProgress } from "@/lib/archive-types";
+import { getCurrentUser } from "@/lib/auth/session";
+import { hasDatabase } from "@/lib/env";
+import { unpublishedCaseIds } from "@/lib/game-engine/publish.server";
 
-export const metadata: Metadata = { title: "The Archive" };
+export const metadata: Metadata = {
+  title: "The Archive",
+  description: "Season One of CASEFILE: five case files. One is open.",
+};
 
-export default function ArchivePage() {
+export default async function ArchivePage() {
+  const online = hasDatabase();
+  const hidden = await unpublishedCaseIds();
+  // A case pulled by an admin stays on the wall, sealed.
+  const visible = cases.map((c) => (hidden.has(c.id) ? { ...c, playable: false, status: "SEALED" as const } : c));
+  let progress: Record<string, CaseProgress> = {};
+  let teasers: Record<string, string> = {};
+  if (online) {
+    const user = await getCurrentUser();
+    if (user) ({ progress, teasers } = await archiveProgress(user.id));
+  }
   return (
     <>
       <TopNav tone="solid" />
@@ -24,7 +42,7 @@ export default function ArchivePage() {
             Five files. One of them is open. The others will be, once you&apos;ve earned them.
           </p>
           <div className="mt-14">
-            <ArchiveView cases={cases} />
+            <ArchiveView cases={visible} online={online} progress={progress} teasers={teasers} />
           </div>
         </div>
       </main>

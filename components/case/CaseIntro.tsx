@@ -2,23 +2,29 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { createRoomAction, startSoloAction } from "@/app/actions/session";
 import { Rain } from "@/components/illustrations/Rain";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
 import { Stamp } from "@/components/ui/Stamp";
+import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Typewriter } from "@/components/ui/Typewriter";
 import type { CaseMeta, Suspect } from "@/lib/game-engine/types";
 
 type Stage = "file" | "opening" | "intro" | "brief";
 
-export function CaseIntro({ meta, suspects }: { meta: CaseMeta; suspects: Suspect[] }) {
-  const [stage, setStage] = useState<Stage>("file");
+/** How this deployment can run the case: on a server (accounts, rooms) or on this device only. */
+export interface StartOptions {
+  online: boolean;
+  error?: string;
+  /** An unfinished investigation of this case to return to. */
+  resume?: { code: string; mode: "SOLO" | "TEAM" } | null;
+}
+
+export function CaseIntro({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect[]; start: StartOptions }) {
+  const [stage, setStage] = useState<Stage>(start.error ? "brief" : "file");
   const [beat, setBeat] = useState(0);
   const reduce = useReducedMotion();
-  const router = useRouter();
-
-  const begin = useCallback(() => router.push(`/investigation/${meta.id}`), [router, meta.id]);
 
   // file → opening → intro
   useEffect(() => {
@@ -137,7 +143,7 @@ export function CaseIntro({ meta, suspects }: { meta: CaseMeta; suspects: Suspec
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <Briefing meta={meta} suspects={suspects} onBegin={begin} />
+            <Briefing meta={meta} suspects={suspects} start={start} />
           </motion.section>
         )}
       </AnimatePresence>
@@ -220,7 +226,60 @@ function ClosedFile({ meta, opening }: { meta: CaseMeta; opening: boolean }) {
   );
 }
 
-function Briefing({ meta, suspects, onBegin }: { meta: CaseMeta; suspects: Suspect[]; onBegin: () => void }) {
+function StartControls({ meta, start }: { meta: CaseMeta; start: StartOptions }) {
+  if (!start.online) {
+    return (
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+        <Link href={`/investigation/${meta.id}`} className="btn btn-primary">
+          Begin investigation
+        </Link>
+        <p className="label normal-case tracking-[0.08em]">Estimated {meta.estTime.toLowerCase()} · progress saves on this device</p>
+      </div>
+    );
+  }
+  return (
+    <div>
+      {start.error && (
+        <p role="alert" className="mb-5 max-w-xl border-l-4 border-crimson-600 bg-crimson-600/10 px-4 py-3 text-sm">
+          {start.error}
+        </p>
+      )}
+      <div className="flex flex-wrap items-center gap-4">
+        {start.resume ? (
+          <Link href={`/play/${start.resume.code}`} className="btn btn-primary">
+            Resume investigation
+          </Link>
+        ) : (
+          <form action={startSoloAction}>
+            <input type="hidden" name="caseId" value={meta.id} />
+            <SubmitButton className="btn btn-primary" pendingText="Opening the file…">
+              Begin investigation
+            </SubmitButton>
+          </form>
+        )}
+        <form action={createRoomAction}>
+          <input type="hidden" name="caseId" value={meta.id} />
+          <SubmitButton className="btn btn-ghost" pendingText="Opening a room…">
+            Investigate as a team
+          </SubmitButton>
+        </form>
+        {start.resume && (
+          <form action={startSoloAction}>
+            <input type="hidden" name="caseId" value={meta.id} />
+            <SubmitButton className="label hover:text-bone-100" pendingText="Opening…">
+              Start over in a new file
+            </SubmitButton>
+          </form>
+        )}
+      </div>
+      <p className="label mt-4 normal-case tracking-[0.08em]">
+        Estimated {meta.estTime.toLowerCase()} · solo, or 2–4 investigators with an invite link · progress saves to your detective file
+      </p>
+    </div>
+  );
+}
+
+function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect[]; start: StartOptions }) {
   const [typed, setTyped] = useState(0);
   return (
     <div className="relative min-h-[100svh] px-4 py-16 md:px-10 md:py-20">
@@ -303,11 +362,8 @@ function Briefing({ meta, suspects, onBegin }: { meta: CaseMeta; suspects: Suspe
           </ul>
         </div>
 
-        <div className="mt-12 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-          <button type="button" className="btn btn-primary" onClick={onBegin}>
-            Begin investigation
-          </button>
-          <p className="label normal-case tracking-[0.08em]">Estimated {meta.estTime.toLowerCase()} · progress saves on this device</p>
+        <div className="mt-12">
+          <StartControls meta={meta} start={start} />
         </div>
       </div>
     </div>

@@ -2,32 +2,27 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useInvestigation } from "@/components/investigation/store";
-import type { Evidence, Location, Suspect } from "@/lib/game-engine/types";
+import { useGame } from "@/components/game/GameContext";
 import { EvidenceBody } from "./EvidenceBody";
 import { categoryLabel, evidenceCode, reliabilityStyle } from "./format";
 
 export function EvidenceViewer({
-  list,
   openId,
   onOpen,
   onClose,
-  suspects,
-  locations,
   onPinToBoard,
   compareWith,
 }: {
-  list: Evidence[];
   openId: string | null;
   onOpen: (id: string) => void;
   onClose: () => void;
-  suspects: Suspect[];
-  locations: Location[];
   onPinToBoard: (id: string) => void;
   /** Open side by side with this record (from a conflict). */
   compareWith?: string | null;
 }) {
-  const { state, dispatch } = useInvestigation();
+  const { evidence: list, suspects, locations, shared, personal, dispatch, dispatchPersonal, holders, share, mode, phase } = useGame();
+  const readOnly = phase === "RESOLVED";
+  const [sharing, setSharing] = useState(false);
   const index = list.findIndex((e) => e.id === openId);
   const e = index >= 0 ? list[index] : null;
   const [zoom, setZoom] = useState(1);
@@ -48,9 +43,10 @@ export function EvidenceViewer({
 
   useEffect(() => {
     if (!e) return;
-    dispatch({ type: "seen", id: e.id });
+    if (!personal.seen.includes(e.id)) dispatchPersonal({ t: "seen", id: e.id });
     closeRef.current?.focus();
-  }, [e, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [e?.id]);
 
   useEffect(() => {
     if (!e) return;
@@ -200,21 +196,47 @@ export function EvidenceViewer({
                 )}
               </dl>
 
+              {holders[e.id] === "me" && mode === "TEAM" && (
+                <div className="mt-6 border border-amber-500/50 bg-amber-500/5 px-4 py-3">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-amber-300">🔒 Private record</p>
+                  <p className="mt-1 text-sm text-bone-100/75">Only you can see this. Your team can&apos;t pin, cite or use it until you share it.</p>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-sm mt-3 w-full"
+                      disabled={sharing}
+                      onClick={async () => {
+                        setSharing(true);
+                        await share([e.id]);
+                        setSharing(false);
+                      }}
+                    >
+                      {sharing ? "Sharing…" : "Share with team"}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div className="mt-6 grid grid-cols-2 gap-2">
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => onPinToBoard(e.id)}>
-                  {state.board.nodes.some((n) => n.kind === "evidence" && n.ref === e.id) ? "On board ✓" : "Pin to board"}
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm"
+                  disabled={readOnly || holders[e.id] === "me"}
+                  onClick={() => onPinToBoard(e.id)}
+                >
+                  {shared.board.nodes.some((n) => n.kind === "evidence" && n.ref === e.id) ? "On board ✓" : "Pin to board"}
                 </button>
                 <button
                   type="button"
                   className="btn btn-ghost btn-sm"
-                  disabled={!e.time}
+                  disabled={!e.time || readOnly || holders[e.id] === "me"}
                   onClick={() =>
-                    state.timeline.placed.includes(e.id)
-                      ? dispatch({ type: "timelineRemove", id: e.id })
-                      : dispatch({ type: "timelinePlace", id: e.id })
+                    shared.timeline.placed.includes(e.id)
+                      ? dispatch({ t: "timeline.remove", id: e.id })
+                      : dispatch({ t: "timeline.place", id: e.id })
                   }
                 >
-                  {state.timeline.placed.includes(e.id) ? "On timeline ✓" : "Add to timeline"}
+                  {shared.timeline.placed.includes(e.id) ? "On timeline ✓" : "Add to timeline"}
                 </button>
                 <label className="col-span-2">
                   <span className="sr-only">Compare with</span>
@@ -243,8 +265,9 @@ export function EvidenceViewer({
                   id={`obs-${e.id}`}
                   className="font-hand mt-2 h-40 w-full resize-y border border-ink-600 bg-paper-100 px-4 py-3 text-2xl leading-7 text-[#1f2c55] placeholder:text-[#1f2c55]/40"
                   placeholder="What do you notice?"
-                  value={state.notes[e.id] ?? ""}
-                  onChange={(ev) => dispatch({ type: "note", id: e.id, text: ev.target.value })}
+                  value={personal.notes[e.id] ?? ""}
+                  maxLength={2000}
+                  onChange={(ev) => dispatchPersonal({ t: "note", id: e.id, text: ev.target.value })}
                 />
               </div>
             </aside>

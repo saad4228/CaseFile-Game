@@ -3,7 +3,8 @@
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { evidenceCode, formatMinutes, minutesFrom22 } from "@/components/evidence/format";
-import { useInvestigation, type CustomEvent } from "@/components/investigation/store";
+import { useGame } from "@/components/game/GameContext";
+import type { CustomEvent } from "@/lib/game-engine/state";
 import type { Evidence } from "@/lib/game-engine/types";
 
 const SPAN = 180; // 22:00 → 01:00
@@ -13,8 +14,10 @@ type Item =
   | { type: "evidence"; id: string; at: number; e: Evidence }
   | { type: "custom"; id: string; at: number; c: CustomEvent };
 
-export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpen: (id: string) => void }) {
-  const { state, dispatch, newId } = useInvestigation();
+export function TimelineView({ onOpen, onToast }: { onOpen: (id: string) => void; onToast: (msg: string) => void }) {
+  const { evidence, shared, holders, dispatch, newId, phase } = useGame();
+  const readOnly = phase === "RESOLVED";
+  const state = shared;
   const [scale, setScale] = useState(9); // px per minute
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<{ id: string; at: number } | null>(null);
@@ -63,7 +66,7 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
   const trackTop = lanes.count * laneH + 40;
 
   const addUnknown = () =>
-    dispatch({ type: "customAdd", event: { id: `c-${newId()}`, time: "23:30", label: "" } });
+    dispatch({ t: "custom.add", event: { id: newId(), time: "23:30", label: "" } });
 
   const startDrag = (ev: React.PointerEvent, c: CustomEvent) => {
     const track = trackRef.current;
@@ -73,7 +76,7 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
     const toMin = (clientX: number) => Math.max(0, Math.min(SPAN, Math.round((clientX - rect.left + track.scrollLeft - 100) / scale)));
     const move = (e: PointerEvent) => setDragging({ id: c.id, at: toMin(e.clientX) });
     const up = (e: PointerEvent) => {
-      dispatch({ type: "customUpdate", event: { ...c, time: formatMinutes(toMin(e.clientX)) } });
+      dispatch({ t: "custom.update", event: { ...c, time: formatMinutes(toMin(e.clientX)) } });
       setDragging(null);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
@@ -87,9 +90,11 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
       {/* controls */}
       <div className="flex flex-wrap items-center gap-3 border-b border-ink-700 px-4 py-3 md:px-6">
         <p className="label mr-2">Timeline · Nov 14, 22:00 – 01:00</p>
-        <button type="button" className="btn btn-ghost btn-sm" onClick={addUnknown}>
-          + ????? event
-        </button>
+        {!readOnly && (
+          <button type="button" className="btn btn-ghost btn-sm" onClick={addUnknown}>
+            + ????? event
+          </button>
+        )}
         <div className="ml-auto flex items-center gap-2">
           <span className="label">Scale</span>
           {[5, 9, 15].map((s) => (
@@ -115,7 +120,11 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
               <button
                 key={e.id}
                 type="button"
-                onClick={() => dispatch({ type: "timelinePlace", id: e.id })}
+                onClick={() =>
+                  holders[e.id] === "me"
+                    ? onToast("That record is private to you. Share it with the team to put it on the timeline.")
+                    : dispatch({ t: "timeline.place", id: e.id })
+                }
                 className="shrink-0 border border-ink-600 px-3 py-1.5 text-left font-mono text-[11px] text-bone-100/80 hover:border-amber-500 hover:text-bone-100"
                 title={`Place ${e.title} on the timeline`}
               >
@@ -190,7 +199,7 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
                     <button
                       type="button"
                       className="absolute right-1 top-1 px-1 text-[11px] text-[#1d1a14]/50 hover:text-crimson-600"
-                      onClick={() => dispatch({ type: "timelineRemove", id: it.e.id })}
+                      onClick={() => dispatch({ t: "timeline.remove", id: it.e.id })}
                       aria-label={`Remove ${it.e.title} from timeline`}
                     >
                       ✕
@@ -213,12 +222,12 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
                       className="mt-1 w-full bg-transparent text-[12px] text-bone-100 outline-none placeholder:text-steel-400"
                       placeholder="what happened?"
                       value={it.c.label}
-                      onChange={(ev) => dispatch({ type: "customUpdate", event: { ...it.c, label: ev.target.value } })}
+                      onChange={(ev) => dispatch({ t: "custom.update", event: { ...it.c, label: ev.target.value } })}
                     />
                     <button
                       type="button"
                       className="absolute right-1 top-1 px-1 text-[11px] text-steel-400 hover:text-crimson-400"
-                      onClick={() => dispatch({ type: "customRemove", id: it.c.id })}
+                      onClick={() => dispatch({ t: "custom.remove", id: it.c.id })}
                       aria-label="Remove event"
                     >
                       ✕
@@ -251,16 +260,17 @@ export function TimelineView({ evidence, onOpen }: { evidence: Evidence[]; onOpe
               <div className="border border-dashed border-crimson-400/80 px-3 py-2">
                 <input
                   aria-label="Time"
-                  className="w-20 bg-transparent font-mono text-xs text-crimson-400 outline-none"
+                  type="time"
+                  className="w-24 bg-transparent font-mono text-xs text-crimson-400 outline-none [color-scheme:dark]"
                   value={it.c.time}
-                  onChange={(ev) => dispatch({ type: "customUpdate", event: { ...it.c, time: ev.target.value } })}
+                  onChange={(ev) => /^\d{2}:\d{2}$/.test(ev.target.value) && dispatch({ t: "custom.update", event: { ...it.c, time: ev.target.value } })}
                 />
                 <input
                   aria-label="What happened?"
                   className="mt-1 w-full bg-transparent text-sm text-bone-100 outline-none placeholder:text-steel-400"
                   placeholder="what happened?"
                   value={it.c.label}
-                  onChange={(ev) => dispatch({ type: "customUpdate", event: { ...it.c, label: ev.target.value } })}
+                  onChange={(ev) => dispatch({ t: "custom.update", event: { ...it.c, label: ev.target.value } })}
                 />
               </div>
             )}

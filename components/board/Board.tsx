@@ -25,17 +25,18 @@ import {
 import "@xyflow/react/dist/base.css";
 import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { EvidenceCard } from "@/components/evidence/EvidenceCard";
+import { useGame } from "@/components/game/GameContext";
 import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
-import { useInvestigation } from "@/components/investigation/store";
 import type { EdgeKind, Evidence, Suspect } from "@/lib/game-engine/types";
 import { EVIDENCE_DRAG_TYPE } from "./constants";
 import { edgeKindOrder, edgeKinds } from "./edgeKinds";
-
 
 interface BoardCtx {
   evidence: Map<string, Evidence>;
   suspects: Map<string, Suspect>;
   unseen: Set<string>;
+  readOnly: boolean;
+  judged?: Record<string, "correct" | "wrong" | "neutral">;
   onOpen: (id: string) => void;
   editEdge: (id: string) => void;
 }
@@ -45,7 +46,9 @@ const useBoard = () => useContext(BoardContext)!;
 type NodeData = { ref?: string; text?: string };
 
 function Handles() {
-  const cls = "!h-2.5 !w-2.5 !border-2 !border-ink-950 !bg-crimson-600 opacity-0 transition-opacity group-hover:opacity-100";
+  const { readOnly } = useBoard();
+  if (readOnly) return null;
+  const cls = "!h-3 !w-3 !border-2 !border-ink-950 !bg-crimson-600 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100";
   return (
     <>
       <Handle type="source" position={Position.Top} id="t" className={cls} />
@@ -65,16 +68,21 @@ function Pin() {
   );
 }
 
+const selectedCls = (selected: boolean) => (selected ? "outline outline-2 outline-offset-4 outline-amber-500" : "");
+
 function EvidenceNode({ data, selected }: NodeProps<Node<NodeData>>) {
   const { evidence, unseen, onOpen } = useBoard();
   const e = data.ref ? evidence.get(data.ref) : undefined;
-  if (!e) return null;
+  if (!e) {
+    return (
+      <div className="w-40 border border-dashed border-steel-400/50 px-3 py-3 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-steel-400">
+        Record withdrawn
+        <Handles />
+      </div>
+    );
+  }
   return (
-    <div
-      className={`group relative ${selected ? "outline outline-2 outline-offset-4 outline-amber-500" : ""}`}
-      onDoubleClick={() => onOpen(e.id)}
-      title="Double-click to inspect"
-    >
+    <div className={`group relative ${selectedCls(selected)}`} onDoubleClick={() => onOpen(e.id)} title="Double-click to inspect">
       <Pin />
       <EvidenceCard e={e} compact unseen={unseen.has(e.id)} />
       <Handles />
@@ -87,7 +95,7 @@ function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
   const s = data.ref ? suspects.get(data.ref) : undefined;
   if (!s) return null;
   return (
-    <div className={`group relative ${selected ? "outline outline-2 outline-offset-4 outline-amber-500" : ""}`}>
+    <div className={`group relative ${selectedCls(selected)}`}>
       <Pin />
       <div className="photo-print w-28">
         <SuspectPortrait spec={s.portrait} label={s.name} className="block w-full" />
@@ -99,16 +107,19 @@ function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
 }
 
 function NoteNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
-  const { dispatch } = useInvestigation();
+  const { dispatch } = useGame();
+  const { readOnly } = useBoard();
   return (
-    <div className={`group relative ${selected ? "outline outline-2 outline-offset-4 outline-amber-500" : ""}`}>
+    <div className={`group relative ${selectedCls(selected)}`}>
       <div className="paper-aged w-48 rotate-[-1.5deg] px-3 py-2">
         <textarea
           aria-label="Note"
+          readOnly={readOnly}
+          maxLength={600}
           className="font-hand nodrag h-24 w-full resize-none bg-transparent text-2xl leading-6 text-[#1f2c55] outline-none placeholder:text-[#1f2c55]/40"
           placeholder="write it down…"
           value={data.text ?? ""}
-          onChange={(ev) => dispatch({ type: "boardText", id, text: ev.target.value })}
+          onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
         />
       </div>
       <Handles />
@@ -117,17 +128,20 @@ function NoteNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
 }
 
 function UnknownNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
-  const { dispatch } = useInvestigation();
+  const { dispatch } = useGame();
+  const { readOnly } = useBoard();
   return (
-    <div className={`group relative ${selected ? "outline outline-2 outline-offset-4 outline-amber-500" : ""}`}>
+    <div className={`group relative ${selectedCls(selected)}`}>
       <div className="w-44 border border-dashed border-steel-400/70 bg-ink-950/80 px-3 py-3 text-center">
         <p className="font-mono text-lg tracking-[0.3em] text-steel-300">?????</p>
         <input
           aria-label="Unknown event"
+          readOnly={readOnly}
+          maxLength={160}
           className="nodrag mt-1 w-full bg-transparent text-center font-mono text-[11px] uppercase tracking-[0.12em] text-bone-100 outline-none placeholder:text-steel-400"
           placeholder="what happened here?"
           value={data.text ?? ""}
-          onChange={(ev) => dispatch({ type: "boardText", id, text: ev.target.value })}
+          onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
         />
       </div>
       <Handles />
@@ -138,10 +152,11 @@ function UnknownNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
 const nodeTypes = { evidence: EvidenceNode, suspect: SuspectNode, note: NoteNode, unknown: UnknownNode, location: NoteNode };
 
 function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, data, selected }: EdgeProps<Edge<{ kind: EdgeKind }>>) {
-  const { editEdge } = useBoard();
+  const { editEdge, readOnly, judged } = useBoard();
   const kind = data?.kind ?? "ASSOCIATED_WITH";
   const style = edgeKinds[kind];
   const [path, lx, ly] = getBezierPath({ sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition, curvature: 0.35 });
+  const verdict = judged?.[id];
   return (
     <>
       <BaseEdge
@@ -157,7 +172,7 @@ function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
           className="nodrag nopan absolute border bg-ink-950 px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.18em]"
           style={{
             transform: `translate(-50%, -50%) translate(${lx}px, ${ly}px)`,
-            pointerEvents: "all",
+            pointerEvents: readOnly ? "none" : "all",
             borderColor: style.color,
             color: style.color,
           }}
@@ -165,6 +180,11 @@ function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, sourcePosition, ta
           aria-label={`${style.label} — change connection`}
         >
           {style.label}
+          {verdict && verdict !== "neutral" && (
+            <span className={`ml-1.5 ${verdict === "correct" ? "text-[#9fd49a]" : "text-crimson-400"}`}>
+              {verdict === "correct" ? "✓" : "✗"}
+            </span>
+          )}
         </button>
       </EdgeLabelRenderer>
     </>
@@ -188,17 +208,19 @@ function ArrowDefs() {
 }
 
 function BoardInner({
-  evidence,
-  suspects,
   onOpen,
+  onToast,
+  judged,
 }: {
-  evidence: Evidence[];
-  suspects: Suspect[];
   onOpen: (id: string) => void;
+  onToast: (msg: string) => void;
+  judged?: Record<string, "correct" | "wrong" | "neutral">;
 }) {
-  const { state, dispatch, newId } = useInvestigation();
+  const { shared, personal, evidence, suspects, holders, dispatch, newId, phase } = useGame();
+  const readOnly = phase === "RESOLVED";
   const { screenToFlowPosition } = useReactFlow();
   const [drag, setDrag] = useState<Record<string, { x: number; y: number }>>({});
+  const dragRef = useRef<Record<string, { x: number; y: number }>>({});
   const [selectedNodes, setSelectedNodes] = useState<Set<string>>(new Set());
   const [selectedEdges, setSelectedEdges] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<string | null>(null);
@@ -208,22 +230,25 @@ function BoardInner({
     () => ({
       evidence: new Map(evidence.map((e) => [e.id, e])),
       suspects: new Map(suspects.map((s) => [s.id, s])),
-      unseen: new Set(evidence.filter((e) => !state.seen.includes(e.id)).map((e) => e.id)),
+      unseen: new Set(evidence.filter((e) => !personal.seen.includes(e.id)).map((e) => e.id)),
+      readOnly,
+      judged,
       onOpen,
       editEdge: setEditing,
     }),
-    [evidence, suspects, state.seen, onOpen],
+    [evidence, suspects, personal.seen, onOpen, readOnly, judged],
   );
 
-  const nodes: Node<NodeData>[] = state.board.nodes.map((n) => ({
+  const nodes: Node<NodeData>[] = shared.board.nodes.map((n) => ({
     id: n.id,
     type: n.kind,
     position: drag[n.id] ?? { x: n.x, y: n.y },
     data: { ref: n.ref, text: n.text },
     selected: selectedNodes.has(n.id),
+    draggable: !readOnly,
   }));
 
-  const edges: Edge<{ kind: EdgeKind }>[] = state.board.edges.map((e) => ({
+  const edges: Edge<{ kind: EdgeKind }>[] = shared.board.edges.map((e) => ({
     id: e.id,
     source: e.source,
     target: e.target,
@@ -231,8 +256,6 @@ function BoardInner({
     data: { kind: e.kind },
     selected: selectedEdges.has(e.id),
   }));
-
-  const dragRef = useRef<Record<string, { x: number; y: number }>>({});
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<NodeData>>[]) => {
@@ -242,7 +265,7 @@ function BoardInner({
             dragRef.current[c.id] = c.position;
           } else if (c.dragging === false) {
             const pos = c.position ?? dragRef.current[c.id];
-            if (pos) dispatch({ type: "boardMove", id: c.id, x: pos.x, y: pos.y });
+            if (pos) dispatch({ t: "board.move", id: c.id, x: Math.round(pos.x), y: Math.round(pos.y) });
             delete dragRef.current[c.id];
           }
           setDrag({ ...dragRef.current });
@@ -253,12 +276,12 @@ function BoardInner({
             else next.delete(c.id);
             return next;
           });
-        } else if (c.type === "remove") {
-          dispatch({ type: "boardRemove", id: c.id });
+        } else if (c.type === "remove" && !readOnly) {
+          dispatch({ t: "board.remove", id: c.id });
         }
       }
     },
-    [dispatch],
+    [dispatch, readOnly],
   );
 
   const onEdgesChange = useCallback(
@@ -271,42 +294,46 @@ function BoardInner({
             else next.delete(c.id);
             return next;
           });
-        } else if (c.type === "remove") {
-          dispatch({ type: "edgeRemove", id: c.id });
+        } else if (c.type === "remove" && !readOnly) {
+          dispatch({ t: "edge.remove", id: c.id });
         }
       }
     },
-    [dispatch],
+    [dispatch, readOnly],
   );
 
   const onConnect = useCallback(
     (c: Connection) => {
-      if (!c.source || !c.target || c.source === c.target) return;
-      const id = `e-${newId()}`;
-      dispatch({ type: "edgeAdd", edge: { id, source: c.source, target: c.target, kind: "ASSOCIATED_WITH" } });
+      if (readOnly || !c.source || !c.target || c.source === c.target) return;
+      const id = newId();
+      dispatch({ t: "edge.add", edge: { id, source: c.source, target: c.target, kind: "ASSOCIATED_WITH" } });
       setEditing(id);
     },
-    [dispatch, newId],
+    [dispatch, newId, readOnly],
   );
 
   const center = () => screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2.4 });
-  const jitter = () => ({ x: (Math.random() - 0.5) * 120, y: (Math.random() - 0.5) * 80 });
+  const spread = shared.board.nodes.length;
+  const offset = { x: ((spread * 47) % 160) - 80, y: ((spread * 31) % 100) - 50 };
 
   const addNode = (kind: "note" | "unknown" | "suspect", ref?: string) => {
     const p = center();
-    const j = jitter();
-    dispatch({ type: "boardAdd", node: { id: `n-${newId()}`, kind, ref, x: p.x + j.x, y: p.y + j.y } });
+    dispatch({ t: "board.add", node: { id: newId(), kind, ref, x: Math.round(p.x + offset.x), y: Math.round(p.y + offset.y) } });
   };
 
   const onDrop = (ev: React.DragEvent) => {
     const id = ev.dataTransfer.getData(EVIDENCE_DRAG_TYPE);
-    if (!id) return;
+    if (!id || readOnly) return;
     ev.preventDefault();
+    if (holders[id] === "me") {
+      onToast("That record is private to you. Share it with the team before pinning it to the board.");
+      return;
+    }
     const p = screenToFlowPosition({ x: ev.clientX, y: ev.clientY });
-    dispatch({ type: "boardAdd", node: { id: `n-${newId()}`, kind: "evidence", ref: id, x: p.x - 80, y: p.y - 40 } });
+    dispatch({ t: "board.add", node: { id: newId(), kind: "evidence", ref: id, x: Math.round(p.x - 80), y: Math.round(p.y - 40) } });
   };
 
-  const editingEdge = state.board.edges.find((e) => e.id === editing);
+  const editingEdge = shared.board.edges.find((e) => e.id === editing);
 
   return (
     <BoardContext.Provider value={ctx}>
@@ -331,63 +358,72 @@ function BoardInner({
           onConnect={onConnect}
           connectionMode={ConnectionMode.Loose}
           connectionLineStyle={{ stroke: "#9c2929", strokeWidth: 2 }}
-          deleteKeyCode={["Backspace", "Delete"]}
-          minZoom={0.3}
+          deleteKeyCode={readOnly ? null : ["Backspace", "Delete"]}
+          nodesConnectable={!readOnly}
+          minZoom={0.25}
           maxZoom={2}
-          fitView={state.board.nodes.length > 0}
+          fitView={shared.board.nodes.length > 0}
           fitViewOptions={{ padding: 0.3, maxZoom: 1 }}
           className="casefile-board"
         >
           <Background variant={BackgroundVariant.Dots} gap={22} size={1.2} color="#2c343d" />
           <Controls showInteractive={false} className="casefile-controls" position="bottom-right" />
-          <Panel position="top-left" className="!m-3 flex flex-wrap gap-2">
-            <button type="button" className="btn btn-ghost btn-sm bg-ink-950/80" onClick={() => addNode("note")}>
-              + Note
-            </button>
-            <button type="button" className="btn btn-ghost btn-sm bg-ink-950/80" onClick={() => addNode("unknown")}>
-              + ?????
-            </button>
-            <div className="relative">
+          {!readOnly && (
+            <Panel position="top-left" className="!m-3 flex flex-wrap gap-2">
+              <button type="button" className="btn btn-ghost btn-sm bg-ink-950/80" onClick={() => addNode("note")}>
+                + Note
+              </button>
               <button
                 type="button"
                 className="btn btn-ghost btn-sm bg-ink-950/80"
-                aria-expanded={personMenu}
-                onClick={() => setPersonMenu((v) => !v)}
+                onClick={() => addNode("unknown")}
+                aria-label="Add an unknown event"
+                title="Something happened here, but you don't know what yet"
               >
-                + Person ▾
+                + ?????
               </button>
-              {personMenu && (
-                <ul className="panel absolute left-0 top-full z-20 mt-1 w-52 py-1">
-                  {suspects.map((s) => (
-                    <li key={s.id}>
-                      <button
-                        type="button"
-                        className="w-full px-4 py-2 text-left text-sm hover:bg-ink-800"
-                        onClick={() => {
-                          addNode("suspect", s.id);
-                          setPersonMenu(false);
-                        }}
-                      >
-                        {s.name}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </Panel>
+              <div className="relative">
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm bg-ink-950/80"
+                  aria-expanded={personMenu}
+                  onClick={() => setPersonMenu((v) => !v)}
+                >
+                  + Person ▾
+                </button>
+                {personMenu && (
+                  <ul className="panel absolute left-0 top-full z-20 mt-1 w-52 py-1">
+                    {suspects.map((s) => (
+                      <li key={s.id}>
+                        <button
+                          type="button"
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-ink-800"
+                          onClick={() => {
+                            addNode("suspect", s.id);
+                            setPersonMenu(false);
+                          }}
+                        >
+                          {s.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </Panel>
+          )}
         </ReactFlow>
 
-        {state.board.nodes.length === 0 && (
+        {shared.board.nodes.length === 0 && (
           <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
             <p className="font-display text-3xl italic text-bone-100/70 md:text-4xl">The board is quiet. Keep looking.</p>
             <p className="label mt-4 max-w-md normal-case tracking-[0.08em]">
-              Drag records up from the tray, or open one and pin it. Pull a thread from any pinned item&apos;s edge to connect it.
+              Drag records up from the tray, or open one and pin it. Pull a thread from the edge of any pinned item to connect it.
             </p>
           </div>
         )}
 
-        {editingEdge && (
+        {editingEdge && !readOnly && (
           <div className="panel absolute right-3 top-3 z-20 w-64 p-3 shadow-2xl" role="dialog" aria-label="Connection type">
             <p className="label mb-2">How are they connected?</p>
             <ul className="space-y-1">
@@ -396,7 +432,7 @@ function BoardInner({
                   <button
                     type="button"
                     onClick={() => {
-                      dispatch({ type: "edgeKind", id: editingEdge.id, kind: k });
+                      dispatch({ t: "edge.kind", id: editingEdge.id, kind: k });
                       setEditing(null);
                     }}
                     className={`flex w-full items-center gap-3 px-2 py-1.5 text-left font-mono text-[11px] uppercase tracking-[0.14em] hover:bg-ink-800 ${
@@ -416,7 +452,7 @@ function BoardInner({
                 type="button"
                 className="label !text-crimson-400 hover:!text-bone-100"
                 onClick={() => {
-                  dispatch({ type: "edgeRemove", id: editingEdge.id });
+                  dispatch({ t: "edge.remove", id: editingEdge.id });
                   setEditing(null);
                 }}
               >
@@ -433,7 +469,11 @@ function BoardInner({
   );
 }
 
-export function Board(props: { evidence: Evidence[]; suspects: Suspect[]; onOpen: (id: string) => void }) {
+export function Board(props: {
+  onOpen: (id: string) => void;
+  onToast: (msg: string) => void;
+  judged?: Record<string, "correct" | "wrong" | "neutral">;
+}) {
   return (
     <ReactFlowProvider>
       <BoardInner {...props} />

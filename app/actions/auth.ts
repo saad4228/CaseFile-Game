@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cleanCodename } from "@/lib/auth/codename";
@@ -88,8 +89,10 @@ export async function signOutAction() {
 export async function updateCodenameAction(_prev: AuthFormState, form: FormData): Promise<AuthFormState> {
   const user = await getCurrentUser();
   if (!user) return { error: "Sign in first." };
-  const codename = cleanCodename(String(form.get("codename") ?? ""));
-  if (!codename) return { error: "Choose a codename of 2–24 letters, numbers or spaces." };
+  const raw = String(form.get("codename") ?? "");
+  const codename = cleanCodename(raw);
+  if (!codename) return { error: "Choose a codename of 2–24 letters, numbers or spaces.", codename: raw.slice(0, 24) };
   await db().user.update({ where: { id: user.id }, data: { codename } });
-  return { ok: "Codename updated." };
+  revalidatePath("/profile");
+  return { ok: "Codename updated.", codename };
 }

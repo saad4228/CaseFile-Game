@@ -50,5 +50,5 @@ export const meta: CaseMeta = {
       hold: 2800,
     },
   ],
-  counts: { suspects: 5, evidence: 30 },
+  counts: { suspects: 5, evidence: 34 },
 };

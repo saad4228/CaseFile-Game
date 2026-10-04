@@ -178,6 +178,8 @@ model Interview {
   askedById String
   kind      String // ASK | PRESENT
   ref       String
+  /// For PRESENT: which reaction fired (reaction id, "deflect:n" or "repeat"), fixed at the time.
+  outcome   String      @default("")
   createdAt DateTime    @default(now())
   session   GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
 

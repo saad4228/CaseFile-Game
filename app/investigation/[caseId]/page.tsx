@@ -1,39 +1,23 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { WorkspaceLoader as Workspace } from "@/components/investigation/WorkspaceLoader";
-import { getCaseMeta } from "@/data/cases";
-import { BRIEF_EVIDENCE } from "@/data/cases/case-047/evidence.server";
-import { locations, routes } from "@/data/cases/case-047/locations";
-import { suspects } from "@/data/cases/case-047/suspects";
-import { activeConflicts, availableLeads, briefEvidence } from "@/lib/game-engine/engine.server";
+import { LocalApp } from "@/components/game/LocalApp";
+import { getBundle } from "@/lib/game-engine/cases.server";
+import { buildPlayView } from "@/lib/game-engine/engine.server";
+import { casePublic } from "@/lib/game-engine/public.server";
 
 export async function generateMetadata(props: PageProps<"/investigation/[caseId]">): Promise<Metadata> {
   const { caseId } = await props.params;
-  const meta = getCaseMeta(caseId);
-  return { title: meta ? `Investigating ${meta.number}` : "Case not found" };
+  const bundle = getBundle(caseId);
+  return { title: bundle ? `Investigating ${bundle.meta.number}` : "Case not found", robots: { index: false } };
 }
 
-export default async function InvestigationPage(props: PageProps<"/investigation/[caseId]">) {
+/** Device-only investigation: works with no database; progress stays in this browser. */
+export default async function LocalInvestigationPage(props: PageProps<"/investigation/[caseId]">) {
   const { caseId } = await props.params;
-  const meta = getCaseMeta(caseId);
-  if (!meta || !meta.playable) notFound();
+  const bundle = getBundle(caseId);
+  if (!bundle || !bundle.meta.playable) notFound();
 
-  // Only the case brief is sent with the page. Everything else is earned through leads.
-  const have = new Set(BRIEF_EVIDENCE);
-  const initial = {
-    evidence: briefEvidence(),
-    leads: availableLeads(have),
-    conflicts: activeConflicts(have),
-  };
-
-  return (
-    <Workspace
-      meta={meta}
-      suspects={suspects}
-      locations={locations}
-      routes={routes}
-      brief={BRIEF_EVIDENCE}
-      initial={initial}
-    />
-  );
+  // Only the case brief ships with the page. Everything else is earned.
+  const initialPlay = buildPlayView(bundle, { visible: new Set(bundle.brief), followed: [], actions: [] });
+  return <LocalApp pub={casePublic(bundle)} brief={bundle.brief} initialPlay={initialPlay} />;
 }

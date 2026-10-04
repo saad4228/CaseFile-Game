@@ -175,3 +175,95 @@ export type EdgeKind =
   | "OCCURRED_AFTER"
   | "DISPROVES"
   | "SUSPECTED";
+
+// ─── Interviews ──────────────────────────────────────────────────────────────
+
+/** One line of an interview. `note` lines are stage directions, shown in italics. */
+export interface DialogueLine {
+  who: "suspect" | "note";
+  text: string;
+}
+
+export interface InterviewQuestion {
+  id: string;
+  text: string;
+  /** Only offered once these records are known to the asker / team. */
+  requires?: EvidenceId[];
+  /** Only offered after these questions were asked or reactions triggered. */
+  after?: string[];
+  answer: DialogueLine[];
+  unlocks?: EvidenceId[];
+}
+
+export interface InterviewReaction {
+  id: string;
+  /** Presenting any of these records triggers the reaction… */
+  evidence: EvidenceId[];
+  /** …provided the team also knows these. */
+  requiresAlso?: EvidenceId[];
+  answer: DialogueLine[];
+  unlocks?: EvidenceId[];
+}
+
+export interface InterviewScript {
+  suspectId: SuspectId;
+  setting: string;
+  opening: DialogueLine[];
+  questions: InterviewQuestion[];
+  reactions: InterviewReaction[];
+  /** Rotating answers when presented with something that doesn't move them. */
+  deflections: DialogueLine[][];
+  /** Said when the same record is presented twice. */
+  repeat: DialogueLine[];
+}
+
+export interface InterviewAction {
+  suspectId: SuspectId;
+  kind: "ASK" | "PRESENT";
+  ref: string;
+  /** PRESENT only: reaction id, "deflect:<n>" or "repeat" — fixed when the action happened. */
+  outcome?: string;
+  by?: string;
+}
+
+export interface TranscriptEntry {
+  key: string;
+  kind: "OPEN" | "ASK" | "PRESENT";
+  prompt: string;
+  lines: DialogueLine[];
+  by?: string;
+  unlocked?: EvidenceId[];
+}
+
+export interface InterviewView {
+  transcript: TranscriptEntry[];
+  questions: { id: string; text: string }[];
+}
+
+// ─── Verdict ─────────────────────────────────────────────────────────────────
+
+export type ProofSlot = "motive" | "opportunity" | "means" | "timeline" | "identity";
+export const PROOF_SLOTS: ProofSlot[] = ["motive", "opportunity", "means", "timeline", "identity"];
+
+export type VerdictField = "who" | "how" | "when" | "where" | "why";
+export const VERDICT_FIELDS: VerdictField[] = ["who", "how", "when", "where", "why"];
+
+export interface VerdictOption {
+  id: string;
+  label: string;
+}
+
+export type VerdictOptions = Record<VerdictField, VerdictOption[]>;
+
+// ─── Views shared by both storage modes ─────────────────────────────────────
+
+/** Gameplay data derived on the server from what the viewer can legitimately see. */
+export interface PlayView {
+  evidence: Evidence[];
+  /** "team" = shared, "me" = private to the viewer. */
+  holders: Record<EvidenceId, "team" | "me">;
+  leads: LeadView[];
+  followed: { id: LeadId; label: string; by?: string }[];
+  conflicts: ConflictView[];
+  interviews: Record<SuspectId, InterviewView>;
+}

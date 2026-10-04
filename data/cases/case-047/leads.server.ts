@@ -133,4 +133,6 @@ export const conflicts: Conflict[] = [
   { id: "C-07", number: 7, a: "E-008", b: "E-018", prompt: "A statement and a lock record disagree about Room 314." },
   { id: "C-08", number: 8, a: "E-008", b: "E-027", prompt: "A statement and a gate log disagree about whereabouts after 23:00." },
   { id: "C-09", number: 9, a: "E-022", b: "E-023", prompt: "An inventory and a lab report disagree about a drink." },
+  { id: "C-10", number: 10, a: "E-034", b: "E-018", prompt: "A revised statement and a lock record disagree about how often a door was opened." },
+  { id: "C-11", number: 11, a: "E-034", b: "E-022", prompt: "A revised statement and an inventory disagree about a tray." },
 ];

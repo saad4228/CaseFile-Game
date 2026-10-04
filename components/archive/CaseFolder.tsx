@@ -3,16 +3,30 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { useState } from "react";
+import { RingSymbol } from "@/components/ui/RingSymbol";
 import { Stamp } from "@/components/ui/Stamp";
+import type { CaseProgress } from "@/lib/archive-types";
 import type { CaseMeta } from "@/lib/game-engine/types";
 
 const stars = (n: number) => "★".repeat(n) + "☆".repeat(5 - n);
 
-export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
+export function CaseFolder({
+  c,
+  index,
+  progress,
+  teaser,
+}: {
+  c: CaseMeta;
+  index: number;
+  progress?: CaseProgress;
+  teaser?: string;
+}) {
   const [open, setOpen] = useState(false);
   const reduce = useReducedMotion();
   const tilt = [-1.5, 1.2, -0.6, 1.8, -1.1][index % 5];
   const sealed = !c.playable;
+  const status = progress?.state === "SOLVED" ? "SOLVED" : progress?.state === "CLOSED" ? "CLOSED" : progress?.state === "OPEN" ? "IN PROGRESS" : c.status;
+  const href = progress?.state === "OPEN" && progress.code ? `/play/${progress.code}` : `/cases/${c.id}`;
 
   const folder = (
     <motion.div
@@ -51,7 +65,7 @@ export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
           </div>
           <div>
             <dt className="label-ink !text-[9px]">Status</dt>
-            <dd className="mt-0.5">{c.status}</dd>
+            <dd className="mt-0.5">{status}</dd>
           </div>
           <div>
             <dt className="label-ink !text-[9px]">Difficulty</dt>
@@ -64,13 +78,24 @@ export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
             <dd className="mt-0.5">{c.players}</dd>
           </div>
           <div className="col-span-2">
-            <dt className="label-ink !text-[9px]">Est. time</dt>
-            <dd className="mt-0.5">{c.estTime}</dd>
+            {progress?.rank ? (
+              <>
+                <dt className="label-ink !text-[9px]">Your best</dt>
+                <dd className="mt-0.5">
+                  Rank {progress.rank} · {progress.score}
+                </dd>
+              </>
+            ) : (
+              <>
+                <dt className="label-ink !text-[9px]">Est. time</dt>
+                <dd className="mt-0.5">{c.estTime}</dd>
+              </>
+            )}
           </div>
         </dl>
         <div className="absolute bottom-6 right-5">
-          <Stamp tone={sealed ? "ink" : "crimson"} rotate={-8} size="sm">
-            {c.status}
+          <Stamp tone={sealed ? "ink" : progress?.state === "SOLVED" ? "amber" : "crimson"} rotate={-8} size="sm">
+            {status}
           </Stamp>
         </div>
         {sealed && (
@@ -82,6 +107,9 @@ export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
             >
               SEALED · SEALED · SEALED · SEALED
             </div>
+            {teaser && (
+              <RingSymbol className="absolute left-5 top-5 h-10 w-10 rotate-6 text-crimson-600/80" />
+            )}
           </>
         )}
       </div>
@@ -101,7 +129,7 @@ export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
           {folder}
         </div>
       ) : (
-        <Link href={`/cases/${c.id}`} className="block outline-offset-8" aria-label={`Open case ${c.number}, ${c.title}`}>
+        <Link href={href} className="block outline-offset-8" aria-label={`${progress?.state === "OPEN" ? "Resume" : "Open"} case ${c.number}, ${c.title}`}>
           {folder}
         </Link>
       )}
@@ -118,8 +146,9 @@ export function CaseFolder({ c, index }: { c: CaseMeta; index: number }) {
           >
             <p className="label">{sealed ? "Dossier — restricted" : "Dossier"}</p>
             <p className="mt-2 text-sm leading-relaxed text-bone-100/85">
-              {sealed ? "This file opens when an earlier case is closed." : c.logline}
+              {sealed ? (teaser ?? "This file opens when an earlier case is closed.") : c.logline}
             </p>
+            {sealed && teaser && <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-crimson-400">Coming in Season One</p>}
             {!sealed && (
               <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.18em] text-amber-300">
                 {c.counts.suspects} suspects · {c.counts.evidence} records · open file →

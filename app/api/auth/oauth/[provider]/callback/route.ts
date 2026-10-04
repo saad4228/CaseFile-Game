@@ -8,8 +8,9 @@ import { rateLimit, RateLimitError } from "@/lib/rate-limit";
 export async function GET(req: Request, ctx: RouteContext<"/api/auth/oauth/[provider]/callback">) {
   const { provider } = await ctx.params;
   const url = new URL(req.url);
+  let failPage = "/login";
   const fail = (reason: string) =>
-    NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(reason)}`, url.origin));
+    NextResponse.redirect(new URL(`${failPage}?error=${encodeURIComponent(reason)}`, url.origin));
 
   if (!enabledProviders().includes(provider as Provider)) return fail("provider");
 
@@ -22,6 +23,8 @@ export async function GET(req: Request, ctx: RouteContext<"/api/auth/oauth/[prov
   jar.delete("oauth_state");
   jar.delete("oauth_verifier");
   jar.delete("oauth_next");
+  // Connecting a provider from the detective file reports problems there.
+  if (next.startsWith("/profile")) failPage = "/profile";
 
   if (!state || !code || !storedState || state !== storedState) return fail("state");
 

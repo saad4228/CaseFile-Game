@@ -10,11 +10,13 @@ export function EvidenceCard({
   unseen,
   pinned,
   compact,
+  privateRecord,
 }: {
   e: Evidence;
   unseen?: boolean;
   pinned?: boolean;
   compact?: boolean;
+  privateRecord?: boolean;
 }) {
   const isPhoto = e.body.kind === "photo";
   return (
@@ -23,6 +25,11 @@ export function EvidenceCard({
         <span className="absolute -right-1.5 -top-1.5 z-10 h-3 w-3 rounded-full bg-amber-500 ring-2 ring-ink-950" aria-label="Not yet examined" />
       )}
       {pinned && <span className="absolute left-2 top-2 z-10 h-2.5 w-2.5 rounded-full bg-crimson-600" aria-label="Pinned" />}
+      {privateRecord && (
+        <span className="absolute -left-1.5 -top-2 z-10 bg-ink-950 px-1.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.15em] text-amber-300 ring-1 ring-amber-500/60">
+          🔒 Private
+        </span>
+      )}
       {isPhoto && e.body.kind === "photo" ? (
         <>
           <div className={e.category === "CCTV" ? "scanlines" : ""}>

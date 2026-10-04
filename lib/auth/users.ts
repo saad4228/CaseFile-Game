@@ -81,6 +81,9 @@ export async function resolveOAuth(identity: OAuthIdentity, current: { id: strin
     include: { user: true },
   });
   if (linked) {
+    if (current && !current.isGuest && current.id !== linked.userId) {
+      throw new AuthError("That sign-in is already connected to a different detective file.");
+    }
     if (current?.isGuest && current.id !== linked.userId) await mergeGuestInto(current.id, linked.userId);
     return linked.user;
   }
