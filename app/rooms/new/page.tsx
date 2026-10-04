@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { createRoomAction, joinRoomAction } from "@/app/actions/session";
 import { Rain } from "@/components/illustrations/Rain";
 import { TopNav } from "@/components/landing/TopNav";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewRoomPage(props: PageProps<"/rooms/new">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   const sp = await props.searchParams;
   const online = hasDatabase();
   const error = typeof sp.error === "string" ? sp.error.slice(0, 200) : undefined;

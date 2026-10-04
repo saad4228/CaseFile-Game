@@ -73,7 +73,7 @@ A theory names a suspect (or no one) and a claim. The engine returns the assumpt
 claim requires — *access, presence, means, knowledge, a timeline gap* — and the player
 attaches evidence to each, or marks it unresolved.
 
-## 8. Verdict and scoring (milestone 4)
+## 8. Verdict and scoring
 
 The verdict answers WHO / HOW / WHEN / WHERE / WHY and attaches evidence to **motive,
 opportunity, means, timeline, identity**. The server scores:
@@ -88,12 +88,19 @@ opportunity, means, timeline, identity**. The server scores:
 | Proof | each proof slot backed by accepted evidence (≥ 2 traces for a conclusion) |
 | Time | solve time against the case estimate |
 
-Final = weighted sum → rank S / A / B / C / D.
+Weights: deduction 30%, proof 20%, logic 15%, evidence 10%, contradictions 10%,
+efficiency 7.5%, time 7.5%. Final = weighted sum → rank S / A / B / C / D. A case counts as
+**solved** when WHO and HOW are right and at least three proof slots hold.
 
-## 9. Case design rules (enforced by review now, by a validator later)
+## 9. Case design rules
 
 - Every key conclusion is supported by at least two independent traces.
 - Every red herring explains something real and leads somewhere.
 - Every alibi can be tested with the map's travel times.
 - No arbitrary puzzles.
 - Each case carries one quiet link to another case.
+
+The structural rules are enforced by the case validator (`lib/game-engine/validate.server.ts`),
+which runs in the unit tests and on the admin page: every reference resolves, every record is
+reachable through play, each proof slot can be filled from findable records, a perfect
+investigation solves the case, and a wrong culprit does not.

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { TopNav } from "@/components/landing/TopNav";
 import { requireAdmin } from "@/lib/admin.server";
 import { db } from "@/lib/db/prisma";
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "Investigation", robots: { index: fal
 const when = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "UTC" });
 
 export default async function AdminSessionPage(props: PageProps<"/admin/sessions/[code]">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   await requireAdmin();
   const { code } = await props.params;
   const s = await db().gameSession.findUnique({

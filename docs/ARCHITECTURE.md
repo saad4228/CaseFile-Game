@@ -2,122 +2,156 @@
 
 ## 1. Principles
 
-1. **The server is authoritative.** Case truth, hidden evidence, lead outcomes, conflict
-   detection and scoring run on the server. The browser only ever receives what the player
-   has legitimately discovered.
+1. **The server is authoritative.** Case truth, hidden evidence, lead outcomes, interview
+   reactions, conflict detection and scoring run on the server. The browser only ever
+   receives what the player has legitimately discovered.
 2. **Layers stay separate.** Case data ≠ game engine ≠ UI ≠ AI. Each can change without
    touching the others.
-3. **Deterministic core, AI on the edge.** The truth engine decides what happened; AI (phase 7)
-   only *presents* — dialogue, phrasing, ORACLE answers — and only over discovered data.
+3. **Deterministic core, AI on the edge.** The truth engine decides what happened. ORACLE
+   (optionally backed by Claude) only *presents* — and only over records the asking player
+   holds.
+4. **Runs anywhere.** One Node process and one Postgres database. No websocket service, no
+   external auth provider, no object storage. Without a database it still runs, in a
+   single-device demo mode.
 
 ```
-CASE DATA (data/cases/*)          ← handcrafted now, generated + validated later
+CASE DATA (data/cases/*)            content-as-code, checked by the case validator
    │
    ▼
-CASE TRUTH ENGINE (lib/game-engine) ← server-only: leads, conflicts, verdict, scoring
+CASE TRUTH ENGINE (lib/game-engine)  server-only: reachability, leads, interviews, conflicts
    │
    ▼
-GAME STATE (session)              ← today: per-browser; next: Postgres + Realtime
+GAME STATE (lib/sessions + Postgres) sessions, players, discovered/private records, chat
    │
    ▼
-PLAYER ACTIONS (server actions)   ← follow lead, mark conflict, submit verdict
+PLAYER ACTIONS                        server actions + two JSON routes (ops, sync)
    │
    ▼
-UI (app/, components/)            ← renders only discovered, public data
+UI (app/, components/)                renders only discovered, public data
    │
    ▼
-AI PRESENTATION (lib/ai, later)   ← sees discovered data only, never the truth
+ORACLE (lib/oracle)                   search or Claude over discovered records — never the truth
 ```
 
 ## 2. Stack
 
-| Concern | Choice | Status |
-| --- | --- | --- |
-| Framework | Next.js 16 (App Router, Turbopack), React 19, TypeScript | ✅ |
-| Styling | Tailwind CSS v4 (CSS-first `@theme` tokens) | ✅ |
-| Motion | Framer Motion | ✅ |
-| Board | React Flow (`@xyflow/react`) | ✅ |
-| Server/API | Next.js server components + server actions | ✅ |
-| Database | PostgreSQL via Prisma (`prisma/schema.prisma`) | schema drafted, not wired |
-| Auth | Supabase Auth (Google, GitHub, email) | planned — needs project keys |
-| Realtime | Supabase Realtime (presence, chat, board, evidence events) | planned |
-| Storage | Supabase Storage for case media | planned |
+| Concern | Choice |
+| --- | --- |
+| Framework | Next.js 16 (App Router, Turbopack), React 19 (React Compiler lint rules), TypeScript |
+| Styling | Tailwind CSS v4, CSS-first `@theme` tokens in `app/globals.css` |
+| Motion | Framer Motion (`MotionConfig` honours the player's reduced-motion setting) |
+| Board | React Flow (`@xyflow/react`) |
+| Database | PostgreSQL via Prisma 7 (`prisma-client` generator + `@prisma/adapter-pg`) |
+| Auth | Own: scrypt passwords, hashed database session tokens, Google/GitHub OAuth via `arctic` |
+| Realtime | Versioned polling (`/api/sessions/:id/sync`) — no websocket service required |
+| AI | `@anthropic-ai/sdk`, optional (`ANTHROPIC_API_KEY`) |
+| Tests | Vitest (engine, scoring, auth, spoiler safety), Playwright (end-to-end) |
 
 ## 3. Folder layout
 
 ```
 app/
-  page.tsx                  landing (marketing)
-  archive/                  case archive
-  cases/[caseId]/           cinematic case introduction
-  investigation/[caseId]/   investigation workspace
-  actions/                  server actions (game API surface)
-components/
-  ui/  landing/  archive/  case/  evidence/  board/  timeline/  suspects/  illustrations/
+  page.tsx                   landing
+  archive/                   the archive (progress, sealed files, next-case teaser)
+  cases/[caseId]/            cinematic case introduction + start (solo / team)
+  play/[code]/               a server session: lobby → investigation → resolution
+  investigation/[caseId]/    device-only mode (no account, no database needed)
+  rooms/new/                 open or join a team room
+  profile/                   detective file: record, history, commendations, codename
+  admin/                     records office (ADMIN_EMAILS only; 404 for everyone else)
+  login/                     sign in / register / continue as a guest
+  actions/                   server actions: auth, session, local, oracle, admin
+  api/                       sessions/[id]/ops, sessions/[id]/sync, me, health, auth/oauth
+components/                  UI by feature (board, evidence, suspects, verdict, …)
 lib/
-  game-engine/              types, case registry, leads, conflicts (server-only)
-  scoring/                  verdict scoring (server-only)            — milestone 4
-  realtime/  auth/  db/  ai/                                           — later milestones
+  game-engine/               types, shared-state reducer, interview engine, engine, validator
+  scoring/                   verdict scoring + resolution builder (server-only)
+  sessions/                  the multiplayer session service (server-only)
+  auth/  db/  oracle/  client/ (sound, settings)
 data/cases/case-047/
-  meta.ts  suspects.ts  locations.ts      public — safe for the client
-  evidence.server.ts                      every evidence item (server-only)
-  leads.server.ts  conflicts.server.ts    discovery + conflict rules (server-only)
-  truth.server.ts                         the solution (server-only)
-prisma/schema.prisma
-docs/
+  meta.ts suspects.ts locations.ts verdict.ts                               public
+  evidence.server.ts leads.server.ts interviews.server.ts truth.server.ts   server-only
+prisma/                      schema + migrations
+tests/unit  tests/e2e
 ```
 
 Files ending in `.server.ts` start with `import "server-only"`. Importing one from a client
-component is a **build error**, which is the guard that keeps the culprit out of the bundle.
+component is a **build error** — the guard that keeps the culprit out of the bundle. A unit
+test also checks that the public case payload carries no solution text or hidden record
+titles.
 
 ## 4. Data boundary
 
 | Data | Where it lives | Who sees it |
 | --- | --- | --- |
-| Case meta, brief, intro beats | `meta.ts` | everyone |
-| Suspect public profile + statements | `suspects.ts` | everyone |
-| Locations, travel times | `locations.ts` | everyone |
-| Evidence content | `evidence.server.ts` | only once discovered |
+| Case meta, brief, intro beats, verdict options | `meta.ts`, `verdict.ts` | everyone |
+| Suspect public profiles, locations, travel times | `suspects.ts`, `locations.ts` | everyone |
+| Evidence content | `evidence.server.ts` | only once discovered (and, in a team, shared) |
 | Lead → evidence unlocks | `leads.server.ts` | lead *labels* once available; unlocks never |
-| Conflict rules | `conflicts.server.ts` | a neutral prompt once both sides are discovered |
-| Truth, suspect hidden variables, proof keys | `truth.server.ts` | never (scoring only) |
+| Interview scripts and reactions | `interviews.server.ts` | the transcript of what was actually asked |
+| Conflicts | `leads.server.ts` | a neutral prompt once both records are held |
+| Truth, proof keys, relations, hidden profiles | `truth.server.ts` | only in the post-verdict resolution |
 
-## 5. Game state
+## 5. Game state and sync
 
-```ts
-GameSession {
-  caseId, players[], phase,
-  discovered: EvidenceId[]       // the only key the server trusts for reveals
-  shared / private evidence      // multiplayer (role-based starting hands)
-  timeline: placements[]
-  board: { nodes[], edges[] }    // edges typed: SUPPORTS, CONTRADICTS, ...
-  conflictMarks: { conflictId: "contradiction" | "explained" | "ignored" }
-  theories[], notes[], pins[]
-  verdict?, score?
-}
-```
+Postgres holds one `GameSession` per investigation: `phase` (LOBBY → ACTIVE → RESOLVED), a
+monotonically increasing `version`, and the **shared state** JSON (board, timeline,
+conflict marks, theories, verdict draft). Around it:
 
-**Milestone 1–3 (now):** single player, state in `localStorage`, server actions recompute
-reveals from the submitted `discovered` list. Hidden content still never ships until it's
-earned, but a determined player could forge the list.
+- `CasePlayer` — membership, roles, and **personal state** (examined records, private notes).
+- `SessionEvidence` — every discovered record, with `holderId` (null = shared with the team,
+  otherwise private to one player) and how it was found (BRIEF, LEAD, INTERVIEW).
+- `LeadFollow`, `Interview`, `Message`, `CaseResult`.
 
-**Milestone 5 (multiplayer):** `GameSession` moves to Postgres. Server actions read the
-session by id, check membership, mutate and broadcast via Supabase Realtime channels
-(`room:{code}` for presence + chat, `session:{id}` for board/evidence events). Private
-evidence lives on `CasePlayer` and is only broadcast when shared.
+Edits are **operations** (`lib/game-engine/state.ts`), validated with zod and applied by a
+pure reducer that both client and server run. Every operation is idempotent. The client
+applies its own ops optimistically, batches them to `POST /api/sessions/:id/ops`, and the
+server applies them under a row lock (`SELECT … FOR UPDATE`), rejecting any op that touches
+a record the team hasn't shared. Clients poll `GET /api/sessions/:id/sync?v=<version>` —
+every 1.5 s in a team, 6 s solo, slower in background tabs, with backoff — and receive a
+full view only when the version moved (records they already hold aren't sent again).
+Discoveries (leads, interviews, sharing, the verdict) are server actions that run inside the
+same lock.
 
-## 6. Security checklist (MVP)
+Device-only mode keeps state in `localStorage`; every discovery still goes through a server
+action that re-derives what is reachable from the brief (`sanitizeLocal`), so a forged list
+can't pull hidden records.
 
-- Every server action re-validates input and (from milestone 5) session membership.
-- Rate-limit lead / verdict actions per session.
-- Chat sanitized server-side; rendered as text, never HTML.
-- Row-level security on session tables; admin case tools behind a role check.
-- No truth fields in any client-serialized prop — enforced by the `server-only` import.
+## 6. Team play
 
-## 7. Performance
+Roles (Detective, Analyst, Forensics, Cyber, Field Investigator) each hold part of the brief
+privately; one common record is shared by everyone, and unclaimed roles are dealt out when
+the case opens. Lead results stay private to whoever followed them; interview revelations
+go to the team. Only shared records can be pinned, placed on the timeline, cited in
+theories or attached as proof — so the case can't be solved without talking.
 
-- Server components by default; client components only for interaction (board, viewer,
-  tray, intro sequence).
-- React Flow and the evidence viewer load only on the investigation route.
-- Case media lazy-loaded per case; illustrations are SVG.
+## 7. Security
+
+- Session cookie: a random 32-byte token, stored only as a SHA-256 hash; httpOnly,
+  SameSite=Lax, Secure in production; 60-day sliding expiry. Passwords: scrypt, per-user salt.
+- OAuth never auto-links to an account unless the email is verified on both sides, and never
+  moves a provider that's already connected to someone else.
+- Every server action and route checks session membership; the ops route also checks `Origin`.
+- Postgres-backed rate limits on sign-in, registration, guest creation, room creation, leads,
+  interviews, chat, board operations, verdicts and ORACLE.
+- Chat is sanitised server-side and rendered as text, never HTML.
+- Security headers: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`,
+  `Permissions-Policy`.
+- Pages that depend on runtime configuration call `connection()`, so a build made without a
+  database can never prerender them in the wrong mode.
+
+## 8. Case validation
+
+`lib/game-engine/validate.server.ts` checks a case bundle: unique ids, every cross-reference,
+interview scripts, that **every record is reachable** through play, that the truth file is
+consistent with the verdict options and proof slots, that a perfect investigation solves the
+case and that a wrong culprit doesn't. It runs in the unit tests (so CI blocks a broken case)
+and on the admin page.
+
+## 9. Performance
+
+- Server components by default; client components only for interaction.
+- React Flow, the evidence viewer and device-only mode load on demand.
+- Polling returns a tiny payload when nothing changed.
+- Illustrations are SVG; sound is synthesised with WebAudio (no audio files).
 - Fonts via `next/font` (self-hosted, subset).

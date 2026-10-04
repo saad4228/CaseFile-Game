@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { AuthForms } from "@/components/auth/AuthForms";
 import { Rain } from "@/components/illustrations/Rain";
 import { TopNav } from "@/components/landing/TopNav";
@@ -16,6 +17,7 @@ const oauthErrors: Record<string, string> = {
 };
 
 export default async function LoginPage(props: PageProps<"/login">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   const sp = await props.searchParams;
   const next = safeNext(sp.next, "/archive");
   const user = await getCurrentUser();

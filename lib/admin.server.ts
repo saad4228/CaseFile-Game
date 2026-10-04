@@ -1,11 +1,13 @@
 import "server-only";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { getCurrentUser } from "@/lib/auth/session";
 import { db } from "@/lib/db/prisma";
 import { hasDatabase } from "@/lib/env";
 
 /** The signed-in admin, or a 404 — the admin area doesn't announce itself to anyone else. */
 export async function requireAdmin() {
+  await connection();
   if (!hasDatabase()) notFound();
   const user = await getCurrentUser();
   if (!user?.isAdmin) notFound();

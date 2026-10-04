@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { joinRoomAction } from "@/app/actions/session";
 import { SessionApp } from "@/components/game/SessionApp";
 import { Rain } from "@/components/illustrations/Rain";
@@ -23,6 +24,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 }
 
 export default async function PlayPage(props: PageProps<"/play/[code]">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   if (!hasDatabase()) notFound();
   const { code } = await props.params;
   const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8);

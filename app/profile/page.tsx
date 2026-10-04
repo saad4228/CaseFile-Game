@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { signOutAction } from "@/app/actions/auth";
 import { Rain } from "@/components/illustrations/Rain";
 import { TopNav } from "@/components/landing/TopNav";
@@ -23,6 +24,7 @@ const minutes = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.round(se
 const dateFmt = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 
 export default async function ProfilePage(props: PageProps<"/profile">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   if (!hasDatabase()) redirect("/login");
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/profile");

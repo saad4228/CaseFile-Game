@@ -45,7 +45,7 @@ test("a guest can register in place and keep their investigation", async ({ page
   await page.locator("input[name=email]").fill(`${unique("guest")}@casefile.test`);
   await page.locator("input[name=password]").fill("long enough password");
   await page.locator("form button[type=submit]").first().click();
-  await page.waitForURL(/\/profile/);
+  await page.waitForURL((u) => u.pathname === "/profile");
   await expect(page.getByRole("heading", { name: "Pale Sparrow" })).toBeVisible();
   await expect(page.getByText("The Last Call").first()).toBeVisible();
 

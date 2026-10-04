@@ -1,0 +1,52 @@
+# Local or single-server deployment: Postgres + migrations + the app.
+#   docker compose up --build        → http://localhost:3000
+# Optional settings are read from your shell or a .env file next to this one.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: casefile
+      POSTGRES_PASSWORD: casefile
+      POSTGRES_DB: casefile
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casefile -d casefile"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: .
+      target: build
+    command: ["npx", "prisma", "migrate", "deploy"]
+    environment:
+      DATABASE_URL: postgresql://casefile:casefile@db:5432/casefile?schema=public
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      args:
+        APP_URL: ${APP_URL:-http://localhost:3000}
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      DATABASE_URL: postgresql://casefile:casefile@db:5432/casefile?schema=public
+      APP_URL: ${APP_URL:-http://localhost:3000}
+      ADMIN_EMAILS: ${ADMIN_EMAILS:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID:-}
+      GITHUB_CLIENT_SECRET: ${GITHUB_CLIENT_SECRET:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+volumes:
+  pgdata:

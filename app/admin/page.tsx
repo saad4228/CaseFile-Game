@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { purgeStaleAction, setCasePublishedAction } from "@/app/actions/admin";
 import { TopNav } from "@/components/landing/TopNav";
 import { adminOverview, requireAdmin } from "@/lib/admin.server";
@@ -11,6 +12,7 @@ export const metadata: Metadata = { title: "Admin", robots: { index: false } };
 const when = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
 
 export default async function AdminPage() {
+  await connection(); // runtime configuration (database, sign-in): render per request
   await requireAdmin();
   const { registered, guests, active, lobby, resolvedWeek, results, sessions, flags, solved } = await adminOverview();
   const published = new Map(flags.map((f) => [f.id, f.published]));

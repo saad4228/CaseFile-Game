@@ -7,13 +7,14 @@
     "build": "node scripts/migrate-if-configured.mjs && next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "check": "npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

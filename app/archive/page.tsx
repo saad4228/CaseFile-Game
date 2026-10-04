@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { ArchiveView } from "@/components/archive/ArchiveView";
 import { TopNav } from "@/components/landing/TopNav";
 import { cases } from "@/data/cases";
@@ -14,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArchivePage() {
+  await connection(); // runtime configuration (database, sign-in): render per request
   const online = hasDatabase();
   const hidden = await unpublishedCaseIds();
   // A case pulled by an admin stays on the wall, sealed.

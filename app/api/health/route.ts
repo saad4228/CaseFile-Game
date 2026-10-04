@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { connection, NextResponse } from "next/server";
 import { db } from "@/lib/db/prisma";
 import { hasDatabase } from "@/lib/env";
 
 /** Liveness and database check for load balancers, Docker and uptime monitors. */
 export async function GET() {
+  await connection();
   let database: "up" | "down" | "off" = "off";
   if (hasDatabase()) {
     try {

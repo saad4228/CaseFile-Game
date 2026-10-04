@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { CaseIntro, type StartOptions } from "@/components/case/CaseIntro";
 import { getCaseMeta } from "@/data/cases";
 import { suspects } from "@/data/cases/case-047/suspects";
@@ -17,6 +18,7 @@ export async function generateMetadata(props: PageProps<"/cases/[caseId]">): Pro
 }
 
 export default async function CasePage(props: PageProps<"/cases/[caseId]">) {
+  await connection(); // runtime configuration (database, sign-in): render per request
   const { caseId } = await props.params;
   const sp = await props.searchParams;
   const meta = getCaseMeta(caseId);

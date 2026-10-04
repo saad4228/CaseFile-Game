@@ -24,7 +24,9 @@ test("the case intro plays and reaches the briefing", async ({ page }) => {
   await page.getByRole("button", { name: "Open file" }).click();
   await page.getByRole("button", { name: "Skip ▸" }).click();
   await expect(page.getByRole("heading", { name: "The Last Call" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Begin investigation" })).toBeVisible();
+  // A form button with a database; a plain link to the device-only mode without one.
+  const begin = page.getByRole("button", { name: "Begin investigation" }).or(page.getByRole("link", { name: "Begin investigation" }));
+  await expect(begin).toBeVisible();
   check();
 });
 

@@ -1,0 +1,13 @@
+.git
+.next
+node_modules
+lib/db/generated
+.env
+.env.*
+!.env.example
+test-results
+playwright-report
+coverage
+.e2e-scratch
+*.tsbuildinfo
+docs/visual-references
