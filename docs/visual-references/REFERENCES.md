@@ -424,3 +424,41 @@ never shipped.)
   slab-serif TICKET, small mirrored print in side panels. → Tickets and receipts (parking garage
   P2, bar tab, CCTV fault ticket) as stubs with perforated edges, slab-serif header, small typed
   print, a punch hole or stamp.
+
+### Batch 2
+
+Files: `f-cctv-tracking-box.jpg`, `g-cctv-night-corridor.jpg`, `h-chalkboard-rope-polaroids.png`
+
+- **F — CCTV on a monitor.** Cold blue-grey store footage seen on a curved CRT screen with a dark
+  bezel; a red tracking rectangle around a hooded figure; timecode stamped bottom-right in a
+  blocky font. → CCTV records displayed on a monitor (curved glass, vignette, bezel); players can
+  drop a red box around a figure to tag a still; timecode in a pixel/LCD font.
+- **G — night-vision corridor.** Low-light grainy grey footage of a long hallway, heavy horizontal
+  scanlines, a small floating orb of glare, deep falloff into black. → Low-light variant for the
+  third-floor corridor camera: heavy scanlines, grain, crushed blacks, a glare spot — and the
+  "camera off" stretch shown as rolling static.
+- **H — chalkboard with rope and polaroids.** Dark chalkboard with a wooden frame edge, thick red
+  rope (not thin string) pinned with glossy red pins, polaroids with handwritten captions, a
+  yellow sticky note "who", a black desk lamp clipped on, newspaper clippings and a fingerprint card.
+  → Option for the board: thicker red rope with a soft highlight and glossy pin heads; polaroid
+  captions in handwriting; a yellow "who?" sticky as the board's default first note.
+
+---
+
+## The plan (all ten categories)
+
+1. **Board** — framed dark board under a hanging lamp cone; glossy red pins; thick red rope with
+   a sag; polaroids/mugshots/typed sheets/sticky notes as node styles; handwritten "EVIDENCE".
+2. **Suspects** — portrait cards (portrait + torn label) and police profile forms; image slots for
+   painted portraits, SVG silhouettes until art arrives; "J" always a silhouette.
+3. **Interview room** — tiled wall, one-way mirror, overhead beam with haze, REC light, flare on a break.
+4. **Desk** — briefing and evidence viewer as the top-down lamp-lit desk; props at the rim.
+5. **City and rain** — figure from behind under a lamp cone; rain lit only inside light; splashes; gusts.
+6. **The Blackwood** — narrow corner building, red neon sign, one lit window (Room 314).
+7. **Case files** — kraft folders with masking-tape titles, tabs, stamps; ring-binder dossier intro;
+   evidence bags with tags.
+8. **Ending** — scroll-paced ink comic: silhouette line-up with eyes, triptych, close→wide, diagonal
+   reveal, red used once.
+9. **UI** — objects in the room, stamp buttons, folder tabs, typed paper toasts.
+10. **Records** — CCTV monitor + overlay (and low-light variant), phone frame, aged handwritten
+    paper, keycards, ticket stubs.
