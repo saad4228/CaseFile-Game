@@ -378,3 +378,22 @@ with line, not gradient.
 - Lamp light drawn as radiating ink hatching (I) in the comic panels, consistent with the
   lamp motif elsewhere.
 - No blood, no weapons on screen.
+
+---
+
+## 9. Game UI mood
+
+No reference supplied — designed from the rest of this board. Principles:
+
+- **Everything is an object in the room.** Panels are paper, cards, folders and tags on the wall
+  or desk (refs 1, 4, 7); chrome is minimal dark metal/ink.
+- **Buttons:** primary = an amber ink stamp block; secondary = typed label in a thin ruled box;
+  destructive = red stamp outline. Hover = lamp brightens (lift + warmer shadow), never neon.
+- **Navigation:** folder index tabs (ref 7) on desktop; on phones a bottom bar of tabs.
+- **Type:** Bodoni for titles, IBM Plex Mono typed labels, Reenie Beanie only for handwriting
+  (notes, signatures, board header).
+- **Feedback:** stamps land with a thud (sound + 120 ms scale), new records slide out of a
+  folder, toasts are typed slips of paper.
+- **Icons:** hand-inked line icons (lamp, magnifier, recorder, phone, keycard, map pin, pin).
+- **Colour discipline:** slate + paper + amber light; red only for contradictions, stamps and
+  the reveal.
