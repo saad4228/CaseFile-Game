@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createRoomAction, startSoloAction } from "@/app/actions/session";
 import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
 import { Rain } from "@/components/illustrations/Rain";
-import { SuspectPortrait } from "@/components/illustrations/SuspectPortrait";
+import { PortraitImage } from "@/components/illustrations/SuspectPhoto";
 import { Stamp } from "@/components/ui/Stamp";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { Typewriter } from "@/components/ui/Typewriter";
@@ -322,7 +322,13 @@ function Briefing({ meta, suspects, start }: { meta: CaseMeta; suspects: Suspect
               <path d="M8 40V10a5 5 0 0 1 10 0v40a8 8 0 0 1-16 0V16" fill="none" stroke="#9aa3ab" strokeWidth="2.2" strokeLinecap="round" />
             </svg>
             <div className="photo-print mx-auto w-40 rotate-2">
-              <SuspectPortrait spec={{ hair: "short", collar: "coat" }} label={meta.victim.name} tone="warm" className="block w-full" />
+              <PortraitImage
+                id="daniel_mercer"
+                name={meta.victim.name}
+                spec={{ hair: "short", collar: "coat" }}
+                tone="warm"
+                className="block w-full"
+              />
             </div>
             <p className="label-ink mt-6">Victim</p>
             <p className="font-display text-3xl text-[#1d1a14]">{meta.victim.name}</p>

@@ -34,7 +34,7 @@ export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
                 p.id === selected ? "border-amber-500 bg-amber-500/5" : "border-ink-700 hover:border-ink-600"
               }`}
             >
-              <SuspectPhoto suspect={p} className="h-14 w-11 shrink-0" />
+              <SuspectPhoto suspect={p} tight className="h-14 w-11 shrink-0" />
               <span>
                 <span className="block font-display text-lg leading-tight">{p.name}</span>
                 <span className="label !text-[9px]">{p.code}</span>

@@ -190,7 +190,7 @@ export function Lobby() {
           <div className="mt-14 hidden gap-4 opacity-60 md:flex" aria-hidden="true">
             {suspects.slice(0, 4).map((s) => (
               <div key={s.id} className="w-20">
-                <SuspectPhoto suspect={s} className="block w-full grayscale" />
+                <SuspectPhoto suspect={s} tight className="block w-full grayscale" />
               </div>
             ))}
           </div>
