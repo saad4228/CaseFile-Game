@@ -26,7 +26,10 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
   const byId = new Map(evidence.map((e) => [e.id, e]));
   const sharedEvidence = evidence.filter((e) => holders[e.id] !== "me");
   const answered = VERDICT_FIELDS.filter((f) => v[f]).length;
-  const proven = PROOF_SLOTS.filter((s) => v.proof[s].length >= 2).length;
+  // How many slots the player has *filled*. Whether those records actually prove anything is
+  // settled on the server, and is never shown here — a counter that moved when you attached
+  // the right record would let anyone feel their way to the answer.
+  const filled = PROOF_SLOTS.filter((s) => v.proof[s].length >= 2).length;
   const ready = Boolean(v.who && v.how);
 
   const file = async () => {
@@ -169,7 +172,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
           {!readOnly && (
             <div className="mt-8 flex flex-col items-start gap-4 border-t border-ink-700 pt-6 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-steel-300">
-                {answered}/5 answered · {proven}/5 slots with two or more records
+                {answered}/5 answered · {filled}/5 slots hold two or more records
               </p>
               <button type="button" className="btn btn-primary" disabled={!ready} onClick={() => setConfirm(true)}>
                 File the verdict
@@ -198,7 +201,10 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
               <p className="mt-4 text-sm leading-relaxed text-[#1d1a14]/80">
                 The case closes {mode === "TEAM" ? "for the whole team " : ""}and the truth is revealed. You can&apos;t change your
                 answers afterwards.
-                {proven < 3 && " You have fewer than three proof slots with two records — the case may not count as solved."}
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-[#1d1a14]/70">
+                A case is recorded as closed when the person and the method are right and the proof holds in at least three
+                places. Whether a record proves what you&apos;ve pinned it to is for the evidence to settle — not for the count.
               </p>
               {error && (
                 <p role="alert" className="mt-4 text-sm text-crimson-600">

@@ -314,19 +314,24 @@ function Clock({ startedAt, budgetMin, endedAt }: { startedAt: number; budgetMin
   const now = useSyncExternalStore(subscribeSecond, nowSecond, () => null);
   const at = endedAt ?? (now === null ? null : now * 1000);
   const elapsed = at === null ? 0 : Math.max(0, Math.floor((at - startedAt) / 1000));
-  const left = budgetMin * 60 - elapsed;
-  const abs = Math.abs(left);
-  const mm = String(Math.floor(abs / 60)).padStart(2, "0");
-  const ss = String(abs % 60).padStart(2, "0");
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, "0");
+  const ss = String(elapsed % 60).padStart(2, "0");
+  // Running long costs a few points of the Time score and nothing else, so the clock counts
+  // up and reports the estimate beside it. It used to count down into a red "Overtime",
+  // which rushed the player out of an investigation that was never on a deadline.
+  const over = elapsed > budgetMin * 60;
   return (
     <div
       className="hidden shrink-0 text-right md:block"
       role="timer"
-      aria-label={at === null ? "Time remaining" : left >= 0 ? `${mm} minutes ${ss} seconds remaining` : `Overtime ${mm}:${ss}`}
+      aria-label={
+        at === null ? "Time on the case" : `${mm} minutes ${ss} seconds on the case, estimated ${budgetMin} minutes`
+      }
     >
-      <p className={`label !text-[9px] ${left < 0 ? "!text-crimson-400" : ""}`}>{left >= 0 ? "Remaining" : "Overtime"}</p>
-      <p className={`font-mono text-sm tabular-nums ${left < 0 ? "text-crimson-400" : left < 300 ? "text-amber-300" : "text-bone-100/90"}`}>
-        {at === null ? "--:--" : `${left < 0 ? "+" : ""}${mm}:${ss}`}
+      <p className="label !text-[9px]">On the case</p>
+      <p className={`font-mono text-sm tabular-nums ${over ? "text-amber-300" : "text-bone-100/90"}`}>
+        {at === null ? "--:--" : `${mm}:${ss}`}
+        <span className="ml-1 text-[11px] text-steel-400">/ {budgetMin}m</span>
       </p>
     </div>
   );

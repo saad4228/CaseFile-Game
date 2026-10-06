@@ -53,6 +53,22 @@ describe("verdict scoring", () => {
     expect(r.solved).toBe(false);
   });
 
+  it("closes the case on defensible proof, not only the neatest records", () => {
+    // The player got every answer right and backed it with records a careful reader would
+    // reach for: the scene photograph for the drink, the examiner's window and the last call
+    // for the timeline, the staff gate log for identity. None is the tidiest possible choice,
+    // and the player is never told which ones count — so these have to be accepted.
+    const s = solvedState();
+    s.verdict.proof = {
+      motive: ["E-010"],
+      opportunity: ["E-018", "E-019"],
+      means: ["E-003", "E-023"],
+      timeline: ["E-002", "E-004"],
+      identity: ["E-027", "E-025"],
+    };
+    expect(scoreVerdict(bundle, input(s)).solved).toBe(true);
+  });
+
   it("scores stay within 0–100", () => {
     const r = scoreVerdict(bundle, input(initialShared(), { durationSec: 999999 }));
     expect(r.final).toBeGreaterThanOrEqual(0);
