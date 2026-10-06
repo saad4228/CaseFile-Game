@@ -46,6 +46,17 @@ export function buildResolution(
         implicates: nameOf(truth.conflictTruth[c.id]?.implicates ?? ""),
       })),
       redHerrings: truth.redHerrings.map((r) => ({ ...r, name: nameOf(r.suspect) })),
+      // Everyone was holding something back. In suspect order, so the culprit isn't first.
+      hiding: bundle.suspects
+        .map((s) => ({ suspect: s.id, name: s.name, role: s.role, profile: truth.suspects[s.id] }))
+        .filter((x) => x.profile && (x.profile.secrets.length > 0 || x.profile.whyTheyLie))
+        .map(({ suspect, name, role, profile }) => ({
+          suspect,
+          name,
+          role,
+          secrets: profile.secrets,
+          whyTheyLie: profile.whyTheyLie,
+        })),
       falsified: Object.entries(truth.evidenceTruth).map(([id, actual]) => {
         const e = bundle.evidenceById.get(id)!;
         return { id, number: e.number, title: e.title, filed: e.reliability, actual: actual! };

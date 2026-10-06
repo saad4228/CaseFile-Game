@@ -1,7 +1,7 @@
 import "server-only";
 import { initialShared } from "./state";
 import type { CaseBundle } from "./cases.server";
-import { leadAvailable } from "./engine.server";
+import { leadAvailable, resistanceFor } from "./engine.server";
 import { availableQuestions, resolvePresent, runInterview } from "./interview";
 import { scoreVerdict } from "@/lib/scoring/score.server";
 import { PROOF_SLOTS, VERDICT_FIELDS, type InterviewAction } from "./types";
@@ -39,17 +39,22 @@ export function reachableSet(bundle: CaseBundle) {
     }
     for (const [suspectId, script] of Object.entries(bundle.interviews)) {
       const list = actions.get(suspectId)!;
-      let run = runInterview(script, list, have, bundle.evidenceById);
+      const resists = resistanceFor(bundle, suspectId);
+      let run = runInterview(script, list, have, bundle.evidenceById, resists);
       for (const q of availableQuestions(script, have, run)) {
         list.push({ suspectId, kind: "ASK", ref: q.id });
         changed = true;
       }
-      run = runInterview(script, list, have, bundle.evidenceById);
+      run = runInterview(script, list, have, bundle.evidenceById, resists);
       for (const id of have) {
-        const outcome = resolvePresent(script, id, have, run);
-        if (outcome.startsWith("deflect") || outcome === "repeat") continue;
+        const outcome = resolvePresent(script, id, have, run, resists);
+        // "hold:" means the suspect is still too composed to break on this record. Asking
+        // their questions is what buys the pressure, and that has already happened above —
+        // so if a record never gets past the hold, the reachability check should fail loudly
+        // rather than quietly pretend the reaction fired.
+        if (outcome.startsWith("deflect") || outcome.startsWith("hold:") || outcome === "repeat") continue;
         list.push({ suspectId, kind: "PRESENT", ref: id, outcome });
-        run = runInterview(script, list, have, bundle.evidenceById);
+        run = runInterview(script, list, have, bundle.evidenceById, resists);
         changed = true;
       }
       for (const id of run.unlocked) {
@@ -180,7 +185,14 @@ export function validateCase(bundle: CaseBundle): ValidationReport {
   }
   const interviewUnlocks = new Set<string>();
   for (const [suspectId, script] of Object.entries(bundle.interviews)) {
-    for (const id of runInterview(script, reach.actions.get(suspectId) ?? [], reach.have, bundle.evidenceById).unlocked) interviewUnlocks.add(id);
+    const run = runInterview(
+      script,
+      reach.actions.get(suspectId) ?? [],
+      reach.have,
+      bundle.evidenceById,
+      resistanceFor(bundle, suspectId),
+    );
+    for (const id of run.unlocked) interviewUnlocks.add(id);
   }
   const perfect = scoreVerdict(bundle, {
     shared,

@@ -1,11 +1,20 @@
 import "server-only";
 import type { Lead } from "@/data/cases/case-047/leads.server";
 import type { CaseBundle } from "./cases.server";
-import { availableQuestions, resolvePresent, runInterview } from "./interview";
+import { availableQuestions, resistance, resolvePresent, runInterview } from "./interview";
 import type { ConflictView, EvidenceId, InterviewAction, LeadView, PlayView } from "./types";
 
 // The truth engine's public surface. Everything returned from here describes only what a
 // player has legitimately discovered; nothing in it reveals hidden records or the solution.
+
+/**
+ * How hard a suspect is to move, from their hidden profile. Only the number crosses into the
+ * interview engine — the profile itself says why they lie.
+ */
+export function resistanceFor(bundle: CaseBundle, suspectId: string) {
+  const profile = bundle.truth.suspects[suspectId];
+  return profile ? resistance(profile) : 0;
+}
 
 export function leadAvailable(lead: Lead, have: Set<string>) {
   return (lead.mode ?? "all") === "any" ? lead.requires.some((r) => have.has(r)) : lead.requires.every((r) => have.has(r));
@@ -55,7 +64,13 @@ export function sanitizeLocal(bundle: CaseBundle, claimed: unknown, rawActions: 
       }
     }
     for (const [suspectId, script] of Object.entries(bundle.interviews)) {
-      const run = runInterview(script, actions.filter((a) => a.suspectId === suspectId), have, bundle.evidenceById);
+      const run = runInterview(
+        script,
+        actions.filter((a) => a.suspectId === suspectId),
+        have,
+        bundle.evidenceById,
+        resistanceFor(bundle, suspectId),
+      );
       for (const id of run.unlocked) {
         if (claimedSet.has(id) && !have.has(id)) {
           have.add(id);
@@ -100,7 +115,13 @@ export function buildPlayView(
 
   const interviews: PlayView["interviews"] = {};
   for (const [suspectId, script] of Object.entries(bundle.interviews)) {
-    const run = runInterview(script, opts.actions.filter((a) => a.suspectId === suspectId), discoveredAll, bundle.evidenceById);
+    const run = runInterview(
+      script,
+      opts.actions.filter((a) => a.suspectId === suspectId),
+      discoveredAll,
+      bundle.evidenceById,
+      resistanceFor(bundle, suspectId),
+    );
     interviews[suspectId] = {
       transcript: run.view.transcript,
       questions: availableQuestions(script, opts.visible, run),
@@ -147,7 +168,8 @@ export function interviewAct(
   const script = bundle.interviews[suspectId];
   if (!script) throw new GameError("That person isn't available for interview.");
   const prior = history.filter((a) => a.suspectId === suspectId);
-  const run = runInterview(script, prior, discoveredAll, bundle.evidenceById);
+  const resists = resistanceFor(bundle, suspectId);
+  const run = runInterview(script, prior, discoveredAll, bundle.evidenceById, resists);
 
   if (action.kind === "ASK") {
     if (!availableQuestions(script, visible, run).some((q) => q.id === action.ref)) {
@@ -161,7 +183,8 @@ export function interviewAct(
   }
 
   if (!visible.has(action.ref)) throw new GameError("You can only present records you hold.");
-  const outcome = resolvePresent(script, action.ref, visible, run);
+  const outcome = resolvePresent(script, action.ref, visible, run, resists);
+  // A "hold:" outcome matches no reaction id, so holding the line reveals nothing.
   const reaction = script.reactions.find((r) => r.id === outcome);
   return {
     action: { suspectId, kind: "PRESENT", ref: action.ref, outcome },

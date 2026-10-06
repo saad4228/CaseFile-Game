@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { requireBundle } from "@/lib/game-engine/cases.server";
-import { buildPlayView, followLead, GameError, sanitizeLocal } from "@/lib/game-engine/engine.server";
+import { buildPlayView, followLead, GameError, resistanceFor, sanitizeLocal } from "@/lib/game-engine/engine.server";
 import { resolvePresent, runInterview } from "@/lib/game-engine/interview";
 import type { InterviewAction } from "@/lib/game-engine/types";
 
@@ -49,10 +49,14 @@ describe("leads", () => {
 
 describe("interviews", () => {
   const sarah = bundle.interviews.sarah_vale;
+  /** An interview nobody has worked yet. */
+  const fresh = () => ({ asked: new Set<string>(), triggered: new Set<string>(), presented: new Set<string>(), deflections: 0 });
+  const ask = (id: string) => ({ suspectId: "sarah_vale", kind: "ASK" as const, ref: id });
+  const show = { suspectId: "sarah_vale", kind: "PRESENT" as const, ref: "E-017" };
 
   it("presenting the garage footage makes Sarah revise her statement", () => {
     const have = new Set([...bundle.brief, "E-017"]);
-    const outcome = resolvePresent(sarah, "E-017", have, { triggered: new Set(), presented: new Set(), deflections: 0 });
+    const outcome = resolvePresent(sarah, "E-017", have, fresh());
     expect(outcome).toBe("sv-r-garage");
     const run = runInterview(sarah, [{ suspectId: "sarah_vale", kind: "PRESENT", ref: "E-017", outcome }], have, bundle.evidenceById);
     expect([...run.unlocked]).toContain("E-031");
@@ -69,8 +73,40 @@ describe("interviews", () => {
   });
 
   it("irrelevant records get a deflection", () => {
-    const outcome = resolvePresent(sarah, "E-002", brief, { triggered: new Set(), presented: new Set(), deflections: 0 });
+    const outcome = resolvePresent(sarah, "E-002", brief, fresh());
     expect(outcome.startsWith("deflect")).toBe(true);
+  });
+
+  it("reads how hard each suspect is to move from their hidden profile", () => {
+    const of = (id: string) => resistanceFor(bundle, id);
+    // The terrified friend folds first; the lawyered-up publisher holds out longest.
+    expect(of("noah_grant")).toBeLessThan(of("sarah_vale"));
+    expect(of("marcus_reed")).toBeGreaterThan(of("elena_cross"));
+    for (const id of Object.keys(bundle.interviews)) expect(of(id)).toBeGreaterThan(0);
+  });
+
+  it("a composed suspect holds the line until she has been worked", () => {
+    const have = new Set([...bundle.brief, "E-017"]);
+    const resists = resistanceFor(bundle, "sarah_vale");
+
+    // Walking in and slamming the record down: she feels it and gives up nothing.
+    const cold = runInterview(sarah, [show], have, bundle.evidenceById, resists);
+    expect(cold.unlocked.size).toBe(0);
+    expect(cold.triggered.size).toBe(0);
+
+    // The same record, once her own account is on the table.
+    const asks = sarah.questions.slice(0, resists).map((q) => ask(q.id));
+    const worked = runInterview(sarah, [...asks, show], have, bundle.evidenceById, resists);
+    expect([...worked.unlocked]).toContain("E-031");
+  });
+
+  it("holding the line doesn't spend the record", () => {
+    const have = new Set([...bundle.brief, "E-017"]);
+    const resists = resistanceFor(bundle, "sarah_vale");
+    const asks = sarah.questions.slice(0, resists).map((q) => ask(q.id));
+    // Shown too early, then again after the questions — the second time has to land.
+    const run = runInterview(sarah, [show, ...asks, show], have, bundle.evidenceById, resists);
+    expect([...run.unlocked]).toContain("E-031");
   });
 });
 

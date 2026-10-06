@@ -273,6 +273,41 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
           </div>
         </motion.section>
 
+        {/* What everyone was holding back — the payoff for four interrogations */}
+        {truth.hiding.length > 0 && (
+          <motion.section {...fade()} aria-labelledby="r-hiding">
+            <h2 id="r-hiding" className="font-display text-4xl md:text-6xl">
+              Everyone was hiding something
+            </h2>
+            <p className="mt-4 max-w-2xl text-bone-100/60">
+              Only one of them killed him. The rest had their own reasons to lie to you.
+            </p>
+            <ul className="mt-10 grid gap-5 md:grid-cols-2">
+              {truth.hiding.map((h) => (
+                <li key={h.suspect} className="paper-aged px-6 py-5">
+                  <p className="font-display text-2xl text-[#1d1a14]">{h.name}</p>
+                  <p className="label-ink mt-0.5 !text-[9px]">{h.role}</p>
+                  <ul className="mt-4 space-y-1.5">
+                    {h.secrets.map((s) => (
+                      <li key={s} className="flex gap-2 text-sm leading-snug text-[#1d1a14]/85">
+                        <span aria-hidden="true" className="text-crimson-600">
+                          —
+                        </span>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                  {h.whyTheyLie && (
+                    <p className="font-display mt-4 border-l-2 border-crimson-600 pl-3 text-lg leading-snug text-[#1d1a14]">
+                      {h.whyTheyLie}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </motion.section>
+        )}
+
         {/* Meta mystery */}
         <motion.section {...fade()} className="relative overflow-hidden border border-ink-700 px-6 py-16 text-center md:px-16">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(156,41,41,0.12),transparent_65%)]" />

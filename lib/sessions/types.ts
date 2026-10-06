@@ -63,6 +63,8 @@ export interface ResultView {
     sequence: { time: string; scene: PhotoScene; caption: string; detail?: InkDetail }[];
     conflicts: { id: string; number: number; prompt: string; explanation: string; implicates: string }[];
     redHerrings: { suspect: string; name: string; looksLike: string; actually: string }[];
+    /** What each person was actually holding back, and why — revealed only after the verdict. */
+    hiding: { suspect: string; name: string; role: string; secrets: string[]; whyTheyLie: string | null }[];
     falsified: { id: string; number: number; title: string; filed: string; actual: string }[];
     missedKey: { id: string; number: number; title: string }[];
     metaClue: { symbol: string; teaser: string; nextCase: string };
