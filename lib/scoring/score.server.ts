@@ -116,21 +116,29 @@ export function scoreVerdict(bundle: CaseBundle, input: ScoreInput): ScoreResult
       t.assumptions.filter((a) => a.status === "supported" && a.evidence.length > 0).length >= 3,
   );
   const graded = logic.correct + logic.wrong;
-  let logicScore = graded === 0 ? 35 : 100 * (0.6 * (logic.correct / graded) + 0.4 * Math.min(1, logic.correct / 8));
+  // Never score a player below the 35 they'd get for leaving the board empty: drawing a
+  // thread and reading it wrong is still reasoning, and the board is the signature mechanic.
+  // Eight sound connections was also more than a first-time player will ever find, with no
+  // way of knowing which pairs the case even has an opinion about.
+  const judged = graded === 0 ? 35 : 100 * (0.6 * (logic.correct / graded) + 0.4 * Math.min(1, logic.correct / 5));
+  let logicScore = Math.max(35, judged);
   if (culpritTheory) logicScore += 10;
 
-  // Contradictions
-  const total = bundle.conflicts.length;
+  // Contradictions. A conflict only surfaces once the team holds both of its records, so
+  // judge them on the ones that actually reached the desk — scoring against all eleven
+  // marked players down for pairs the game never showed them.
+  const surfaced = bundle.conflicts.filter((x) => input.discovered.has(x.a) && input.discovered.has(x.b));
+  const total = surfaced.length;
   let c = 0;
   let ex = 0;
   let ig = 0;
-  for (const conflict of bundle.conflicts) {
+  for (const conflict of surfaced) {
     const mark = input.shared.conflictMarks[conflict.id];
     if (mark === "contradiction") c++;
     else if (mark === "explained") ex++;
     else if (mark === "ignored") ig++;
   }
-  const contradictions = ((c + ex * 0.5) / total) * 100;
+  const contradictions = total === 0 ? 50 : ((c + ex * 0.5) / total) * 100;
 
   // Efficiency
   const relevant = input.followedLeads.filter((l) => truth.relevantLeads.includes(l)).length;
@@ -153,7 +161,10 @@ export function scoreVerdict(bundle: CaseBundle, input: ScoreInput): ScoreResult
   const final = Math.round(
     (Object.keys(WEIGHTS) as (keyof ScoreBreakdown)[]).reduce((sum, k) => sum + scores[k] * WEIGHTS[k], 0),
   );
-  const solved = answers.who.correct && answers.how.correct && provenSlots >= 3;
+  // Name the right person, name the method, and hold two parts of it up with real records:
+  // that is a solved case. Three slots asked a player to also guess which records the file
+  // happens to accept, with no feedback to guide them, for the two they had least to go on.
+  const solved = answers.who.correct && answers.how.correct && provenSlots >= 2;
   let rank: ScoreResult["rank"] = final >= 90 ? "S" : final >= 80 ? "A" : final >= 65 ? "B" : final >= 50 ? "C" : "D";
   if (!solved && (rank === "S" || rank === "A")) rank = "B";
   if (!answers.who.correct && rank === "B") rank = "C";

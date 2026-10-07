@@ -71,6 +71,9 @@ export const truth = {
   /** Partly-right answers earn some credit (fraction of that question's points). */
   partial: {
     when: { w2: 0.4, w4: 0.4 },
+    // Service Stair B is how she left 314 at 23:49, so it is a near miss rather than a wrong
+    // answer; the garage is where Sarah and Noah were, which is the trap, and earns nothing.
+    where: { stairs: 0.3 },
     why: { phone: 0.25, source: 0.25 },
   } as Partial<Record<VerdictField, Record<string, number>>>,
 
