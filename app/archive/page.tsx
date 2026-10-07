@@ -9,9 +9,12 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { hasDatabase } from "@/lib/env";
 import { unpublishedCaseIds } from "@/lib/game-engine/publish.server";
 
+// Spelled out so the wall and the sentence above it can never disagree again.
+const COUNT = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"];
+
 export const metadata: Metadata = {
   title: "The Archive",
-  description: "Season One of CASEFILE: five case files. One is open.",
+  description: "Season One of CASEFILE. One case file is open; the rest are sealed.",
 };
 
 export default async function ArchivePage() {
@@ -41,7 +44,8 @@ export default async function ArchivePage() {
             The <em className="text-amber-300">Archive</em>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-bone-100/70">
-            Five files. One of them is open. The others will be, once you&apos;ve earned them.
+            {COUNT[visible.length] ?? visible.length} files. One of them is open. The others will be, once
+            you&apos;ve earned them.
           </p>
           <div className="mt-14">
             <ArchiveView cases={visible} online={online} progress={progress} teasers={teasers} />
