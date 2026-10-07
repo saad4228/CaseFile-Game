@@ -61,15 +61,40 @@ function Pin() {
   return <span className="pin absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 rounded-full" aria-hidden="true" />;
 }
 
+/**
+ * Take an item off the board. Selecting a node and pressing Delete has always worked, but
+ * nothing on screen said so, and a touch screen has no Delete key — so the pin gets pulled here.
+ */
+function Unpin({ id }: { id: string }) {
+  const { dispatch } = useGame();
+  const { readOnly } = useBoard();
+  if (readOnly) return null;
+  return (
+    <button
+      type="button"
+      aria-label="Take off the board"
+      title="Take off the board"
+      className="board-unpin nodrag nopan absolute -right-2.5 -top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-ink-600 bg-ink-950 text-[11px] leading-none text-steel-300 shadow-[0_2px_4px_rgba(0,0,0,.6)] hover:border-crimson-600 hover:text-crimson-400"
+      onClick={(ev) => {
+        ev.stopPropagation();
+        dispatch({ t: "board.remove", id });
+      }}
+    >
+      ✕
+    </button>
+  );
+}
+
 const selectedCls = (selected: boolean) => (selected ? "outline outline-2 outline-offset-4 outline-amber-500" : "");
 
-function EvidenceNode({ data, selected }: NodeProps<Node<NodeData>>) {
+function EvidenceNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
   const { evidence, unseen, onOpen } = useBoard();
   const e = data.ref ? evidence.get(data.ref) : undefined;
   if (!e) {
     return (
-      <div className="w-40 border border-dashed border-steel-400/50 px-3 py-3 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-steel-400">
+      <div className="group relative w-40 border border-dashed border-steel-400/50 px-3 py-3 text-center font-mono text-[10px] uppercase tracking-[0.15em] text-steel-400">
         Record withdrawn
+        <Unpin id={id} />
         <Handles />
       </div>
     );
@@ -83,12 +108,13 @@ function EvidenceNode({ data, selected }: NodeProps<Node<NodeData>>) {
     >
       <Pin />
       <EvidenceCard e={e} compact unseen={unseen.has(e.id)} />
+      <Unpin id={id} />
       <Handles />
     </div>
   );
 }
 
-function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
+function SuspectNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
   const { suspects } = useBoard();
   const s = data.ref ? suspects.get(data.ref) : undefined;
   if (!s) return null;
@@ -100,6 +126,7 @@ function SuspectNode({ data, selected }: NodeProps<Node<NodeData>>) {
         <p className="mt-1 text-center font-hand text-xl leading-none text-[#1d1a14]">{s.name}</p>
         <p className="text-center font-mono text-[8px] uppercase tracking-[0.18em] text-[#1d1a14]/60">{s.code}</p>
       </div>
+      <Unpin id={id} />
       <Handles />
     </div>
   );
@@ -122,6 +149,7 @@ function NoteNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
           onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
         />
       </div>
+      <Unpin id={id} />
       <Handles />
     </div>
   );
@@ -145,6 +173,7 @@ function UnknownNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
           onChange={(ev) => dispatch({ t: "board.text", id, text: ev.target.value })}
         />
       </div>
+      <Unpin id={id} />
       <Handles />
     </div>
   );
@@ -268,23 +297,40 @@ function BoardInner({
     [evidence, suspects, personal.seen, onOpen, readOnly, judged],
   );
 
-  const nodes: Node<NodeData>[] = shared.board.nodes.map((n) => ({
-    id: n.id,
-    type: n.kind,
-    position: drag[n.id] ?? { x: n.x, y: n.y },
-    data: { ref: n.ref, text: n.text },
-    selected: selectedNodes.has(n.id),
-    draggable: !readOnly,
-  }));
+  // A drag fires a position change per frame. Deriving every node object from scratch each
+  // time handed React Flow a wholly new set sixty times a second, and the whole board
+  // flickered. The settled nodes are memoised apart from the moving one, so a drag now
+  // replaces exactly one object and leaves every other identity untouched.
+  const settledNodes: Node<NodeData>[] = useMemo(
+    () =>
+      shared.board.nodes.map((n) => ({
+        id: n.id,
+        type: n.kind,
+        position: { x: n.x, y: n.y },
+        data: { ref: n.ref, text: n.text },
+        selected: selectedNodes.has(n.id),
+        draggable: !readOnly,
+      })),
+    [shared.board.nodes, selectedNodes, readOnly],
+  );
 
-  const edges: Edge<{ kind: EdgeKind }>[] = shared.board.edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    type: "thread",
-    data: { kind: e.kind },
-    selected: selectedEdges.has(e.id),
-  }));
+  const nodes: Node<NodeData>[] = useMemo(
+    () => (Object.keys(drag).length === 0 ? settledNodes : settledNodes.map((n) => (drag[n.id] ? { ...n, position: drag[n.id] } : n))),
+    [settledNodes, drag],
+  );
+
+  const edges: Edge<{ kind: EdgeKind }>[] = useMemo(
+    () =>
+      shared.board.edges.map((e) => ({
+        id: e.id,
+        source: e.source,
+        target: e.target,
+        type: "thread",
+        data: { kind: e.kind },
+        selected: selectedEdges.has(e.id),
+      })),
+    [shared.board.edges, selectedEdges],
+  );
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<NodeData>>[]) => {
@@ -297,7 +343,13 @@ function BoardInner({
             if (pos) dispatch({ t: "board.move", id: c.id, x: Math.round(pos.x), y: Math.round(pos.y) });
             delete dragRef.current[c.id];
           }
-          setDrag({ ...dragRef.current });
+          // Only re-render when the live position actually moved.
+          setDrag((d) => {
+            const live = dragRef.current;
+            const keys = Object.keys(live);
+            if (keys.length === Object.keys(d).length && keys.every((k) => d[k]?.x === live[k].x && d[k]?.y === live[k].y)) return d;
+            return { ...live };
+          });
         } else if (c.type === "select") {
           setSelectedNodes((sel) => {
             const next = new Set(sel);

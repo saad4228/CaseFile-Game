@@ -417,8 +417,19 @@ html[data-motion="reduce"] *::after {
   color: var(--color-steel-400);
 }
 
+/* Take-off-the-board control: out of the way until you reach for the item it belongs to. */
+.board-unpin {
+  opacity: 0;
+  transition: opacity 120ms ease-out;
+}
+.group:hover > .board-unpin,
+.group:focus-within > .board-unpin,
+.board-unpin:focus-visible {
+  opacity: 1;
+}
+
 /* Touch screens have no hover: show the thread handles on pinned items, with a fingertip-sized
-   hit area. */
+   hit area, and keep the unpin control permanently visible. */
 @media (pointer: coarse) {
   .casefile-board .react-flow__handle {
     opacity: 1 !important;
@@ -429,6 +440,14 @@ html[data-motion="reduce"] *::after {
     content: "";
     position: absolute;
     inset: -12px;
+  }
+  .board-unpin {
+    opacity: 0.85;
+  }
+  .board-unpin::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
   }
 }
 .legal-pad > div {
