@@ -1,14 +1,20 @@
+import { inkArt } from "@/data/cases/case-047/ink";
 import type { InkDetail as Kind } from "@/lib/game-engine/types";
 
 /**
  * Close-up ink panels for the resolution comic (reference 8): black ink on paper white, light
- * drawn as hatching, red used once — for the drink. 400×240 each.
+ * drawn as hatching, red used once — for the drink. 400×240 each. A drawn panel, when one is
+ * on file, is placed inside the same box rather than replacing the SVG.
  */
 export function InkDetail({ kind, className, slice }: { kind: Kind; className?: string; slice?: boolean }) {
   return (
     <svg className={className} viewBox="0 0 400 240" preserveAspectRatio={slice ? "xMidYMid slice" : undefined} role="img" aria-label={LABEL[kind]}>
       <rect width="400" height="240" fill="#f1ede4" />
-      {DRAW[kind]}
+      {inkArt[kind] ? (
+        <image href={inkArt[kind]} x="0" y="0" width="400" height="240" preserveAspectRatio="xMidYMid slice" />
+      ) : (
+        DRAW[kind]
+      )}
     </svg>
   );
 }
@@ -17,7 +23,7 @@ const LABEL: Record<Kind, string> = {
   console: "A hand flips a switch on a security console; the third-floor feed cuts to static.",
   glass: "From above: a turndown tray with a chocolate and a tumbler of whisky.",
   keycard: "A master keycard slides into the lock of Room 314; the light turns green.",
-  door: "A door opening onto a dark room. Two-tone chime.",
+  door: "A hand on the handle of Room 314, the door swinging in, a lamp still lit inside. Two-tone chime.",
   window: "The Blackwood at night; the light in one third-floor window goes out.",
   stairs: "Shoes going down concrete stairs, fast.",
   river: "A phone drops from a hand into black water.",
