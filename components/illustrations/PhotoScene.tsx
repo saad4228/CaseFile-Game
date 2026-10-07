@@ -1,8 +1,12 @@
+import { sceneArt } from "@/data/cases/case-047/scenes";
 import type { PhotoScene as Scene } from "@/lib/game-engine/types";
 
 // Original inked scenes for photo evidence, 400×300. Monochrome, cold, high contrast.
 // Every object listed in an item's "in frame" text is drawn with equal weight — the
 // illustration never points at the detail that matters.
+//
+// A photographed scene, when one is on file, is placed inside the same 400×300 box rather
+// than replacing the SVG, so the camera burn-in and the source stamp still draw over it.
 
 const INK = "#0b0e12";
 const MID = "#28323b";
@@ -27,7 +31,11 @@ export function PhotoScene({
   return (
     <svg className={className} viewBox="0 0 400 300" preserveAspectRatio={slice ? "xMidYMid slice" : undefined} role="img" aria-label={labels[scene]}>
       <rect width="400" height="300" fill="#1a2128" />
-      {scenes[scene]}
+      {sceneArt[scene] ? (
+        <image href={sceneArt[scene]} x="0" y="0" width="400" height="300" preserveAspectRatio="xMidYMid slice" />
+      ) : (
+        scenes[scene]
+      )}
       {cctv && (
         <g fontFamily="var(--font-plex-mono), monospace" fontSize="11" fill="#e7e2d8" opacity="0.85">
           {/* camera viewfinder corner brackets */}
@@ -60,7 +68,7 @@ const labels: Record<Scene, string> = {
   "room-desk": "Room 314: a writing desk with a laptop and a single tumbler, a turned-down bed, a chair with a jacket, and the door ajar.",
   lobby: "Hotel lobby: reception desk under a wall clock, a woman crossing the floor toward the lifts.",
   garage: "Underground garage level P2: a grey sedan in bay 14, two figures beside it.",
-  "garage-plate": "Rear of a grey sedan at a garage barrier, plate 7KD-R219.",
+  "garage-plate": "A grey sedan stopped at a garage entry barrier, one occupant, plate 7KD-R219.",
   bar: "A bar booth: two men facing each other, one turned away from the camera.",
   conservatory: "A rooftop glasshouse with planters and hand-lettered labels; a woman among the plants.",
 };
