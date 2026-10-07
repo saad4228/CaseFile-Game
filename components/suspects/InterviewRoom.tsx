@@ -58,7 +58,9 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden bg-[#07090c]">
       <InterrogationRoom key={flare} recording={busy} flare={flare > 0} />
-      <div className="relative grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[180px_1fr_220px]">
+      {/* grid-rows-[minmax(0,1fr)]: without it the implicit auto row sizes to the transcript and
+          overflows, sliding the newest answer underneath the question tray. */}
+      <div className="relative grid min-h-0 flex-1 grid-cols-1 grid-rows-[minmax(0,1fr)] lg:grid-cols-[180px_1fr_220px]">
         <div className="relative hidden items-end justify-center lg:flex" aria-hidden="true">
           <Detective className="h-[340px] -scale-x-100 opacity-90" fill="#040506" rim="#f0ae55" />
         </div>
@@ -118,9 +120,9 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
         </div>
       </div>
 
-      {/* question tray */}
+      {/* question tray — never more than a third of the room, so the answers keep the space */}
       {!readOnly && (
-        <div className="relative border-t border-ink-700 bg-ink-900 px-4 py-3 md:px-6">
+        <div className="relative flex max-h-[min(38%,15rem)] flex-col border-t border-ink-700 bg-ink-900 px-4 py-3 md:px-6">
           <AnimatePresence>
             {unlocked.length > 0 && (
               <motion.div
@@ -143,8 +145,8 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
               {error}
             </p>
           )}
-          <div className="flex flex-col gap-3 md:flex-row md:items-start">
-            <ul className="scrollbar-thin flex max-h-40 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label="Questions">
+          <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row md:items-stretch">
+            <ul className="scrollbar-thin flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto" aria-label="Questions">
               {view.questions.map((q) => (
                 <li key={q.id}>
                   <button
@@ -165,7 +167,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
             </ul>
             <button
               type="button"
-              className="btn btn-sm shrink-0 border-crimson-600/70 text-[#e0a59e] hover:bg-crimson-600/15"
+              className="btn btn-sm shrink-0 border-crimson-600/70 text-[#e0a59e] hover:bg-crimson-600/15 md:self-start"
               onClick={() => setPicker((p) => !p)}
               aria-expanded={picker}
               disabled={busy}
