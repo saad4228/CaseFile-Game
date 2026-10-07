@@ -4,7 +4,8 @@
 export const creator = {
   name: "Mohammad Saad",
   credit: "Created and designed by Mohammad Saad",
-  photo: null as string | null,
+  // Cropped to 4:5 from the top, which is the shape the pinned photo-print renders.
+  photo: "/creator/portrait.webp" as string | null,
   greeting: "Hey, fellow developer — and fellow gamer.",
   paragraphs: [
     "I grew up watching movies, playing games, and getting completely fascinated by stories where one tiny clue could change everything. Games like L.A. Noire and Criminal Case, along with stories like Sherlock Holmes, made me fall in love with the world of investigation, mystery, and deduction.",
