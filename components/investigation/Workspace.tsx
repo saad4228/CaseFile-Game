@@ -82,6 +82,12 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
       setToast("That record is private to you. Share it with the team before pinning it.");
       return;
     }
+    // The reducer refuses a second copy of the same record, so say so rather than claiming
+    // to have pinned something and leaving the player hunting for it.
+    if (shared.board.nodes.some((n) => n.kind === "evidence" && n.ref === id)) {
+      setToast("That record is already on the board.");
+      return;
+    }
     dispatch({ t: "board.add", node: { id: game.newId(), kind: "evidence", ref: id, ...boardSlot(shared.board.nodes.length) } });
     setToast("Pinned to the board.");
   };

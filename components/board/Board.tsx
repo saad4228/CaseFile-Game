@@ -20,7 +20,7 @@ import {
   type NodeProps,
 } from "@xyflow/react";
 import "@xyflow/react/dist/base.css";
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { EvidenceCard } from "@/components/evidence/EvidenceCard";
 import { useGame } from "@/components/game/GameContext";
 import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
@@ -246,7 +246,8 @@ function BoardInner({
 }) {
   const { shared, personal, evidence, suspects, holders, dispatch, newId, phase } = useGame();
   const readOnly = phase === "RESOLVED";
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, getViewport, setCenter } = useReactFlow();
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<Record<string, { x: number; y: number }>>({});
   const dragRef = useRef<Record<string, { x: number; y: number }>>({});
   const [selectedNodes, setSelectedNodes] = useState<Set<string>>(new Set());
@@ -364,9 +365,29 @@ function BoardInner({
 
   const editingEdge = shared.board.edges.find((e) => e.id === editing);
 
+  // "Pin to board" places by a fixed grid, because it is dispatched from the evidence viewer
+  // and the suspect file, neither of which knows where the board is scrolled to. So a pin
+  // made while the board is panned elsewhere lands off-screen and looks like nothing
+  // happened. Follow anything newly pinned, but only when it would otherwise be out of sight.
+  const known = useRef(new Set(shared.board.nodes.map((n) => n.id)));
+  useEffect(() => {
+    const ids = shared.board.nodes.map((n) => n.id);
+    const added = ids.filter((id) => !known.current.has(id));
+    known.current = new Set(ids);
+    const node = added.length ? shared.board.nodes.find((n) => n.id === added.at(-1)) : undefined;
+    const box = wrapRef.current?.getBoundingClientRect();
+    if (!node || !box) return;
+    const { x, y, zoom } = getViewport();
+    const left = node.x * zoom + x;
+    const top = node.y * zoom + y;
+    const onScreen = left > -40 && left < box.width - 60 && top > -40 && top < box.height - 60;
+    if (!onScreen) setCenter(node.x + 90, node.y + 70, { zoom, duration: 420 });
+  }, [shared.board.nodes, getViewport, setCenter]);
+
   return (
     <BoardContext.Provider value={ctx}>
       <div
+        ref={wrapRef}
         className="relative h-full w-full"
         onDragOver={(ev) => {
           if (ev.dataTransfer.types.includes(EVIDENCE_DRAG_TYPE)) {

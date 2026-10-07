@@ -77,6 +77,7 @@ export function RemoteGame({
     seq: 0,
     syncing: false,
     failures: 0,
+    opFailures: 0,
     phase: initial.phase,
   });
   const sessionId = initial.id;
@@ -178,27 +179,33 @@ export function RemoteGame({
           r.version = data.version;
           setConfirmed(data);
         }
+        r.opFailures = 0;
         setConnection("online");
-      } else if (res.status >= 500) {
+      } else if (res.status >= 500 || res.status === 429 || res.status === 408) {
+        // Busy, rate limited or briefly broken. The edits are still perfectly valid, so they
+        // go back on the queue and are retried — dropping them here is how a board full of
+        // work used to vanish on one unlucky request.
         throw new Error(String(res.status));
       } else {
-        // Refused (stale, invalid or not allowed): fall back to the server's state.
+        // Genuinely refused (stale, invalid, or not allowed): the server's state is the truth.
         void sync();
       }
-      // Acknowledged (or refused with a 4xx): drop everything up to the last op sent.
+      // Acknowledged (or refused outright): drop everything up to the last op sent.
       const maxShared = shared.at(-1)?.seq ?? -1;
       const maxPersonal = personal.at(-1)?.seq ?? -1;
       setPendingShared((p) => p.filter((x) => x.seq > maxShared));
       setPendingPersonal((p) => p.filter((x) => x.seq > maxPersonal));
     } catch {
-      // Network trouble: put the ops back and retry shortly.
+      // Network trouble, or a refusal the edits can survive: put them back and retry.
       r.queueShared.unshift(...shared);
       r.queuePersonal.unshift(...personal);
+      r.opFailures++;
       setConnection("syncing");
       failed = true;
     } finally {
       r.inFlight = false;
-      if (failed) setTimeout(() => flushRef.current(), 2000);
+      // Back off while a rate-limit window drains instead of hammering it open again.
+      if (failed) setTimeout(() => flushRef.current(), Math.min(15000, 1000 * 2 ** Math.min(r.opFailures, 4)));
       else if (r.queueShared.length || r.queuePersonal.length) setTimeout(() => flushRef.current(), 50);
     }
   }, [sessionId, sync]);
