@@ -1,24 +1,51 @@
 "use client";
 
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
+import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { RecordIcon } from "@/components/ui/RecordIcon";
-import type { Evidence } from "@/lib/game-engine/types";
+import type { Evidence, Suspect } from "@/lib/game-engine/types";
 import { evidenceCode } from "./format";
 
 /**
  * Renders a record as the physical object it is: a police statement form, a lab report on
  * letterhead, a ticket stub, a tractor-feed printout, a CCTV monitor, a cassette, a phone.
+ *
+ * `speaker` is the person a statement was taken from, so the form can carry their photograph.
  */
-export function EvidenceBody({ e, zoom = 1, rotate = 0, compact = false }: { e: Evidence; zoom?: number; rotate?: number; compact?: boolean }) {
+export function EvidenceBody({
+  e,
+  zoom = 1,
+  rotate = 0,
+  compact = false,
+  speaker,
+}: {
+  e: Evidence;
+  zoom?: number;
+  rotate?: number;
+  compact?: boolean;
+  speaker?: Suspect;
+}) {
   return (
     <div className="relative">
-      <Body e={e} zoom={zoom} rotate={rotate} compact={compact} />
+      <Body e={e} zoom={zoom} rotate={rotate} compact={compact} speaker={speaker} />
       {!compact && <EvidenceTag e={e} />}
     </div>
   );
 }
 
-function Body({ e, zoom, rotate, compact }: { e: Evidence; zoom: number; rotate: number; compact: boolean }) {
+function Body({
+  e,
+  zoom,
+  rotate,
+  compact,
+  speaker,
+}: {
+  e: Evidence;
+  zoom: number;
+  rotate: number;
+  compact: boolean;
+  speaker?: Suspect;
+}) {
   const b = e.body;
   switch (b.kind) {
     case "statement": {
@@ -27,14 +54,38 @@ function Body({ e, zoom, rotate, compact }: { e: Evidence; zoom: number; rotate:
         <div className="paper relative mx-auto max-w-2xl overflow-hidden pb-8">
           <FormHeader left="Vesper City PD" right={`Witness statement · ${evidenceCode(e.number)}`} />
           <div className="px-6 pt-6 md:px-10">
-            <dl className="grid grid-cols-[110px_1fr] gap-y-1.5 font-mono text-[12px] text-[#1d1a14]">
-              <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Name</dt>
-              <dd className="font-semibold">{b.speaker}</dd>
-              <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Taken</dt>
-              <dd>{b.takenAt}</dd>
-              <dt className="uppercase tracking-[0.15em] text-[#1d1a14]/55">Case</dt>
-              <dd>047 — Blackwood Hotel, Room 314</dd>
-            </dl>
+            {/* Ruled intake block: the particulars on the left, the photograph taped alongside. */}
+            <div className="grid gap-5 sm:grid-cols-[1fr_auto]">
+              <dl className="self-start border border-[#1d1a14]/50 font-mono text-[12px] text-[#1d1a14]">
+                <Field label="Name" value={b.speaker} strong />
+                <Field label="Age" value={speaker?.age != null ? String(speaker.age) : "—"} />
+                <Field label="Occupation" value={speaker?.role ?? "—"} />
+                <Field label="Relation" value={speaker?.relation ?? "—"} />
+                <Field label="Taken" value={b.takenAt} />
+                <Field label="Taken by" value={e.source.replace(/^.*?—\s*/, "")} />
+                <Field label="Case" value="047 — Blackwood Hotel, Room 314" />
+                <Field label="Ref" value={evidenceCode(e.number)} last />
+              </dl>
+              {speaker && (
+                <figure className="mx-auto w-36 shrink-0 sm:mx-0">
+                  {/* Tape belongs to the photograph, not to the whole column — anchored to the
+                      figure it sat across the caption below. */}
+                  <div className="relative">
+                    <Tape className="-top-2 left-1/2 -translate-x-1/2 -rotate-2" />
+                    <div className="photo-print rotate-1">
+                      <SuspectPhoto suspect={speaker} tight className="block w-full" />
+                    </div>
+                    <Tape className="-bottom-2 left-1/2 -translate-x-1/2 rotate-1" />
+                  </div>
+                  <figcaption className="mt-6 border border-[#1d1a14]/50 px-2 py-1.5">
+                    <Fingerprints />
+                    <p className="mt-1 text-center font-mono text-[8px] uppercase tracking-[0.18em] text-[#1d1a14]/55">
+                      Prints on file
+                    </p>
+                  </figcaption>
+                </figure>
+              )}
+            </div>
             <div className="mt-6 space-y-4 border-t-2 border-[#1d1a14]/70 pt-5">
               {b.quotes.map((q, i) => (
                 <p key={i} className="font-mono text-[13px] leading-relaxed text-[#1d1a14] md:text-sm">
@@ -235,6 +286,43 @@ function Body({ e, zoom, rotate, compact }: { e: Evidence; zoom: number; rotate:
 }
 
 /** Black header bar of an official form. */
+/** One ruled row of a filled-in form: label boxed off from the entry, as a typist left it. */
+function Field({ label, value, strong, last }: { label: string; value: string; strong?: boolean; last?: boolean }) {
+  return (
+    <div className={`grid grid-cols-[112px_1fr] ${last ? "" : "border-b border-[#1d1a14]/30"}`}>
+      <dt className="border-r border-[#1d1a14]/30 px-2.5 py-1.5 uppercase tracking-[0.12em] text-[#1d1a14]/55">{label}</dt>
+      <dd className={`px-2.5 py-1.5 ${strong ? "font-semibold" : ""}`}>{value}</dd>
+    </div>
+  );
+}
+
+/** A torn strip of gummed tape holding a photograph to the page. */
+function Tape({ className = "" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute z-10 h-5 w-14 bg-[#ded3ac]/75 shadow-[0_1px_2px_rgba(0,0,0,.3)] ${className}`}
+      style={{ clipPath: "polygon(4% 0%, 96% 5%, 100% 95%, 2% 100%)" }}
+    />
+  );
+}
+
+/** Two inked prints in the corner of the intake form. Drawn, like the rest of the furniture. */
+function Fingerprints() {
+  return (
+    <svg viewBox="0 0 96 46" className="block h-10 w-full" aria-hidden="true">
+      {[26, 70].map((cx, n) => (
+        <g key={cx} fill="none" stroke="#1d1a14" strokeOpacity="0.5" strokeWidth="0.7">
+          {[4, 7, 10, 13, 16, 19].map((r, i) => (
+            <ellipse key={r} cx={cx} cy="23" rx={r * 0.7} ry={r} transform={`rotate(${(i % 2 ? -5 : 5) + (n ? 3 : -3)} ${cx} 23)`} />
+          ))}
+          <path d={`M${cx - 4} 23 q4 -6 8 0`} strokeWidth="0.9" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
 function FormHeader({ left, right }: { left: string; right: string }) {
   return (
     <div className="flex items-center justify-between gap-4 bg-[#1d1a14] px-6 py-2.5 font-mono text-[10px] uppercase tracking-[0.25em] text-[#e9e4d8] md:px-10">

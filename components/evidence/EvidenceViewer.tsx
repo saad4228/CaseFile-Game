@@ -63,6 +63,9 @@ export function EvidenceViewer({
   }, [e, index, list, onOpen, onClose]);
 
   const nameOf = (id: string) => suspects.find((s) => s.id === id)?.name ?? id;
+  // A statement is taken from one person, and they are always the first named on the record.
+  const speakerOf = (rec: typeof e) =>
+    rec && rec.body.kind === "statement" ? suspects.find((s) => s.id === rec.suspects[0]) : undefined;
   const placeOf = (id: string) => locations.find((l) => l.id === id)?.name ?? id;
   const discovered = new Set(list.map((x) => x.id));
 
@@ -141,7 +144,7 @@ export function EvidenceViewer({
                   animate={{ opacity: 1, y: 0, rotate: 0 }}
                   transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
                 >
-                  <EvidenceBody e={e} zoom={zoom} rotate={rotate} compact={!!compare} />
+                  <EvidenceBody e={e} zoom={zoom} rotate={rotate} compact={!!compare} speaker={speakerOf(e)} />
                 </motion.div>
                 {compare && (
                   <div>
@@ -153,7 +156,7 @@ export function EvidenceViewer({
                         Close compare ✕
                       </button>
                     </div>
-                    <EvidenceBody e={compare} compact />
+                    <EvidenceBody e={compare} compact speaker={speakerOf(compare)} />
                   </div>
                 )}
               </div>
