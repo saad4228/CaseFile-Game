@@ -144,7 +144,7 @@ export function EvidenceViewer({
                   animate={{ opacity: 1, y: 0, rotate: 0 }}
                   transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
                 >
-                  <EvidenceBody e={e} zoom={zoom} rotate={rotate} compact={!!compare} speaker={speakerOf(e)} />
+                  <EvidenceBody e={e} zoom={zoom} rotate={rotate} compact={!!compare} speaker={speakerOf(e)} place={e.location ? placeOf(e.location) : undefined} />
                 </motion.div>
                 {compare && (
                   <div>
@@ -156,7 +156,7 @@ export function EvidenceViewer({
                         Close compare ✕
                       </button>
                     </div>
-                    <EvidenceBody e={compare} compact speaker={speakerOf(compare)} />
+                    <EvidenceBody e={compare} compact speaker={speakerOf(compare)} place={compare.location ? placeOf(compare.location) : undefined} />
                   </div>
                 )}
               </div>

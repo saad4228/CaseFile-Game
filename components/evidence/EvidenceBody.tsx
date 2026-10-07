@@ -3,6 +3,7 @@
 import { PhotoScene } from "@/components/illustrations/PhotoScene";
 import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { RecordIcon } from "@/components/ui/RecordIcon";
+import { mulberry32 } from "@/lib/random";
 import type { Evidence, Suspect } from "@/lib/game-engine/types";
 import { evidenceCode } from "./format";
 
@@ -18,16 +19,18 @@ export function EvidenceBody({
   rotate = 0,
   compact = false,
   speaker,
+  place,
 }: {
   e: Evidence;
   zoom?: number;
   rotate?: number;
   compact?: boolean;
   speaker?: Suspect;
+  place?: string;
 }) {
   return (
     <div className="relative">
-      <Body e={e} zoom={zoom} rotate={rotate} compact={compact} speaker={speaker} />
+      <Body e={e} zoom={zoom} rotate={rotate} compact={compact} speaker={speaker} place={place} />
       {!compact && <EvidenceTag e={e} />}
     </div>
   );
@@ -39,12 +42,14 @@ function Body({
   rotate,
   compact,
   speaker,
+  place,
 }: {
   e: Evidence;
   zoom: number;
   rotate: number;
   compact: boolean;
   speaker?: Suspect;
+  place?: string;
 }) {
   const b = e.body;
   switch (b.kind) {
@@ -109,35 +114,16 @@ function Body({
     }
     case "document": {
       if (/ticket/i.test(e.title)) return <TicketStub e={e} heading={b.heading} lines={b.lines} footer={b.footer} />;
-      const letterhead =
-        e.category === "FORENSIC"
-          ? { left: "Vesper City Medical Examiner", right: "Laboratory report" }
-          : e.category === "HOTEL"
-            ? { left: "The Blackwood Hotel", right: "Internal record" }
-            : e.category === "PHONE"
-              ? { left: "Halcyon Mobile", right: "Subscriber services" }
-              : null;
       return (
-        <div className="paper relative mx-auto max-w-2xl overflow-hidden pb-8">
-          {letterhead ? <FormHeader left={letterhead.left} right={letterhead.right} /> : <PunchHoles />}
-          <div className={`px-6 md:px-10 ${letterhead ? "pt-6" : "pt-8"}`}>
-            {b.heading && <p className="font-mono text-xs font-semibold tracking-[0.12em] text-[#1d1a14]">{b.heading}</p>}
-            <div className="mt-5 space-y-3">
-              {b.lines.map((l, i) => (
-                <p key={i} className="font-mono text-[13px] leading-relaxed text-[#1d1a14]">
-                  {l}
-                </p>
-              ))}
-            </div>
-            {b.footer && (
-              <p className="mt-6 border-t border-[#1d1a14]/20 pt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#1d1a14]/60">
-                {b.footer}
-              </p>
-            )}
-          </div>
-          {e.category === "FORENSIC" && <RubberStamp className="right-6 top-14 rotate-[9deg]">Confidential</RubberStamp>}
-          {!letterhead && <PaperClip />}
-        </div>
+        <AgencyForm
+          e={e}
+          office={OFFICE[e.category] ?? "Records office"}
+          initials={sealInitials(e.source)}
+          heading={b.heading}
+          lines={b.lines}
+          footer={b.footer}
+          place={place}
+        />
       );
     }
     case "handwritten":
@@ -286,6 +272,177 @@ function Body({
 }
 
 /** Black header bar of an official form. */
+/** Which desk inside the issuing body a record came off, by the kind of record it is. */
+const OFFICE: Partial<Record<Evidence["category"], string>> = {
+  DOCUMENT: "Records office",
+  FORENSIC: "Forensic services",
+  HOTEL: "Internal records",
+  PHONE: "Subscriber services",
+  DIGITAL: "Technical services",
+  BANK: "Accounts division",
+  NEWS: "Editorial",
+};
+
+/** Seal letters, taken from the capitals of the issuing body: "Vesper City PD" reads VCPD. */
+function sealInitials(source: string) {
+  const body = source.split("—")[0];
+  return (body.match(/[A-Z]/g) ?? ["V"]).join("").slice(0, 4);
+}
+
+/** The issuing body's seal, embossed at the head of a form. */
+function AgencySeal({ initials }: { initials: string }) {
+  return (
+    <svg viewBox="0 0 56 56" className="h-11 w-11 shrink-0" aria-hidden="true">
+      <circle cx="28" cy="28" r="26" fill="none" stroke="#1d1a14" strokeOpacity="0.55" strokeWidth="1.4" />
+      <circle cx="28" cy="28" r="21" fill="none" stroke="#1d1a14" strokeOpacity="0.45" strokeWidth="0.7" />
+      {Array.from({ length: 36 }).map((_, i) => (
+        <line
+          key={i}
+          x1="28"
+          y1="3.5"
+          x2="28"
+          y2="6.5"
+          stroke="#1d1a14"
+          strokeOpacity="0.35"
+          strokeWidth="0.8"
+          transform={`rotate(${i * 10} 28 28)`}
+        />
+      ))}
+      <text
+        x="28"
+        y="33"
+        textAnchor="middle"
+        fontFamily="var(--font-plex-mono), monospace"
+        fontSize="13"
+        fontWeight="600"
+        letterSpacing="0.5"
+        fill="#1d1a14"
+        fillOpacity="0.7"
+      >
+        {initials}
+      </text>
+    </svg>
+  );
+}
+
+/** A filing barcode. Deterministic from the record number, so a record always looks the same. */
+function Barcode({ seed }: { seed: number }) {
+  const rand = mulberry32(seed * 977 + 13);
+  let x = 0;
+  const bars: { x: number; w: number }[] = [];
+  while (x < 158) {
+    const w = 0.8 + Math.floor(rand() * 3) * 0.8;
+    bars.push({ x, w });
+    x += w + 0.8 + Math.floor(rand() * 2) * 0.8;
+  }
+  return (
+    <svg viewBox="0 0 160 30" className="block h-7 w-full" aria-hidden="true">
+      {bars.map((b, i) => (
+        <rect key={i} x={b.x} y="0" width={b.w} height="30" fill="#1d1a14" fillOpacity="0.8" />
+      ))}
+    </svg>
+  );
+}
+
+/**
+ * A record that arrived as an agency form rather than loose prose: seal and letterhead, the
+ * particulars ruled off, the filing status boxed, a case-file panel, and the body typed in
+ * underneath as notes.
+ */
+function AgencyForm({
+  e,
+  office,
+  initials,
+  heading,
+  lines,
+  footer,
+  place,
+}: {
+  e: Evidence;
+  office: string;
+  initials: string;
+  heading?: string;
+  lines: string[];
+  footer?: string;
+  place?: string;
+}) {
+  return (
+    <div className="paper relative mx-auto max-w-2xl overflow-hidden pb-8">
+      {/* letterhead */}
+      <div className="flex items-start gap-3 border-b-2 border-[#1d1a14]/70 px-6 py-4 md:px-9">
+        <AgencySeal initials={initials} />
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-[13px] font-semibold uppercase leading-tight tracking-[0.1em] text-[#1d1a14] md:text-[15px]">
+            {e.source.split("—")[0].trim()}
+          </p>
+          <p className="mt-0.5 font-mono text-[9px] uppercase tracking-[0.22em] text-[#1d1a14]/60">{office}</p>
+        </div>
+        <div className="shrink-0 border border-[#1d1a14]/60 text-center">
+          <p className="border-b border-[#1d1a14]/40 px-3 py-0.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[#1d1a14]/60">
+            Form {evidenceCode(e.number).replace("#", "VC-")}
+          </p>
+          <p className="px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-crimson-600">Restricted</p>
+        </div>
+      </div>
+
+      <div className="px-6 pt-5 md:px-9">
+        {heading && (
+          <p className="font-mono text-[13px] font-semibold uppercase tracking-[0.08em] text-[#1d1a14]">
+            {heading} <span className="text-crimson-600">{evidenceCode(e.number)}</span>
+          </p>
+        )}
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_auto]">
+          <dl className="self-start border border-[#1d1a14]/50 font-mono text-[12px] text-[#1d1a14]">
+            <Field label="Issued by" value={e.source} />
+            <Field label="Location" value={place ?? "—"} />
+            <Field label="Time" value={e.time ?? "—"} />
+            <Field label="Case" value="047" last />
+          </dl>
+          <div className="shrink-0 border border-[#1d1a14]/50 px-3 py-2 text-center">
+            <p className="font-mono text-[8px] uppercase tracking-[0.2em] text-[#1d1a14]/60">Case file</p>
+            <div className="mt-1 w-40">
+              <Barcode seed={e.number} />
+            </div>
+            <p className="mt-1 font-mono text-[10px] tracking-[0.1em] text-[#1d1a14]">
+              VCPD-047-{String(e.number).padStart(3, "0")}
+            </p>
+          </div>
+        </div>
+
+        {/* filing status, as the source declared it */}
+        <div className="mt-4 flex flex-wrap items-center gap-4">
+          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#1d1a14]/60">Status</p>
+          <p className="bg-[#1d1a14] px-4 py-1 font-mono text-[12px] font-semibold uppercase tracking-[0.22em] text-[#e9e4d8]">
+            {e.reliability}
+          </p>
+          <p className="ml-auto border border-crimson-600/70 px-2.5 py-1 text-center font-mono text-[8px] uppercase leading-tight tracking-[0.14em] text-crimson-600">
+            Do not duplicate
+            <br />
+            Distribution limited
+          </p>
+        </div>
+
+        <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.2em] text-[#1d1a14]/60">Notes</p>
+        <div className="mt-2 space-y-3 border-t border-[#1d1a14]/25 pt-3">
+          {lines.map((l, i) => (
+            <p key={i} className="font-mono text-[13px] leading-relaxed text-[#1d1a14]">
+              {l}
+            </p>
+          ))}
+        </div>
+        {footer && (
+          <p className="mt-6 border-t border-[#1d1a14]/20 pt-3 font-mono text-[10px] uppercase tracking-[0.2em] text-[#1d1a14]/60">
+            {footer}
+          </p>
+        )}
+      </div>
+      {/* Punched and filed, like everything else in the case folder. */}
+      <PunchHoles />
+    </div>
+  );
+}
+
 /** One ruled row of a filled-in form: label boxed off from the entry, as a typist left it. */
 function Field({ label, value, strong, last }: { label: string; value: string; strong?: boolean; last?: boolean }) {
   return (
@@ -342,20 +499,13 @@ function RubberStamp({ children, className = "" }: { children: React.ReactNode; 
 
 function PunchHoles() {
   return (
-    <div className="pointer-events-none absolute inset-y-0 left-2 flex flex-col justify-center gap-24" aria-hidden="true">
-      <span className="h-3.5 w-3.5 rounded-full bg-ink-950/85 shadow-[inset_0_1px_2px_rgba(0,0,0,.8)]" />
-      <span className="h-3.5 w-3.5 rounded-full bg-ink-950/85 shadow-[inset_0_1px_2px_rgba(0,0,0,.8)]" />
+    <div className="pointer-events-none absolute inset-y-0 left-1.5 flex flex-col justify-center gap-28" aria-hidden="true">
+      <span className="h-3 w-3 rounded-full bg-ink-950/80 shadow-[inset_0_1px_2px_rgba(0,0,0,.8)]" />
+      <span className="h-3 w-3 rounded-full bg-ink-950/80 shadow-[inset_0_1px_2px_rgba(0,0,0,.8)]" />
     </div>
   );
 }
 
-function PaperClip() {
-  return (
-    <svg className="pointer-events-none absolute -top-3 right-10 h-16 w-6" viewBox="0 0 24 64" aria-hidden="true">
-      <path d="M8 40V10a5 5 0 0 1 10 0v40a8 8 0 0 1-16 0V16" fill="none" stroke="#9aa3ab" strokeWidth="2.2" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 /** Ticket stub with perforated ends (reference 10E). */
 function TicketStub({ e, heading, lines, footer }: { e: Evidence; heading?: string; lines: string[]; footer?: string }) {
