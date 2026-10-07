@@ -162,8 +162,23 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
           className="btn btn-sm shrink-0 border-ink-600 !px-2.5 text-bone-100 hover:border-amber-500 sm:!px-3.5"
         >
           Desk
-          {leads.length > 0 && <span className="text-amber-300">{leads.length}</span>}
-          {openConflicts > 0 && <span className="text-crimson-400">▲{openConflicts}</span>}
+{/* The badges are glyphs and bare numbers; assistive tech gets the sentence instead. */}
+          {leads.length > 0 && (
+            <>
+              <span aria-hidden="true" className="text-amber-300">
+                {leads.length}
+              </span>
+              <span className="sr-only">, {leads.length} open leads</span>
+            </>
+          )}
+          {openConflicts > 0 && (
+            <>
+              <span aria-hidden="true" className="text-crimson-400">
+                ▲{openConflicts}
+              </span>
+              <span className="sr-only">, {openConflicts} conflicts still unclassified</span>
+            </>
+          )}
         </button>
         {mode === "TEAM" && (
           <button
@@ -173,7 +188,14 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
             className="btn btn-sm shrink-0 border-ink-600 !px-2.5 text-bone-100 hover:border-amber-500 sm:!px-3.5"
           >
             Chat
-            {unread > 0 && <span className="bg-amber-500 px-1.5 text-ink-950">{unread}</span>}
+            {unread > 0 && (
+              <>
+                <span aria-hidden="true" className="bg-amber-500 px-1.5 text-ink-950">
+                  {unread}
+                </span>
+                <span className="sr-only">, {unread} unread messages</span>
+              </>
+            )}
           </button>
         )}
         <div className="hidden sm:block">

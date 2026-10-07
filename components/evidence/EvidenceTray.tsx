@@ -38,13 +38,20 @@ export function EvidenceTray({ onOpen, fresh }: { onOpen: (id: string) => void; 
           aria-expanded={!collapsed}
           className="-my-1 flex shrink-0 items-center gap-2 py-2.5 font-mono text-[11px] uppercase tracking-[0.22em] text-bone-100 md:py-1"
         >
-          <span className={`inline-block transition-transform ${collapsed ? "-rotate-90" : ""}`}>▾</span>
+          <span aria-hidden="true" className={`inline-block transition-transform ${collapsed ? "-rotate-90" : ""}`}>
+            ▾
+          </span>
           Evidence · {evidence.length}
           {unseen > 0 && (
-            <span className="text-amber-300">
-              · {unseen}
-              <span className="hidden sm:inline"> unexamined</span>
-            </span>
+            <>
+              <span aria-hidden="true" className="text-amber-300">
+                · {unseen}
+                <span className="hidden sm:inline"> unexamined</span>
+              </span>
+              {/* phrased in full for screen readers, and at every width - the visible label
+                  is hidden below sm, which would otherwise leave a bare number */}
+              <span className="sr-only">, {unseen} unexamined</span>
+            </>
           )}
           {privateCount > 0 && <span className="hidden text-steel-300 md:inline">· {privateCount} private</span>}
         </button>

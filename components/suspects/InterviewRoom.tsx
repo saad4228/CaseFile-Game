@@ -134,7 +134,12 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
                 <span>
                   {suspect.name.split(" ")[0]} gave a revised statement. It&apos;s on file for the whole team.
                 </span>
-                <button type="button" className="label shrink-0 hover:text-bone-100" onClick={() => setUnlocked([])}>
+                <button
+                  type="button"
+                  aria-label="Dismiss"
+                  className="label shrink-0 hover:text-bone-100"
+                  onClick={() => setUnlocked([])}
+                >
                   ✕
                 </button>
               </motion.div>
@@ -172,7 +177,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
               aria-expanded={picker}
               disabled={busy}
             >
-              Present evidence ▾
+              Present evidence <span aria-hidden="true">▾</span>
             </button>
           </div>
           <AnimatePresence>

@@ -157,7 +157,15 @@ export function Desk({
                           </p>
                           {mark && (
                             <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${mark === "contradiction" ? "text-crimson-400" : "text-steel-300"}`}>
-                              {mark === "contradiction" ? "▲ Contradiction" : mark === "explained" ? "Explained" : "Ignored"}
+                              {mark === "contradiction" ? (
+                                <>
+                                  <span aria-hidden="true">▲</span> Contradiction
+                                </>
+                              ) : mark === "explained" ? (
+                                "Explained"
+                              ) : (
+                                "Ignored"
+                              )}
                             </span>
                           )}
                         </div>

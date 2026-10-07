@@ -490,7 +490,7 @@ function BoardInner({
                   aria-expanded={personMenu}
                   onClick={() => setPersonMenu((v) => !v)}
                 >
-                  + Person ▾
+                  + Person <span aria-hidden="true">▾</span>
                 </button>
                 {personMenu && (
                   <ul className="panel absolute left-0 top-full z-20 mt-1 w-52 py-1">
