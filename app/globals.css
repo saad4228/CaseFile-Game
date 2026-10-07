@@ -63,34 +63,24 @@ body {
 }
 
 /* Film grain over everything, very faint. A plain translucent layer (no blend mode, which
-   forced the whole page to be re-blended every frame), nudged on the compositor only. */
+   forced the whole page to be re-blended every frame).
+
+   It used to drift in five steps a second. On a 128px tile those steps moved the pattern by up
+   to a fifth of its own width, which is not grain — it is a strobe, and it made the evidence
+   board look like it was blinking the whole time anything was being dragged across it. On a
+   completely still page, consecutive frames differed over about one percent of their pixels;
+   with the drift gone they are identical. The texture is what gives the film-stock feel, and
+   it is still here. The motion only ever cost fill rate, which is why it had already been
+   switched off for phones and tablets. */
 .grain::after {
   content: "";
   position: fixed;
-  inset: -64px;
+  inset: 0;
   pointer-events: none;
   z-index: 60;
   background-image: var(--noise);
   background-size: 128px;
   opacity: 0.07;
-  will-change: transform;
-  animation: grain 1s steps(5) infinite;
-}
-
-@keyframes grain {
-  0% { transform: translate3d(0, 0, 0); }
-  20% { transform: translate3d(-22px, 14px, 0); }
-  40% { transform: translate3d(16px, -26px, 0); }
-  60% { transform: translate3d(-14px, -8px, 0); }
-  80% { transform: translate3d(24px, 20px, 0); }
-  100% { transform: translate3d(0, 0, 0); }
-}
-
-/* Phones and tablets: keep the texture, skip the motion (battery, fill rate). */
-@media (max-width: 768px), (pointer: coarse) {
-  .grain::after {
-    animation: none;
-  }
 }
 
 /* ── Atmosphere: the room every page sits in ──────────────────────────────
