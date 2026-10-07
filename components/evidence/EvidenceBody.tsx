@@ -367,7 +367,8 @@ function AgencyForm({
   place?: string;
 }) {
   return (
-    <div className="paper relative mx-auto max-w-2xl overflow-hidden pb-8">
+    <div className="paper-sheet relative mx-auto max-w-2xl">
+    <div className="paper-form worn-edge relative overflow-hidden pb-8">
       {/* letterhead */}
       <div className="flex items-start gap-3 border-b-2 border-[#1d1a14]/70 px-6 py-4 md:px-9">
         <AgencySeal initials={initials} />
@@ -439,6 +440,7 @@ function AgencyForm({
       </div>
       {/* Punched and filed, like everything else in the case folder. */}
       <PunchHoles />
+    </div>
     </div>
   );
 }
