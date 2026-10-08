@@ -69,8 +69,8 @@ export default async function AdminSessionPage(props: PageProps<"/admin/sessions
 
             <h2 className="label mt-10">Board &amp; verdict</h2>
             <p className="mt-3 text-sm text-bone-100/70">
-              {shared.board.nodes.length} pinned items · {shared.board.edges.length} threads · {shared.timeline.placed.length} on the
-              timeline · {shared.theories.length} theories
+              {shared.board.nodes.length} pinned items · {shared.board.edges.length} threads ·{" "}
+              {shared.timeline.custom.length} added moments · {shared.theories.length} theories
             </p>
             <p className="mt-2 text-sm text-bone-100/70">
               Draft verdict: who {shared.verdict.who ?? "—"}, how {shared.verdict.how ?? "—"}, when {shared.verdict.when ?? "—"}, where{" "}

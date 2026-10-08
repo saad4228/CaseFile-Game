@@ -112,6 +112,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
       return;
     }
     dispatch({ t: "board.add", node: { id: game.newId(), kind: "evidence", ref: id, ...boardSlot(shared.board.nodes.length) } });
+    play("pin");
     setToast("Pinned to the board.");
   };
 

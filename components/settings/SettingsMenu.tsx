@@ -5,7 +5,7 @@ import { updateSettings, useSettings, type Settings } from "@/lib/client/setting
 import { play } from "@/lib/client/sound";
 
 const ITEMS: { key: keyof Settings; label: string; hint: string }[] = [
-  { key: "sound", label: "Sound effects", hint: "Paper, typewriter, shutter, stamp" },
+  { key: "sound", label: "Sound effects", hint: "Paper, pins, typewriter, shutter, stamp" },
   { key: "ambience", label: "Rain", hint: "A quiet loop while you work" },
   { key: "reduceMotion", label: "Reduce motion", hint: "Calmer transitions, no drifting" },
 ];

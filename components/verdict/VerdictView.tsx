@@ -6,6 +6,7 @@ import { evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import { PROOF_SLOTS, VERDICT_FIELDS, type ProofSlot, type VerdictField } from "@/lib/game-engine/types";
 import { keyBy } from "@/lib/collections";
+import { play } from "@/lib/client/sound";
 
 const QUESTION: Record<VerdictField, string> = { who: "Who?", how: "How?", when: "When?", where: "Where?", why: "Why?" };
 const SLOT: Record<ProofSlot, { label: string; hint: string }> = {
@@ -38,6 +39,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
     setError(null);
     const r = await submitVerdict();
     setFiling(false);
+    if (r.ok) play("stamp");
     if (!r.ok) setError(r.error);
     else setConfirm(false);
   };

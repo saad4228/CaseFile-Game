@@ -4,7 +4,7 @@ import { getSettings } from "./settings";
 // short and quiet, fires only in response to something the player did, and is skipped
 // entirely when sound is off.
 
-export type Cue = "paper" | "type" | "shutter" | "stamp" | "thread" | "reveal" | "tick";
+export type Cue = "paper" | "type" | "shutter" | "stamp" | "thread" | "reveal" | "tick" | "pin" | "unpin";
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
@@ -106,6 +106,16 @@ const cues: Record<Cue, (c: AudioContext) => void> = {
   reveal: (c) => {
     for (const f of [110, 164.8, 207.7]) tone(c, { freq: f, dur: 2.4, gain: 0.05, attack: 0.5 });
     burst(c, { dur: 1.8, freq: 600, type: "lowpass", gain: 0.06, attack: 0.6 });
+  },
+  // a thumbtack pushed into cork: a short woody knock with no ring to it
+  pin: (c) => {
+    burst(c, { dur: 0.05, freq: 1100, q: 1.6, gain: 0.3, attack: 0.001 });
+    tone(c, { freq: 190, to: 110, dur: 0.07, gain: 0.16, attack: 0.001 });
+  },
+  // and pulled back out: the same knock, softer and upward
+  unpin: (c) => {
+    burst(c, { dur: 0.04, freq: 2100, q: 1.2, gain: 0.14, attack: 0.001 });
+    tone(c, { freq: 150, to: 240, dur: 0.06, gain: 0.07, attack: 0.001 });
   },
   tick: (c) => tone(c, { freq: 1320, dur: 0.05, gain: 0.03 }),
 };

@@ -41,6 +41,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
     setBusy(true);
     setError(null);
     setPicker(false);
+    if (kind === "PRESENT") play("paper");
     const r = await interview(suspect.id, kind, ref);
     setBusy(false);
     if (!r.ok) setError(r.error);

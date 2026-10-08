@@ -9,6 +9,7 @@ import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { onFoot, travel } from "@/lib/game-engine/travel";
 import type { CustomEvent } from "@/lib/game-engine/state";
 import type { Evidence, Suspect } from "@/lib/game-engine/types";
+import { play } from "@/lib/client/sound";
 
 /**
  * The night on one sheet: every timestamped record placed against the clock in the row of
@@ -26,7 +27,7 @@ type Lane = { id: string; name: string; suspect?: Suspect; pips: Pip[]; rows: nu
 type Leg = { from: number; to: number; label: string; impossible: boolean; still: boolean };
 
 export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
-  const { meta, evidence, suspects, locations, routes, shared, dispatch, newId, phase } = useGame();
+  const { meta, evidence, suspects, locations, routes, shared, interviews, dispatch, newId, phase } = useGame();
   const readOnly = phase === "RESOLVED";
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<{ id: string; at: number } | null>(null);
@@ -142,6 +143,12 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     if (focusFrom === null || focusTo === null) return out;
     for (const lane of lanes) {
       if (!lane.suspect) continue;
+      // Someone the case never identified cannot be placed anywhere, so they are not a gap
+      // in the night — they are the case. Saying so keeps the count honest.
+      if (!interviews[lane.id]) {
+        out.set(lane.id, { text: "Never identified", cls: "text-steel-400", blind: false });
+        continue;
+      }
       if (lane.pips.length === 0) {
         out.set(lane.id, { text: "Nothing on file at all", cls: "text-steel-400", blind: true });
         continue;
@@ -156,12 +163,14 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
       );
     }
     return out;
-  }, [lanes, legsOf, focusFrom, focusTo]);
+  }, [lanes, legsOf, focusFrom, focusTo, interviews]);
 
   const blindCount = useMemo(() => [...standing.values()].filter((v) => v.blind).length, [standing]);
 
-  const addMoment = () =>
+  const addMoment = () => {
+    play("pin");
     dispatch({ t: "custom.add", event: { id: newId(), time: clock(focusFrom ?? start + span / 2), label: "" } });
+  };
 
   const startDrag = (ev: React.PointerEvent, c: CustomEvent) => {
     const track = trackRef.current;

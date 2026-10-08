@@ -200,7 +200,10 @@ export function Desk({
                                 key={m.id}
                                 type="button"
                                 aria-pressed={mark === m.id}
-                                onClick={() => dispatch({ t: "conflict.mark", id: c.id, mark: mark === m.id ? null : m.id })}
+                                onClick={() => {
+                                  play("tick");
+                                  dispatch({ t: "conflict.mark", id: c.id, mark: mark === m.id ? null : m.id });
+                                }}
                                 className={`btn btn-sm ${
                                   mark === m.id
                                     ? m.id === "contradiction"

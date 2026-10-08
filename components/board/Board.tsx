@@ -167,6 +167,7 @@ function BoardInner({
     }
     const p = screenToFlowPosition({ x: ev.clientX, y: ev.clientY });
     dispatch({ t: "board.add", node: { id: newId(), kind: "evidence", ref: id, x: Math.round(p.x - 80), y: Math.round(p.y - 40) } });
+    play("pin");
   };
 
   const editingEdge = shared.board.edges.find((e) => e.id === editing);

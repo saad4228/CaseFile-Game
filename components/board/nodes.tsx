@@ -4,6 +4,7 @@ import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
 import { EvidenceCard } from "@/components/evidence/EvidenceCard";
 import { useGame } from "@/components/game/GameContext";
 import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
+import { play } from "@/lib/client/sound";
 import { useBoard, type NodeData } from "./context";
 
 // The five things that can be pinned to the board, and the pin and tack that hold them.
@@ -39,6 +40,7 @@ function Unpin({ id }: { id: string }) {
       className="board-unpin nodrag nopan absolute -right-2.5 -top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-ink-600 bg-ink-950 text-[11px] leading-none text-steel-300 shadow-[0_2px_4px_rgba(0,0,0,.6)] hover:border-crimson-600 hover:text-crimson-400"
       onClick={(ev) => {
         ev.stopPropagation();
+        play("unpin");
         dispatch({ t: "board.remove", id });
       }}
     >
