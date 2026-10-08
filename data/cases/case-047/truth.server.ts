@@ -197,6 +197,7 @@ export const truth = {
       ],
       pictures: [
         { scene: "daniel" },
+        { detail: "ledger" },
         { scene: "mercer-office" },
         { scene: "room-desk" },
       ],

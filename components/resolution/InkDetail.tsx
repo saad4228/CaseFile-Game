@@ -35,6 +35,7 @@ const LABEL: Record<Kind, string> = {
   handover: "Two hands under a bar table, one passing a USB drive into the other.",
   envelope: "An envelope pushed across a bar table by a hand wearing a circle-and-line signet ring.",
   contract: "A Vesper County document being signed by the Deputy Commissioner, the signet ring on his other hand.",
+  ledger: "A bank statement under a ruler: four monthly payments of $40,000 from HH Consulting to Reed Media.",
 };
 
 const ink = "#0b0b0c";
@@ -174,6 +175,24 @@ const DRAW: Record<Kind, React.ReactNode> = {
       <path d="M40 184 C40 162 80 154 118 162 L176 176 C190 180 186 198 172 198 L56 198 C46 198 40 192 40 184 Z" fill="none" stroke={ink} strokeWidth="3" />
       <path d="M360 190 C360 168 320 160 282 168 L224 182 C210 186 214 204 228 204 L344 204 C354 204 360 198 360 190 Z" fill="none" stroke={ink} strokeWidth="3" />
       <rect x="182" y="176" width="36" height="14" rx="2" fill={ink} />
+    </g>
+  ),
+  ledger: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* a statement, four identical rows, a ruler held under one */}
+      <rect x="40" y="24" width="300" height="190" fill="none" stroke={ink} strokeWidth="3" />
+      <line x1="56" y1="58" x2="324" y2="58" stroke={ink} strokeWidth="3" />
+      {[84, 112, 140, 168].map((y) => (
+        <g key={y}>
+          <line x1="56" y1={y} x2="324" y2={y} stroke={ink} strokeWidth="1.5" />
+          <rect x="250" y={y - 12} width="60" height="8" fill={ink} />
+        </g>
+      ))}
+      <rect x="30" y="186" width="330" height="16" rx="2" fill={ink} />
+      {Array.from({ length: 11 }, (_, i) => (
+        <line key={i} x1={44 + i * 30} y1="186" x2={44 + i * 30} y2="194" stroke="#f1ede4" strokeWidth="1.5" />
+      ))}
     </g>
   ),
   contract: (
