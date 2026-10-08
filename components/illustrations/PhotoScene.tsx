@@ -70,6 +70,7 @@ const labels: Record<Scene, string> = {
   conservatory: "A rooftop glasshouse with planters and hand-lettered labels; a woman among the plants.",
   "mercer-office": "A ransacked rented room: a wall of pinned clippings headed CASE 019, papers across the floor, one desk lamp still lit.",
   archive: "A sub-basement corridor of steel shelving packed with numbered evidence boxes, behind a padlocked gate marked CALDER STREET STORAGE.",
+  jarrow: "A police press conference: a composed man in late middle age at a Vesper County podium, a signet ring on his little finger.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -302,6 +303,21 @@ const scenes: Record<Scene, React.ReactNode> = {
       {/* the one lit lamp */}
       <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
       <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  jarrow: (
+    <g>
+      <rect width="400" height="300" fill="#10151a" />
+      {/* seal on the wall behind */}
+      <circle cx="320" cy="78" r="52" fill="none" stroke="#2e3943" strokeWidth="6" />
+      {/* figure at a podium */}
+      <circle cx="196" cy="96" r="34" fill="#20282f" />
+      <path d="M140 300 C140 196 170 160 196 160 C222 160 252 196 252 300 Z" fill="#171d23" />
+      <rect x="112" y="214" width="176" height="86" fill="#232b33" />
+      <circle cx="200" cy="258" r="26" fill="none" stroke="#39434d" strokeWidth="4" />
+      {/* flashbulb */}
+      <circle cx="42" cy="86" r="24" fill="#f0e3c0" opacity="0.22" />
+      <circle cx="42" cy="86" r="9" fill="#ffeec4" />
     </g>
   ),
   archive: (

@@ -13,4 +13,5 @@ export const sceneArt: Partial<Record<PhotoScene, string>> = {
   conservatory: "/scenes/conservatory.webp",
   "mercer-office": "/scenes/mercer-office.webp",
   archive: "/scenes/archive.webp",
+  jarrow: "/scenes/jarrow.webp",
 };

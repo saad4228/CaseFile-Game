@@ -140,6 +140,7 @@ export const truth = {
         "Noah Grant is not frightened of a company. He is frightened of the man who put his brother away and still has the reach to do it to him.",
       ],
       pictures: [
+        { scene: "jarrow" },
         { scene: "bar" },
         { detail: "ring" },
       ],
