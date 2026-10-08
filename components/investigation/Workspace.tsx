@@ -117,14 +117,17 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
 
   if (phase === "RESOLVED" && !reviewing) {
     return (
-      <div className="h-[100svh]">
+      <div className="fixed inset-0">
         <ResolutionView onReview={() => setReviewing(true)} onPlayAgain={onPlayAgain} />
       </div>
     );
   }
 
   return (
-    <div className="flex h-[100svh] flex-col overflow-hidden">
+    // Pinned to the viewport rather than sized to it: an app shell measured in svh can end up
+    // a little taller than the window, and the document then scrolls behind it — which clips
+    // the header off the top in fullscreen.
+    <div className="fixed inset-0 flex flex-col overflow-hidden">
       <header className="relative z-40 flex flex-wrap items-center gap-x-2 border-b border-ink-700 bg-ink-950 px-3 md:flex-nowrap md:gap-5 md:px-5">
         <Link href="/archive" className="hidden font-display text-lg tracking-[0.08em] xl:block" aria-label="CASEFILE archive">
           CASEFILE
