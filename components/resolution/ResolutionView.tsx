@@ -87,29 +87,6 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
       </section>
 
       <div className="mx-auto max-w-6xl space-y-28 px-4 pb-28 md:px-10">
-        {/* Verdict vs truth */}
-        <motion.section {...fade()} aria-labelledby="r-verdict">
-          <h2 id="r-verdict" className="label">Your verdict · the truth</h2>
-          <div className="mt-6 divide-y divide-ink-700 border-y border-ink-700">
-            {VERDICT_FIELDS.map((f) => {
-              const a = score.details.answers[f];
-              return (
-                <div key={f} className="grid gap-2 py-5 md:grid-cols-[120px_1fr_1fr] md:items-baseline">
-                  <p className="font-display text-3xl uppercase">{QUESTION[f]}</p>
-                  <p className={`text-lg ${a.correct ? "text-bone-100" : "text-bone-100/50 line-through decoration-crimson-600/70"}`}>
-                    <span className="mr-2 font-mono text-sm">{a.correct ? "✓" : a.credit > 0 ? "~" : "✗"}</span>
-                    {result.given[f]?.label ?? "No answer"}
-                  </p>
-                  <div>
-                    <p className="text-lg text-amber-300">{truth.answers[f].label}</p>
-                    <p className="mt-1 text-sm text-bone-100/60">{truth.summary[f]}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.section>
-
         {/* The line-up */}
         <section aria-labelledby="r-lineup">
           <motion.h2 {...fade()} id="r-lineup" className="label">
@@ -144,104 +121,6 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
             <CaseStory story={truth.story} />
           </div>
         </section>
-
-        {/* Score */}
-        <motion.section {...fade()} aria-labelledby="r-score" className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-          <div className="paper relative px-6 py-8 md:px-10">
-            <h2 id="r-score" className="label-ink">Investigation score</h2>
-            <table className="mt-6 w-full font-mono text-sm text-[#1d1a14]">
-              <tbody>
-                {DIMENSIONS.map((d) => (
-                  <tr key={d.key} className="border-b border-[#1d1a14]/15">
-                    <td className="py-2.5 pr-3 align-top">
-                      <span className="uppercase tracking-[0.15em]">{d.label}</span>
-                      <span className="mt-0.5 block font-sans text-[11px] normal-case leading-snug tracking-normal text-[#1d1a14]/55">
-                        {d.hint}
-                      </span>
-                    </td>
-                    <td className="w-1/2 py-2.5">
-                      <div className="h-1.5 bg-[#1d1a14]/10">
-                        <motion.div
-                          className="h-full bg-[#1d1a14]/70"
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${score.scores[d.key]}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.9, delay: 0.2 }}
-                        />
-                      </div>
-                    </td>
-                    <td className="py-2.5 pl-3 text-right tabular-nums">{score.scores[d.key]}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="mt-8 flex items-end justify-between">
-              <div>
-                <p className="label-ink">Final</p>
-                <p className="font-display text-7xl leading-none text-[#1d1a14]">
-                  {score.final}
-                  <span className="text-2xl text-[#4f4636]"> / 100</span>
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="label-ink">Rank</p>
-                <p className="font-display text-7xl leading-none text-crimson-600">{score.rank}</p>
-              </div>
-            </div>
-            <div className="absolute right-6 top-6">
-              <Stamp tone={score.solved ? "crimson" : "ink"} rotate={-11} size="md" animate>
-                {score.solved ? "Closed" : "Open"}
-              </Stamp>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <p className="label">How your five parts held up</p>
-              <ul className="mt-3 space-y-3">
-                {PROOF_SLOTS.map((slot) => {
-                  const p = score.details.proof[slot];
-                  return (
-                    <li key={slot} className="border border-ink-700 p-3">
-                      <p className="flex justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
-                        <span>{slot}</span>
-                        <span className={p.proven ? "text-amber-300" : "text-steel-400"}>
-                          {p.proven ? "Proved it" : "Didn't prove it"}
-                        </span>
-                      </p>
-                      <p className="mt-1.5 text-sm text-bone-100/70">
-                        {p.attached.length
-                          ? p.attached.map((a) => `${a.accepted ? "✓" : "✗"} ${a.id.replace("E-", "#")}`).join("  ·  ")
-                          : "You didn't back this one up."}
-                      </p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-            <p className="text-sm leading-relaxed text-bone-100/60">
-              On the board you drew {score.details.logic.correct} link{score.details.logic.correct === 1 ? "" : "s"} that hold up
-              and {score.details.logic.wrong} that {score.details.logic.wrong === 1 ? "doesn't" : "don't"}. You called{" "}
-              {score.details.contradictions.contradiction} of {score.details.contradictions.total} conflict
-              {score.details.contradictions.total === 1 ? "" : "s"} a lie. Of the {score.details.efficiency.followed} lead
-              {score.details.efficiency.followed === 1 ? "" : "s"} you followed, {score.details.efficiency.relevant} mattered.
-            </p>
-          </div>
-        </motion.section>
-
-        {score.achievements.length > 0 && (
-          <motion.section {...fade()} aria-labelledby="r-ach">
-            <h2 id="r-ach" className="label">Commendations</h2>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {score.achievements.map((k) => (
-                <li key={k} className="paper-aged px-5 py-4">
-                  <p className="font-display text-xl text-[#1d1a14]">{ACHIEVEMENTS[k].title}</p>
-                  <p className="mt-1 text-sm text-[#1d1a14]/75">{ACHIEVEMENTS[k].description}</p>
-                </li>
-              ))}
-            </ul>
-          </motion.section>
-        )}
 
         {/* Explanations */}
         <motion.section {...fade()} aria-labelledby="r-lies" className="grid gap-12 lg:grid-cols-2">
@@ -347,6 +226,134 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
             <p className="font-display mt-1 text-2xl text-[#1d1a14]">{truth.metaClue.teaser}</p>
           </div>
         </motion.section>
+
+        {/* Everything above is the case. Everything below is how you did. */}
+        <div className="flex items-center gap-4" aria-hidden="true">
+          <span className="h-px flex-1 bg-ink-700" />
+          <span className="label">Your investigation</span>
+          <span className="h-px flex-1 bg-ink-700" />
+        </div>
+
+        {/* Verdict vs truth */}
+        <motion.section {...fade()} aria-labelledby="r-verdict">
+          <h2 id="r-verdict" className="label">Your verdict · the truth</h2>
+          <div className="mt-6 divide-y divide-ink-700 border-y border-ink-700">
+            {VERDICT_FIELDS.map((f) => {
+              const a = score.details.answers[f];
+              return (
+                <div key={f} className="grid gap-2 py-5 md:grid-cols-[120px_1fr_1fr] md:items-baseline">
+                  <p className="font-display text-3xl uppercase">{QUESTION[f]}</p>
+                  <p className={`text-lg ${a.correct ? "text-bone-100" : "text-bone-100/50 line-through decoration-crimson-600/70"}`}>
+                    <span className="mr-2 font-mono text-sm">{a.correct ? "✓" : a.credit > 0 ? "~" : "✗"}</span>
+                    {result.given[f]?.label ?? "No answer"}
+                  </p>
+                  <div>
+                    <p className="text-lg text-amber-300">{truth.answers[f].label}</p>
+                    <p className="mt-1 text-sm text-bone-100/60">{truth.summary[f]}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </motion.section>
+
+        {/* Score */}
+        <motion.section {...fade()} aria-labelledby="r-score" className="grid gap-10 lg:grid-cols-[1.2fr_1fr]">
+          <div className="paper relative px-6 py-8 md:px-10">
+            <h2 id="r-score" className="label-ink">Investigation score</h2>
+            <table className="mt-6 w-full font-mono text-sm text-[#1d1a14]">
+              <tbody>
+                {DIMENSIONS.map((d) => (
+                  <tr key={d.key} className="border-b border-[#1d1a14]/15">
+                    <td className="py-2.5 pr-3 align-top">
+                      <span className="uppercase tracking-[0.15em]">{d.label}</span>
+                      <span className="mt-0.5 block font-sans text-[11px] normal-case leading-snug tracking-normal text-[#1d1a14]/55">
+                        {d.hint}
+                      </span>
+                    </td>
+                    <td className="w-1/2 py-2.5">
+                      <div className="h-1.5 bg-[#1d1a14]/10">
+                        <motion.div
+                          className="h-full bg-[#1d1a14]/70"
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${score.scores[d.key]}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.9, delay: 0.2 }}
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2.5 pl-3 text-right tabular-nums">{score.scores[d.key]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="mt-8 flex items-end justify-between">
+              <div>
+                <p className="label-ink">Final</p>
+                <p className="font-display text-7xl leading-none text-[#1d1a14]">
+                  {score.final}
+                  <span className="text-2xl text-[#4f4636]"> / 100</span>
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="label-ink">Rank</p>
+                <p className="font-display text-7xl leading-none text-crimson-600">{score.rank}</p>
+              </div>
+            </div>
+            <div className="absolute right-6 top-6">
+              <Stamp tone={score.solved ? "crimson" : "ink"} rotate={-11} size="md" animate>
+                {score.solved ? "Closed" : "Open"}
+              </Stamp>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <p className="label">How your five parts held up</p>
+              <ul className="mt-3 space-y-3">
+                {PROOF_SLOTS.map((slot) => {
+                  const p = score.details.proof[slot];
+                  return (
+                    <li key={slot} className="border border-ink-700 p-3">
+                      <p className="flex justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
+                        <span>{slot}</span>
+                        <span className={p.proven ? "text-amber-300" : "text-steel-400"}>
+                          {p.proven ? "Proved it" : "Didn't prove it"}
+                        </span>
+                      </p>
+                      <p className="mt-1.5 text-sm text-bone-100/70">
+                        {p.attached.length
+                          ? p.attached.map((a) => `${a.accepted ? "✓" : "✗"} ${a.id.replace("E-", "#")}`).join("  ·  ")
+                          : "You didn't back this one up."}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <p className="text-sm leading-relaxed text-bone-100/60">
+              On the board you drew {score.details.logic.correct} link{score.details.logic.correct === 1 ? "" : "s"} that hold up
+              and {score.details.logic.wrong} that {score.details.logic.wrong === 1 ? "doesn't" : "don't"}. You called{" "}
+              {score.details.contradictions.contradiction} of {score.details.contradictions.total} conflict
+              {score.details.contradictions.total === 1 ? "" : "s"} a lie. Of the {score.details.efficiency.followed} lead
+              {score.details.efficiency.followed === 1 ? "" : "s"} you followed, {score.details.efficiency.relevant} mattered.
+            </p>
+          </div>
+        </motion.section>
+
+        {score.achievements.length > 0 && (
+          <motion.section {...fade()} aria-labelledby="r-ach">
+            <h2 id="r-ach" className="label">Commendations</h2>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {score.achievements.map((k) => (
+                <li key={k} className="paper-aged px-5 py-4">
+                  <p className="font-display text-xl text-[#1d1a14]">{ACHIEVEMENTS[k].title}</p>
+                  <p className="mt-1 text-sm text-[#1d1a14]/75">{ACHIEVEMENTS[k].description}</p>
+                </li>
+              ))}
+            </ul>
+          </motion.section>
+        )}
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <button type="button" className="btn btn-ghost" onClick={onReview}>
