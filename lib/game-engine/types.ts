@@ -151,6 +151,16 @@ export interface CaseMeta {
   brief: string[];
   intro: IntroBeat[];
   counts: { suspects: number; evidence: number };
+  /**
+   * The stretch of the night the case is argued inside, and the part of it that decides the
+   * case. Both are public — case 047 states them on the medical examiner's preliminary — so
+   * this adds nothing the player isn't already holding.
+   */
+  night?: {
+    from: string;
+    to: string;
+    focus?: { from: string; to: string; label: string };
+  };
 }
 
 /** A lead as the client sees it: a label and nothing about what it unlocks. */

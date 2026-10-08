@@ -23,6 +23,11 @@ export const meta: CaseMeta = {
   },
   objective:
     "Determine what happened to Daniel Mercer between 11:00 PM and midnight.",
+  night: {
+    from: "22:00",
+    to: "00:30",
+    focus: { from: "23:40", to: "23:55", label: "Estimated time of death" },
+  },
   brief: [
     "Daniel Mercer, 34, was found in Room 314 of the Blackwood Hotel at 00:31 by the night porter.",
     "The door was locked. There was no sign of forced entry and no weapon in the room.",

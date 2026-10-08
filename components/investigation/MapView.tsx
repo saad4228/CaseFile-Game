@@ -1,38 +1,35 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useState } from "react";
-import { evidenceCode } from "@/components/evidence/format";
+import { evidenceCode, formatMinutes, minutesFrom22 } from "@/components/evidence/format";
 import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
+import { useGame } from "@/components/game/GameContext";
+import { mulberry32 } from "@/lib/random";
+import { onFoot, spokenMinutes, travel } from "@/lib/game-engine/travel";
 import type { Evidence, Location, Route } from "@/lib/game-engine/types";
 
-function shortestPath(routes: Route[], from: string, to: string) {
-  const adj = new Map<string, { to: string; m: number; mode: Route["mode"] }[]>();
-  for (const r of routes) {
-    adj.set(r.from, [...(adj.get(r.from) ?? []), { to: r.to, m: r.minutes, mode: r.mode }]);
-    adj.set(r.to, [...(adj.get(r.to) ?? []), { to: r.from, m: r.minutes, mode: r.mode }]);
-  }
-  const dist = new Map<string, number>([[from, 0]]);
-  const prev = new Map<string, string>();
-  const todo = new Set(adj.keys());
-  while (todo.size) {
-    let u: string | null = null;
-    for (const n of todo) if (dist.has(n) && (u === null || dist.get(n)! < dist.get(u)!)) u = n;
-    if (u === null) break;
-    todo.delete(u);
-    if (u === to) break;
-    for (const e of adj.get(u) ?? []) {
-      const d = dist.get(u)! + e.m;
-      if (d < (dist.get(e.to) ?? Infinity)) {
-        dist.set(e.to, d);
-        prev.set(e.to, u);
-      }
-    }
-  }
-  if (!dist.has(to)) return null;
-  const path = [to];
-  while (path[0] !== from) path.unshift(prev.get(path[0])!);
-  return { minutes: dist.get(to)!, path };
-}
+/**
+ * Vesper City, and the one question worth asking of it: could somebody have got from here to
+ * there in the time they had? Pick two places and the map answers in the case's own terms —
+ * the minutes, and the latest you could have left and still made the window.
+ */
+
+const W = 1000;
+const H = 680;
+/** Lakemoor is two hours north; it belongs on the road out, not on the street plan. */
+const OFF_MAP = "lakemoor";
+
+const pos = (l: Location) => ({ x: 90 + l.x * 9.2, y: 110 + l.y * 6.2 });
+
+/** District names sit where nothing else does, so they never cross a pin or its label. */
+const DISTRICTS: { name: string; x: number; y: number }[] = [
+  { name: "SIGNAL HILL", x: 150, y: 196 },
+  { name: "PRINTWORKS", x: 790, y: 160 },
+  { name: "CIVIC CENTRE", x: 700, y: 268 },
+  { name: "OLD QUARTER", x: 400, y: 432 },
+  { name: "WESTBANK", x: 112, y: 556 },
+];
 
 export function MapView({
   locations,
@@ -45,101 +42,268 @@ export function MapView({
   evidence: Evidence[];
   onOpen: (id: string) => void;
 }) {
+  const { meta, suspects } = useGame();
   const [selected, setSelected] = useState<string>("blackwood_hotel");
-  const [measure, setMeasure] = useState<string | null>(null);
+  const [from, setFrom] = useState<string | null>(null);
+  const [hoverRoute, setHoverRoute] = useState<string | null>(null);
+
   const byId = useMemo(() => new Map(locations.map((l) => [l.id, l])), [locations]);
-  const sel = byId.get(selected)!;
-  const route = measure && measure !== selected ? shortestPath(routes, measure, selected) : null;
+  const sel = byId.get(selected) ?? locations[0];
+  const trip = from && from !== selected ? travel(routes, from, selected) : null;
   const linked = evidence.filter((e) => e.locations.includes(selected));
 
+  const focus = meta.night?.focus;
+  const focusFrom = focus ? minutesFrom22(focus.from) : null;
+
   const P = (id: string) => {
-    const l = byId.get(id)!;
-    return { x: l.x * 10, y: 40 + l.y * 6 };
+    const l = byId.get(id);
+    return l ? pos(l) : { x: W / 2, y: H / 2 };
   };
 
+  // The street plan. Seeded, so the city is the same city every time it is drawn.
+  const blocks = useMemo(() => {
+    const rand = mulberry32(47);
+    const out: { x: number; y: number; w: number; h: number; tone: number }[] = [];
+    for (let row = 0; row < 11; row++) {
+      for (let col = 0; col < 17; col++) {
+        if (rand() < 0.1) continue; // a yard, a lot, a gap in the terrace
+        const w = 36 + rand() * 20;
+        const h = 30 + rand() * 16;
+        out.push({
+          x: 24 + col * 58 + rand() * 7,
+          y: 84 + row * 50 + rand() * 6,
+          w,
+          h,
+          tone: rand(),
+        });
+      }
+    }
+    return out;
+  }, []);
+
+  const onRoute = (r: Route) =>
+    !!trip?.path.some((p, i) => i > 0 && ((trip.path[i - 1] === r.from && p === r.to) || (trip.path[i - 1] === r.to && p === r.from)));
+
+  const pick = (id: string) => {
+    if (id === selected) {
+      setFrom(null);
+      return;
+    }
+    // The place you were looking at becomes the place you are measuring from.
+    setFrom(selected);
+    setSelected(id);
+  };
+
+  const whoWasHere = suspects.filter((s) => evidence.some((e) => e.locations.includes(selected) && e.suspects.includes(s.id)));
+
   return (
-    <div className="flex h-full flex-col lg:flex-row">
-      <div className="relative min-h-[360px] flex-1 overflow-hidden">
-        <svg viewBox="0 0 1000 680" className="h-full w-full" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Illustrated map of Vesper City">
-          <rect width="1000" height="680" fill="#0e1216" />
-          {/* city blocks */}
-          {Array.from({ length: 14 }).map((_, r) =>
-            Array.from({ length: 22 }).map((__, c) => (
-              <rect key={`${r}-${c}`} x={20 + c * 45} y={70 + r * 44} width="38" height="36" fill="#141a20" />
-            )),
-          )}
-          {/* river Vesper */}
-          <path d="M-20 560 C200 520 360 600 520 560 C680 520 760 620 1020 600 L1020 680 L-20 680 Z" fill="#101c26" />
-          <path d="M-20 560 C200 520 360 600 520 560 C680 520 760 620 1020 600" fill="none" stroke="#2d4558" strokeWidth="2" />
-          <text x="560" y="620" fontFamily="var(--font-display)" fontStyle="italic" fontSize="22" fill="#3d5a70">
+    <div className="flex h-full min-h-0 flex-col lg:flex-row">
+      <div className="relative min-h-[320px] flex-1 overflow-hidden">
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Street plan of Vesper City">
+          <defs>
+            <radialGradient id="map-glow" cx="50%" cy="55%" r="65%">
+              <stop offset="0%" stopColor="#16202b" />
+              <stop offset="100%" stopColor="#090c10" />
+            </radialGradient>
+            <pattern id="map-tooth" width="4" height="4" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.45" fill="#2b3845" opacity="0.5" />
+            </pattern>
+            <marker id="map-head" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto">
+              <path d="M0 0 L7 3.5 L0 7 z" fill="#f0ae55" />
+            </marker>
+          </defs>
+
+          <rect width={W} height={H} fill="url(#map-glow)" />
+          <rect width={W} height={H} fill="url(#map-tooth)" />
+
+          {/* the blocks, and the streets that are the gaps between them */}
+          {blocks.map((b, i) => (
+            <rect
+              key={i}
+              x={b.x}
+              y={b.y}
+              width={b.w}
+              height={b.h}
+              rx="1.5"
+              fill={b.tone > 0.86 ? "#1b242d" : "#141c24"}
+              stroke="#1e2831"
+              strokeWidth="1"
+            />
+          ))}
+
+          {/* two avenues cut across the grid */}
+          <path d="M-20 300 L1020 232" stroke="#0c1015" strokeWidth="13" fill="none" />
+          <path d="M300 -20 L470 700" stroke="#0c1015" strokeWidth="13" fill="none" />
+
+          {/* the Vesper */}
+          <path d="M-20 596 C180 556 340 638 520 600 C690 564 800 650 1020 628 L1020 700 L-20 700 Z" fill="#0d1a24" />
+          <path d="M-20 596 C180 556 340 638 520 600 C690 564 800 650 1020 628" fill="none" stroke="#28404f" strokeWidth="2" />
+          <path d="M452 566 L470 650" stroke="#2c3842" strokeWidth="7" />
+          <text x="446" y="676" fontFamily="var(--font-mono)" fontSize="9" letterSpacing="2" fill="#4a6273">
+            CALDER BRIDGE
+          </text>
+          <text x="120" y="652" fontFamily="var(--font-display)" fontStyle="italic" fontSize="21" fill="#3d5a70">
             River Vesper
           </text>
-          {/* districts */}
-          {[
-            ["OLD QUARTER", 420, 300],
-            ["SIGNAL HILL", 170, 190],
-            ["PRINTWORKS", 700, 120],
-            ["CIVIC CENTRE", 560, 230],
-            ["WESTBANK", 70, 470],
-            ["RIVER DISTRICT", 700, 500],
-          ].map(([t, x, y]) => (
-            <text key={t as string} x={x as number} y={y as number} fontFamily="var(--font-mono)" fontSize="11" letterSpacing="4" fill="#3a4651">
-              {t}
+
+          {DISTRICTS.map((d) => (
+            <text
+              key={d.name}
+              x={d.x}
+              y={d.y}
+              textAnchor="middle"
+              fontFamily="var(--font-mono)"
+              fontSize="10"
+              letterSpacing="4.5"
+              fill="#36434f"
+            >
+              {d.name}
             </text>
           ))}
-          {/* Highway 9 north */}
-          <path d={`M${P("blackwood_hotel").x} ${P("blackwood_hotel").y} L520 60 L520 20`} stroke="#2c343d" strokeWidth="6" fill="none" />
-          <text x="532" y="34" fontFamily="var(--font-mono)" fontSize="11" fill="#718493">
-            ↑ HWY 9 · LAKEMOOR 2 H
+
+          {/* the road out of town */}
+          <path d={`M${P("blackwood_hotel").x} ${P("blackwood_hotel").y} L520 54 L520 18`} stroke="#1a222a" strokeWidth="7" fill="none" />
+          <text x="534" y="34" fontFamily="var(--font-mono)" fontSize="10" letterSpacing="1.5" fill="#56656f">
+            ↑ HWY 9 · LAKEMOOR, 2 H
           </text>
-          {/* routes */}
+
+          {/* every road the case knows about */}
           {routes
-            .filter((r) => r.to !== "lakemoor" && r.from !== "lakemoor")
+            .filter((r) => r.to !== OFF_MAP && r.from !== OFF_MAP)
             .map((r) => {
               const a = P(r.from);
               const b = P(r.to);
-              const onPath = route?.path.some((p, i) => i > 0 && ((route.path[i - 1] === r.from && p === r.to) || (route.path[i - 1] === r.to && p === r.from)));
+              const live = onRoute(r);
+              const key = `${r.from}-${r.to}`;
+              const lit = live || hoverRoute === key;
               return (
-                <g key={`${r.from}-${r.to}`}>
-                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke={onPath ? "#d98a3a" : "#2c343d"} strokeWidth={onPath ? 3 : 2} strokeDasharray={r.mode === "walk" ? "3 5" : undefined} />
-                  <text x={(a.x + b.x) / 2 + 6} y={(a.y + b.y) / 2 - 6} fontFamily="var(--font-mono)" fontSize="11" fill={onPath ? "#f0ae55" : "#56656f"}>
-                    {r.minutes} min{r.mode === "walk" ? " on foot" : ""}
-                  </text>
+                <g key={key} onMouseEnter={() => setHoverRoute(key)} onMouseLeave={() => setHoverRoute(null)}>
+                  <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="transparent" strokeWidth="18" />
+                  <line
+                    x1={a.x}
+                    y1={a.y}
+                    x2={b.x}
+                    y2={b.y}
+                    stroke={live ? "#f0ae55" : lit ? "#56656f" : "#222c35"}
+                    strokeWidth={live ? 3.5 : 2}
+                    strokeDasharray={r.mode === "walk" ? "4 6" : undefined}
+                    markerEnd={live ? "url(#map-head)" : undefined}
+                  />
+                  {lit && (
+                    <text
+                      x={(a.x + b.x) / 2}
+                      y={(a.y + b.y) / 2 - 8}
+                      textAnchor="middle"
+                      fontFamily="var(--font-mono)"
+                      fontSize="11"
+                      fill={live ? "#f0ae55" : "#8b9aa6"}
+                    >
+                      {r.minutes} min{r.mode === "walk" ? " on foot" : ""}
+                    </text>
+                  )}
                 </g>
               );
             })}
-          {/* locations */}
+
+          {/* the places themselves */}
           {locations
-            .filter((l) => l.id !== "lakemoor")
+            .filter((l) => l.id !== OFF_MAP)
             .map((l) => {
-              const p = P(l.id);
+              const p = pos(l);
               const isSel = l.id === selected;
-              const isFrom = l.id === measure;
+              const isFrom = l.id === from;
+              const count = evidence.filter((e) => e.locations.includes(l.id)).length;
               return (
                 <g
                   key={l.id}
                   role="button"
                   tabIndex={0}
-                  aria-label={l.name}
+                  aria-label={`${l.name}${count ? `, ${count} records` : ""}`}
                   aria-pressed={isSel}
                   className="cursor-pointer outline-none"
-                  onClick={() => setSelected(l.id)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelected(l.id)}
+                  onClick={() => pick(l.id)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && pick(l.id)}
                 >
-                  <circle cx={p.x} cy={p.y} r={isSel ? 30 : 0} fill="#d98a3a" opacity="0.12" />
-                  <circle cx={p.x} cy={p.y} r="8" fill={isSel ? "#f0ae55" : isFrom ? "#9c2929" : "#e7e2d8"} stroke="#080a0d" strokeWidth="3" />
-                  <text x={p.x + 14} y={p.y + 4} fontFamily="var(--font-display)" fontSize="17" fill={isSel ? "#f0ae55" : "#e7e2d8"}>
+                  {isSel && <circle cx={p.x} cy={p.y} r="26" fill="#f0ae55" opacity="0.12" />}
+                  {isFrom && <circle cx={p.x} cy={p.y} r="20" fill="#c24a3f" opacity="0.18" />}
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={isSel || isFrom ? 9 : 7}
+                    fill={isSel ? "#f0ae55" : isFrom ? "#c24a3f" : count ? "#e7e2d8" : "#6c7a86"}
+                    stroke="#080a0d"
+                    strokeWidth="3"
+                  />
+                  <text
+                    x={p.x + 15}
+                    y={p.y + 5}
+                    fontFamily="var(--font-display)"
+                    fontSize="17"
+                    fill={isSel ? "#f0ae55" : isFrom ? "#e0a59e" : "#e7e2d8"}
+                  >
                     {l.name}
                   </text>
+                  {count > 0 && (
+                    <text x={p.x + 15} y={p.y + 20} fontFamily="var(--font-mono)" fontSize="9" letterSpacing="1.4" fill="#6c7a86">
+                      {count} ON FILE
+                    </text>
+                  )}
                 </g>
               );
             })}
         </svg>
+
+        {/* how the map is worked, and what it just told you */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-3">
+          <AnimatePresence mode="wait">
+            {trip ? (
+              <motion.div
+                key="trip"
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="panel pointer-events-auto max-w-[92%] px-4 py-2.5"
+              >
+                <p className="font-mono text-[13px] text-amber-300">
+                  {byId.get(from!)?.name} → {sel.name} ·{" "}
+                  <span className="text-bone-100">
+                    {spokenMinutes(trip.minutes)}
+                    {onFoot(trip.mode)}
+                  </span>
+                </p>
+                {focus && focusFrom !== null && (
+                  <p className="mt-1 text-[12px] text-bone-100/75">
+                    To be at {sel.name} by {focus.from}, you leave {byId.get(from!)?.name} by{" "}
+                    <span className="text-bone-100">{formatMinutes(focusFrom - trip.minutes)}</span>.
+                  </p>
+                )}
+                {trip.path.length > 2 && (
+                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-steel-400">
+                    via {trip.path.slice(1, -1).map((p) => byId.get(p)?.name ?? p).join(" · ")}
+                  </p>
+                )}
+                <button type="button" className="label mt-1.5 hover:text-bone-100" onClick={() => setFrom(null)}>
+                  Clear ✕
+                </button>
+              </motion.div>
+            ) : (
+              <motion.p
+                key="hint"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="panel px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-steel-300"
+              >
+                Pick a second place to measure the journey
+              </motion.p>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
-      <aside className="scrollbar-thin w-full shrink-0 overflow-auto border-t border-ink-700 bg-ink-900 p-6 lg:w-[360px] lg:border-l lg:border-t-0">
+      <aside className="scrollbar-thin w-full shrink-0 overflow-auto border-t border-ink-700 bg-ink-900 p-6 lg:w-[340px] lg:border-l lg:border-t-0">
         {selected === "blackwood_hotel" && (
-          <div className="photo-print mb-5 w-full max-w-[220px] -rotate-1">
+          <div className="photo-print mb-5 w-full max-w-[200px] -rotate-1">
             <BlackwoodHotel className="block w-full" />
           </div>
         )}
@@ -147,40 +311,29 @@ export function MapView({
         <h3 className="font-display mt-1 text-3xl">{sel.name}</h3>
         <p className="mt-3 text-sm leading-relaxed text-bone-100/80">{sel.description}</p>
 
-        <div className="mt-6 border-t border-ink-700 pt-5">
-          <p className="label">Measure travel time</p>
-          <div className="mt-2 flex items-center gap-2">
-            <select
-              aria-label="From"
-              className="flex-1 border border-ink-600 bg-ink-950 px-2 py-2 text-sm"
-              value={measure ?? ""}
-              onChange={(e) => setMeasure(e.target.value || null)}
-            >
-              <option value="">From…</option>
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name}
-                </option>
-              ))}
-            </select>
-            <span className="font-mono text-xs text-steel-400">→ {sel.name}</span>
+        {whoWasHere.length > 0 && (
+          <div className="mt-5 border-t border-ink-700 pt-4">
+            <p className="label">Placed here by the records</p>
+            <p className="mt-2 text-sm text-bone-100/85">{whoWasHere.map((s) => s.name).join(", ")}</p>
           </div>
-          {route && (
-            <p className="mt-3 font-mono text-sm text-amber-300">
-              {route.minutes >= 60 ? `${Math.floor(route.minutes / 60)} h ${route.minutes % 60} min` : `${route.minutes} min`}
-              <span className="ml-2 text-steel-300">via {route.path.map((p) => byId.get(p)!.name).join(" → ")}</span>
-            </p>
-          )}
-        </div>
+        )}
 
-        <div className="mt-6 border-t border-ink-700 pt-5">
+        <div className="mt-5 border-t border-ink-700 pt-4">
           <p className="label">Records tied to this place · {linked.length}</p>
           {linked.length ? (
             <ul className="mt-3 space-y-1.5">
               {linked.map((e) => (
                 <li key={e.id}>
-                  <button type="button" className="w-full py-1.5 text-left text-sm text-bone-100/80 hover:text-amber-300 md:py-0" onClick={() => onOpen(e.id)}>
-                    <span className="font-mono text-[11px] text-steel-400">{evidenceCode(e.number)}</span> {e.title}
+                  <button
+                    type="button"
+                    className="w-full py-1.5 text-left text-sm text-bone-100/80 hover:text-amber-300 md:py-0"
+                    onClick={() => onOpen(e.id)}
+                  >
+                    <span className="font-mono text-[11px] text-steel-400">
+                      {evidenceCode(e.number)}
+                      {e.time ? ` · ${e.time}` : ""}
+                    </span>{" "}
+                    {e.title}
                   </button>
                 </li>
               ))}
@@ -188,6 +341,27 @@ export function MapView({
           ) : (
             <p className="mt-2 text-sm text-bone-100/50">Nothing on file here yet.</p>
           )}
+        </div>
+
+        <div className="mt-5 border-t border-ink-700 pt-4">
+          <p className="label">Measure from</p>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {locations
+              .filter((l) => l.id !== selected)
+              .map((l) => (
+                <button
+                  key={l.id}
+                  type="button"
+                  aria-pressed={from === l.id}
+                  onClick={() => setFrom((f) => (f === l.id ? null : l.id))}
+                  className={`border px-2 py-1.5 text-[11px] ${
+                    from === l.id ? "border-crimson-400 text-[#e0a59e]" : "border-ink-600 text-steel-300 hover:border-amber-500 hover:text-bone-100"
+                  }`}
+                >
+                  {l.name}
+                </button>
+              ))}
+          </div>
         </div>
       </aside>
     </div>

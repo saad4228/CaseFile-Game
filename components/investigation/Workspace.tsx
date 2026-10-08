@@ -275,7 +275,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
       <main id="main" className="relative min-h-0 flex-1">
         <div className="absolute inset-0">
           {view === "board" && <Board onOpen={setOpenId} onToast={setToast} />}
-          {view === "timeline" && <TimelineView onOpen={setOpenId} onToast={setToast} />}
+          {view === "timeline" && <TimelineView onOpen={setOpenId} />}
           {view === "map" && <MapView locations={game.locations} routes={game.routes} evidence={evidence} onOpen={setOpenId} />}
           {view === "people" && <PeopleView onOpen={setOpenId} />}
           {view === "theories" && <TheoriesView onOpen={setOpenId} onToVerdict={() => setView("verdict")} />}
