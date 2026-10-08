@@ -68,6 +68,8 @@ const labels: Record<Scene, string> = {
   "garage-plate": "A grey sedan stopped at a garage entry barrier, one occupant, plate 7KD-R219.",
   bar: "A bar booth: two men facing each other, one turned away from the camera.",
   conservatory: "A rooftop glasshouse with planters and hand-lettered labels; a woman among the plants.",
+  "mercer-office": "A ransacked rented room: a wall of pinned clippings headed CASE 019, papers across the floor, one desk lamp still lit.",
+  archive: "A sub-basement corridor of steel shelving packed with numbered evidence boxes, behind a padlocked gate marked CALDER STREET STORAGE.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -271,6 +273,56 @@ const scenes: Record<Scene, React.ReactNode> = {
       </g>
       {/* door sign */}
       <rect x="360" y="40" width="32" height="12" fill="#c9bb9c" />
+    </g>
+  ),
+  "mercer-office": (
+    <g>
+      <rect width="400" height="300" fill="#141a1f" />
+      {/* pinned wall */}
+      <rect x="10" y="10" width="230" height="170" fill="#232c33" />
+      {Array.from({ length: 14 }, (_, i) => (
+        <rect
+          key={i}
+          x={18 + (i % 5) * 44}
+          y={20 + Math.floor(i / 5) * 52}
+          width={30 + (i % 3) * 8}
+          height={34 + (i % 2) * 10}
+          fill="#cfc8b8"
+          opacity={0.75}
+          transform={`rotate(${((i % 3) - 1) * 2} ${33 + (i % 5) * 44} ${37 + Math.floor(i / 5) * 52})`}
+        />
+      ))}
+      <rect x="86" y="16" width="86" height="20" fill="#e7e2d8" />
+      {/* desk and floor litter */}
+      <rect y="186" width="400" height="114" fill="#0f1317" />
+      <rect x="0" y="180" width="250" height="40" fill="#1d252b" />
+      {Array.from({ length: 16 }, (_, i) => (
+        <rect key={`p${i}`} x={(i * 53) % 390} y={226 + ((i * 29) % 60)} width="30" height="20" fill="#9aa39a" opacity="0.5" />
+      ))}
+      {/* the one lit lamp */}
+      <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
+      <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  archive: (
+    <g>
+      <rect width="400" height="300" fill="#0d1115" />
+      {/* shelving receding down a corridor */}
+      {[0, 1].map((side) =>
+        Array.from({ length: 5 }, (_, i) => {
+          const x = side ? 400 - (30 + i * 26) : 30 + i * 26;
+          const h = 210 - i * 28;
+          return <rect key={`${side}-${i}`} x={side ? x - 24 : x} y={150 - h / 2} width="24" height={h} fill="#1b222a" stroke="#2a333c" />;
+        }),
+      )}
+      {Array.from({ length: 10 }, (_, i) => (
+        <rect key={`b${i}`} x={i < 5 ? 32 + i * 26 : 400 - (54 + (i - 5) * 26)} y={70 + (i % 5) * 34} width="20" height="22" fill="#b9b2a1" opacity="0.6" />
+      ))}
+      {/* caged bulb and wet floor */}
+      <circle cx="200" cy="52" r="20" fill="#f0e3c0" opacity="0.2" />
+      <circle cx="200" cy="52" r="6" fill="#ffeec4" />
+      <rect y="232" width="400" height="68" fill="#121820" />
+      <ellipse cx="200" cy="262" rx="70" ry="10" fill="#f0e3c0" opacity="0.12" />
     </g>
   ),
 };

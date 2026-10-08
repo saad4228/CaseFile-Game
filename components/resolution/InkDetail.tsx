@@ -28,6 +28,7 @@ const LABEL: Record<Kind, string> = {
   stairs: "Shoes going down concrete stairs, fast.",
   river: "A phone drops from a hand into black water.",
   printout: "A printer feeds out a door report; a pen strikes lines through it.",
+  ring: "A hand on a bar table beside a whisky glass, wearing a signet ring: a circle cut by a single vertical line.",
 };
 
 const ink = "#0b0b0c";
@@ -142,6 +143,18 @@ const DRAW: Record<Kind, React.ReactNode> = {
       ))}
       <rect x="250" y="64" width="110" height="10" rx="4" fill={ink} transform="rotate(-24 300 70)" />
       <text x="128" y="172" fontFamily="var(--font-plex-mono), monospace" fontSize="9" fill={ink}>DOOR REPORT · ROOM 314 · 01:06</text>
+    </g>
+  ),
+  ring: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* hand resting on a bar table, glass beside it */}
+      <path d="M60 150 C60 128 96 120 130 126 L200 140 C214 144 210 162 196 162 L74 162 C64 162 60 158 60 150 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <rect x="250" y="96" width="62" height="66" rx="3" fill="none" stroke={ink} strokeWidth="3" />
+      <path d="M250 128 L312 128" stroke={ink} strokeWidth="2" />
+      {/* the mark itself */}
+      <circle cx="128" cy="150" r="13" fill="none" stroke={ink} strokeWidth="3" />
+      <line x1="128" y1="135" x2="128" y2="165" stroke={ink} strokeWidth="3" />
     </g>
   ),
 };

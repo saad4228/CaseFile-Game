@@ -146,7 +146,7 @@ export const truth = {
         "Halden is not a conspiracy. It is a filing arrangement. It is the legal structure a careful man builds so that the evidence which could convict him sits in a basement he owns, under a hotel he owns, guarded by a manager he pays, and every piece of paper in the chain is perfectly in order.",
         "A third Halden company, HH Consulting, would later become useful for something else.",
       ],
-      scene: "lobby",
+      scene: "archive",
     },
     {
       title: "The keeper",
@@ -168,7 +168,7 @@ export const truth = {
         "Daniel kept going anyway. Sarah Vale, his former partner, worked it with him off the books: fourteen calls in twelve days. Noah Grant fed him Case 019 from the inside, because the man it convicted was his brother.",
         "Two nights before he died Daniel checked into the Blackwood, Room 314, third floor, east wing, beside Service Stair B. He had worked out where the boxes were. His notebook says it in his own shorthand: boxes went to overflow in 2014, overflow equals under Blackwood, the keeper has every key.",
       ],
-      scene: "room-desk",
+      scene: "mercer-office",
     },
     {
       title: "The night it stopped working",
@@ -224,6 +224,7 @@ export const truth = {
         "And Alan Jarrow has not been charged with anything, because nothing in this case touches him. He paid an editor through a company, which is not a crime anyone has proved. He signed a storage contract eleven years ago, which is not a crime at all. He was in a bar. The strongest thing anyone ever wrote about him is two words in a dead man's notebook, and a notebook is not evidence.",
         "He is still wearing the ring.",
       ],
+      detail: "ring",
     },
   ] as StoryBeat[],
 

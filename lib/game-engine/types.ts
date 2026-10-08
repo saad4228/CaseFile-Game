@@ -56,10 +56,21 @@ export type PhotoScene =
   | "garage"
   | "garage-plate"
   | "bar"
-  | "conservatory";
+  | "conservatory"
+  | "mercer-office"
+  | "archive";
 
 /** Close-up ink panels for the resolution comic. */
-export type InkDetail = "console" | "glass" | "keycard" | "door" | "window" | "stairs" | "river" | "printout";
+export type InkDetail =
+  | "console"
+  | "glass"
+  | "keycard"
+  | "door"
+  | "window"
+  | "stairs"
+  | "river"
+  | "printout"
+  | "ring";
 
 export interface Evidence {
   id: EvidenceId;

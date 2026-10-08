@@ -11,4 +11,6 @@ export const sceneArt: Partial<Record<PhotoScene, string>> = {
   garage: "/scenes/garage.webp",
   bar: "/scenes/bar.webp",
   conservatory: "/scenes/conservatory.webp",
+  "mercer-office": "/scenes/mercer-office.webp",
+  archive: "/scenes/archive.webp",
 };
