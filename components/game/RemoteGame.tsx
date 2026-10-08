@@ -25,7 +25,7 @@ import {
   type SharedState,
 } from "@/lib/game-engine/state";
 import type { Evidence } from "@/lib/game-engine/types";
-import type { SessionView, SyncResponse } from "@/lib/sessions/types";
+import type { SessionView, SyncResponse, PlayerView } from "@/lib/sessions/types";
 import { GameContext, makeId, type CasePublic, type GameApi } from "./GameContext";
 
 // Server-session driver. Edits apply instantly (optimistically), are sent in small
@@ -42,6 +42,24 @@ interface Confirmed {
   version: number;
   shared: SharedState;
   personal: PersonalState;
+}
+
+
+/** Two rosters are the same when nobody has joined, left, or changed what they are showing. */
+function samePlayers(a: PlayerView[], b: PlayerView[]) {
+  if (a === b) return true;
+  if (a.length !== b.length) return false;
+  return a.every((p, i) => {
+    const q = b[i];
+    return (
+      p.userId === q.userId &&
+      p.codename === q.codename &&
+      p.online === q.online &&
+      p.ready === q.ready &&
+      p.isHost === q.isHost &&
+      p.privateCount === q.privateCount
+    );
+  });
 }
 
 export function RemoteGame({
@@ -121,7 +139,10 @@ export function RemoteGame({
       refs.current.failures = 0;
       setConnection("online");
       if (data.changed && data.view) acceptView(data.view);
-      else setView((v) => ({ ...v, players: data.players }));
+      // An unchanged poll used to allocate a new view every time, re-rendering the whole
+      // workspace once a second for nothing. Hand back the same object when the roster is
+      // the same and React skips the render entirely.
+      else setView((v) => (samePlayers(v.players, data.players) ? v : { ...v, players: data.players }));
     } catch {
       refs.current.failures++;
       setConnection(refs.current.failures > 2 ? "offline" : "syncing");

@@ -388,6 +388,7 @@ html[data-motion="reduce"] *::after {
     inset 0 0 0 12px #0d0906,
     inset 0 18px 30px -10px rgba(0, 0, 0, 0.75),
     inset 0 -14px 24px -10px rgba(0, 0, 0, 0.6);
+  transform: translateZ(0);
 }
 /* A defined cone of lamplight falling onto the board. */
 .board-cone {
@@ -398,7 +399,7 @@ html[data-motion="reduce"] *::after {
   z-index: 3;
   width: min(1100px, 92%);
   height: 100%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) translateZ(0);
   background: linear-gradient(180deg, rgba(255, 214, 150, 0.13) 0%, rgba(255, 214, 150, 0.05) 55%, transparent 90%);
   clip-path: polygon(46.5% 0, 53.5% 0, 100% 100%, 0 100%);
   -webkit-mask-image: radial-gradient(ellipse 50% 85% at 50% 0%, #000 30%, transparent 75%);
@@ -429,6 +430,18 @@ html[data-motion="reduce"] *::after {
     0 3px 3px rgba(0, 0, 0, 0.55),
     1px 6px 6px -2px rgba(0, 0, 0, 0.45);
 }
+/*
+ * A pinned record is aged paper: several background images and a pair of blurred shadows.
+ * Repainting that every frame is what makes a drag tear on hardware without much to spare,
+ * so the card being dragged is handed to the compositor to move rather than redraw. Only
+ * while it moves — a permanent layer per node would trade the flicker for memory. The same
+ * hint on the viewport was measured changing how the board blends, so it is deliberately
+ * not here.
+ */
+.casefile-board .react-flow__node.dragging {
+  will-change: transform;
+}
+
 .casefile-board .react-flow__edge-path {
   stroke-linecap: round;
 }
