@@ -8,10 +8,10 @@ import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { InterviewRoom } from "./InterviewRoom";
 import { SuspectCard } from "./SuspectCard";
 
-export function PeopleView({ onOpen }: { onOpen: (id: string) => void }) {
+export function PeopleView({ onOpen, start }: { onOpen: (id: string) => void; start?: string | null }) {
   const { suspects, evidence, shared, dispatch, newId, interviews, phase } = useGame();
-  const [selected, setSelected] = useState(suspects[0].id);
-  const [tab, setTab] = useState<"file" | "interview">("file");
+  const [selected, setSelected] = useState(start ?? suspects[0].id);
+  const [tab, setTab] = useState<"file" | "interview">(start ? "interview" : "file");
   const s = suspects.find((x) => x.id === selected)!;
   const linked = evidence.filter((e) => e.suspects.includes(s.id));
   const onBoard = shared.board.nodes.some((n) => n.kind === "suspect" && n.ref === s.id);

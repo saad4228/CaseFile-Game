@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { EvidenceTray } from "@/components/evidence/EvidenceTray";
 import { EvidenceViewer } from "@/components/evidence/EvidenceViewer";
@@ -16,6 +16,7 @@ import { TheoriesView } from "@/components/theories/TheoriesView";
 import { TimelineView } from "@/components/timeline/TimelineView";
 import { VerdictView } from "@/components/verdict/VerdictView";
 import { play } from "@/lib/client/sound";
+import { nextStep } from "@/lib/game-engine/hint";
 import { Desk, type DeskTab } from "./Desk";
 import { MapView } from "./MapView";
 
@@ -37,7 +38,7 @@ const VIEWS: { id: View; label: string }[] = [
 
 export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
   const game = useGame();
-  const { meta, mode, phase, evidence, leads, conflicts, shared, messages, me, players, connection, dispatch, restart } = game;
+  const { meta, mode, phase, evidence, leads, conflicts, shared, personal, interviews, suspects, messages, me, players, connection, dispatch, restart } = game;
   const [view, setView] = useState<View>("board");
   const [openId, setOpenId] = useState<string | null>(null);
   const [compareWith, setCompareWith] = useState<string | null>(null);
@@ -46,11 +47,33 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
   const [fresh, setFresh] = useState<string[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [menu, setMenu] = useState(false);
+  const [stuck, setStuck] = useState(false);
   const [reviewing, setReviewing] = useState(false);
+  const [peopleOpen, setPeopleOpen] = useState<string | null>(null);
   const [lastRead, setLastRead] = useState(() => messages.at(-1)?.id ?? 0);
   const seenMessages = useRef(messages.at(-1)?.id ?? 0);
 
   const openConflicts = conflicts.filter((c) => !shared.conflictMarks[c.id]).length;
+
+  const hint = useMemo(
+    () => nextStep({ evidence, seen: personal.seen, leads, conflicts, conflictMarks: shared.conflictMarks, interviews, suspects, shared }),
+    [evidence, personal.seen, leads, conflicts, shared, interviews, suspects],
+  );
+
+  /** Send the player wherever the hint points. */
+  const followHint = () => {
+    setStuck(false);
+    const t = hint.target;
+    if (!t) return;
+    if (t.kind === "record") setOpenId(t.id);
+    else if (t.kind === "desk") {
+      setDeskTab(t.tab);
+      setPanel("desk");
+    } else if (t.kind === "suspect") {
+      setView("people");
+      setPeopleOpen(t.id);
+    } else setView(t.view);
+  };
   const unread = panel === "chat" ? 0 : messages.filter((m) => m.id > lastRead && m.userId !== me.userId).length;
 
   useEffect(() => {
@@ -155,14 +178,37 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
             {connection === "offline" ? "Archive connection lost" : "Syncing…"}
           </span>
         )}
+        {/* "Stuck?" is the way back in when the trail goes cold, so it is the loudest thing here. */}
+        {phase !== "RESOLVED" && (
+          <button
+            type="button"
+            onClick={() => setStuck((v) => !v)}
+            aria-expanded={stuck}
+            className={`btn btn-sm shrink-0 !px-2.5 sm:!px-3.5 ${
+              stuck ? "border-amber-500 bg-amber-500/15 text-amber-200" : "border-amber-500/70 text-amber-300 hover:bg-amber-500/10"
+            }`}
+          >
+            Stuck?
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            setDeskTab("oracle");
+            setPanel("desk");
+          }}
+          className="btn btn-sm shrink-0 border-ink-600 !px-2.5 text-bone-100 hover:border-amber-500 sm:!px-3.5"
+        >
+          <span className="hidden sm:inline">Ask&nbsp;</span>ORACLE
+        </button>
         <button
           type="button"
           onClick={() => togglePanel("desk")}
           aria-expanded={panel === "desk"}
           className="btn btn-sm shrink-0 border-ink-600 !px-2.5 text-bone-100 hover:border-amber-500 sm:!px-3.5"
         >
-          Desk
-{/* The badges are glyphs and bare numbers; assistive tech gets the sentence instead. */}
+          Leads
+          {/* The badges are glyphs and bare numbers; assistive tech gets the sentence instead. */}
           {leads.length > 0 && (
             <>
               <span aria-hidden="true" className="text-amber-300">
@@ -277,7 +323,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
           {view === "board" && <Board onOpen={setOpenId} onToast={setToast} />}
           {view === "timeline" && <TimelineView onOpen={setOpenId} />}
           {view === "map" && <MapView locations={game.locations} routes={game.routes} evidence={evidence} onOpen={setOpenId} />}
-          {view === "people" && <PeopleView onOpen={setOpenId} />}
+          {view === "people" && <PeopleView key={peopleOpen ?? "all"} onOpen={setOpenId} start={peopleOpen} />}
           {view === "theories" && <TheoriesView onOpen={setOpenId} onToVerdict={() => setView("verdict")} />}
           {view === "verdict" && <VerdictView onOpen={setOpenId} />}
         </div>
@@ -298,6 +344,51 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
           }}
         />
         {mode === "TEAM" && <ChatPanel open={panel === "chat"} onClose={() => setPanel(null)} onOpen={setOpenId} />}
+
+        <AnimatePresence>
+          {stuck && (
+            <motion.div
+              className="absolute inset-x-0 top-0 z-50 flex justify-center px-4"
+              initial={{ opacity: 0, y: -12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              role="dialog"
+              aria-label="What to do next"
+            >
+              <div className="paper torn mt-3 w-full max-w-lg px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <p className="label-ink">Next step</p>
+                  <button type="button" className="label-ink hover:text-crimson-600" onClick={() => setStuck(false)} aria-label="Close">
+                    ✕
+                  </button>
+                </div>
+                <p className="font-display mt-2 text-2xl leading-tight text-[#1d1a14]">{hint.step}</p>
+                <p className="mt-2 text-sm leading-relaxed text-[#1d1a14]/75">{hint.why}</p>
+                <div className="mt-5 flex flex-wrap items-center gap-2">
+                  {hint.cta && (
+                    <button type="button" className="btn btn-primary btn-sm" onClick={followHint}>
+                      {hint.cta} →
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="btn btn-sm border-[#1d1a14]/40 text-[#1d1a14]"
+                    onClick={() => {
+                      setStuck(false);
+                      setDeskTab("oracle");
+                      setPanel("desk");
+                    }}
+                  >
+                    Ask ORACLE instead
+                  </button>
+                </div>
+                <p className="mt-4 border-t border-[#1d1a14]/20 pt-3 text-[12px] text-[#1d1a14]/60">
+                  This only knows what you have found. It will never tell you who did it.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="pointer-events-none absolute inset-x-0 bottom-4 z-40 flex justify-center px-4" aria-live="polite">
           <AnimatePresence>
