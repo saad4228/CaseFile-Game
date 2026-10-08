@@ -18,12 +18,13 @@ import type { Evidence, Suspect } from "@/lib/game-engine/types";
  * has to be placed by hand — the chart is the case file, read back.
  */
 
-const PIP_W = 74; // a pip reads "23:43 #012"
+const PIP_MIN = 52; // just the time, when records are stacked up against each other
+const PIP_MAX = 184; // the time and what the record is
 const ROW_H = 24;
 const LANE_PAD = 14;
 const NOMINAL_W = 980; // rows are assigned against a representative track width
 
-type Pip = { id: string; at: number; row: number; e?: Evidence; custom?: CustomEvent };
+type Pip = { id: string; at: number; row: number; room: number; e?: Evidence; custom?: CustomEvent };
 type Lane = { id: string; name: string; suspect?: Suspect; pips: Pip[]; rows: number };
 type Leg = { from: number; to: number; label: string; impossible: boolean; still: boolean };
 
@@ -71,7 +72,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     // lane stacks its own rows rather than letting them collide.
     const layout = (items: { id: string; at: number; e?: Evidence; custom?: CustomEvent }[]) => {
       const ends: number[] = [];
-      const pips: Pip[] = items
+      const placed = items
         .slice()
         .sort((a, b) => a.at - b.at)
         .map((it) => {
@@ -81,9 +82,16 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
             row = ends.length;
             ends.push(0);
           }
-          ends[row] = x + PIP_W + 6;
-          return { ...it, row };
+          ends[row] = x + PIP_MIN + 6;
+          return { ...it, row, x };
         });
+      // A record spells out what it is when the next one in its row leaves room, and shrinks
+      // back to the bare time when it doesn't. Nobody should have to hover to read a chart.
+      const pips: Pip[] = placed.map((it, i) => {
+        const next = placed.slice(i + 1).find((o) => o.row === it.row);
+        const room = Math.min(PIP_MAX, next ? Math.max(PIP_MIN, next.x - it.x - 6) : PIP_MAX);
+        return { id: it.id, at: it.at, row: it.row, room, e: it.e, custom: it.custom };
+      });
       return { pips, rows: Math.max(1, ends.length) };
     };
 
@@ -92,7 +100,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
       return { id: s.id, name: s.name, suspect: s, ...layout(mine) };
     });
     const loose = timed.filter((r) => r.e.suspects.length === 0).map((r) => ({ id: r.e.id, at: r.at, e: r.e }));
-    out.push({ id: "__scene", name: "The room itself", ...layout(loose) });
+    if (loose.length) out.push({ id: "__scene", name: "The room itself", ...layout(loose) });
     const custom = shared.timeline.custom.map((c) => ({
       id: c.id,
       at: dragging?.id === c.id ? dragging.at : (minutesFrom22(c.time) ?? start + span / 2),
@@ -174,8 +182,6 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     return out;
   }, [start, end, span]);
 
-  const onFile = lanes.reduce((n, l) => n + l.pips.filter((p) => p.e).length, 0);
-
   return (
     <div className="flex h-full min-h-0 flex-col">
       {/* what the chart is for, said once */}
@@ -183,17 +189,15 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
         <p className="label">
           The night · {night.from}–{night.to}
         </p>
-        <p className="text-sm text-bone-100/70">
-          {onFile} timestamped {onFile === 1 ? "record" : "records"} on file
-          {focus && blind.size > 0 && (
-            <>
-              {" · "}
-              <span className="text-crimson-400">
-                {blind.size} {blind.size === 1 ? "person has" : "people have"} nothing in the window
-              </span>
-            </>
-          )}
+        <p className="text-sm text-bone-100/65">
+          One row per person. Each tag is a record that mentions them, at the time it happened.
+          {focus ? " The red band is when Daniel died." : ""}
         </p>
+        {focus && blind.size > 0 && (
+          <p className="text-sm text-crimson-400">
+            {blind.size} {blind.size === 1 ? "person has" : "people have"} nothing on file while he died.
+          </p>
+        )}
         {!readOnly && (
           <button type="button" className="btn btn-ghost btn-sm ml-auto" onClick={addMoment}>
             + Add a moment
@@ -276,7 +280,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                   ))}
 
                   {/* nothing on file while it mattered */}
-                  {dark && focusFrom !== null && focusTo !== null && (
+                  {dark && !blank && focusFrom !== null && focusTo !== null && (
                     <div
                       className="absolute inset-y-1 z-10 border border-dashed border-crimson-400/50"
                       style={{
@@ -285,7 +289,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                         background: "repeating-linear-gradient(135deg, rgba(190,60,50,.16) 0 5px, transparent 5px 10px)",
                       }}
                     >
-                      <span className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.15em] text-crimson-400">
+                      <span className="absolute inset-x-0 bottom-0.5 whitespace-nowrap text-center font-mono text-[9px] uppercase tracking-[0.15em] text-crimson-400">
                         No record
                       </span>
                     </div>
@@ -304,16 +308,15 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                         onMouseLeave={() => setHover((h) => (h === p.id ? null : h))}
                         title={`${p.e.time} · ${p.e.title}${p.e.location ? ` · ${placeName.get(p.e.location)}` : ""}`}
                         aria-label={`${p.e.time}, ${p.e.title}. Open the record.`}
-                        className={`absolute z-20 flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap border px-1.5 py-[3px] font-mono text-[10px] leading-none transition-colors ${
+                        className={`absolute z-20 flex -translate-y-1/2 items-center gap-1.5 overflow-hidden border px-1.5 py-[3px] text-left leading-none transition-colors ${
                           hover === p.id
                             ? "border-amber-400 bg-amber-500/20 text-bone-100"
                             : "border-ink-600 bg-ink-900 text-bone-100/80 hover:border-amber-500"
                         }`}
-                        style={{ left: `${pct(p.at)}%`, top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`, minWidth: PIP_W }}
+                        style={{ left: `${pct(p.at)}%`, top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`, width: p.room }}
                       >
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: placeColour(p.e.location) }} />
-                        <span className="text-amber-300">{p.e.time?.slice(0, 5)}</span>
-                        <span className="text-steel-300">{evidenceCode(p.e.number)}</span>
+                        <span className="shrink-0 font-mono text-[10px] text-amber-300">{p.e.time?.slice(0, 5)}</span>
+                        {p.room >= 96 && <span className="truncate text-[11px]">{p.e.title}</span>}
                       </motion.button>
                     ) : (
                       <div
@@ -357,34 +360,23 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
             })}
           </div>
         </div>
-
-        {/* key, and the records that fall outside the night */}
-        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-[0.12em] text-steel-400">
-          <span className="flex items-center gap-2">
-            <span className="h-[3px] w-6 bg-amber-500/55" /> stayed put
-          </span>
-          <span className="flex items-center gap-2">
-            <span
-              className="h-[3px] w-6 text-steel-400/70"
-              style={{ backgroundImage: "repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 7px)" }}
-            />{" "}
-            on the move
-          </span>
-          <span className="flex items-center gap-2">
-            <span className="h-[3px] w-6 bg-crimson-400" /> couldn&apos;t have made it
-          </span>
-          {after.length > 0 && (
-            <span className="ml-auto normal-case tracking-normal text-steel-300">
-              After {night.to}:{" "}
-              {after.map((r, i) => (
-                <button key={r.e.id} type="button" className="hover:text-amber-300" onClick={() => onOpen(r.e.id)} title={r.e.title}>
-                  {i > 0 && ", "}
-                  {r.e.time} {evidenceCode(r.e.number)}
-                </button>
-              ))}
-            </span>
-          )}
-        </div>
+        {after.length > 0 && (
+          <p className="mt-3 text-right text-[12px] text-steel-400">
+            Also on file, after {night.to}:{" "}
+            {after.map((r, i) => (
+              <button
+                key={r.e.id}
+                type="button"
+                className="text-steel-300 hover:text-amber-300"
+                onClick={() => onOpen(r.e.id)}
+                title={r.e.title}
+              >
+                {i > 0 && ", "}
+                {r.e.time?.slice(0, 5)}
+              </button>
+            ))}
+          </p>
+        )}
       </div>
 
       {/* narrow screens: the same night, read downward — records and your own moments together */}
@@ -459,11 +451,3 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
 /** Where a pip sits relative to its lane's rule, so a stack of them straddles the line evenly. */
 const stackOffset = (row: number, rows: number) => (row - (rows - 1) / 2) * ROW_H;
 
-/** Each place keeps one colour across the chart, so a lane's moves read without a legend. */
-const PLACE_COLOURS = ["#f0ae55", "#7fb2d9", "#9ec98a", "#d98a8a", "#b89ed9", "#d9c98a"];
-function placeColour(id: string | null) {
-  if (!id) return "#56656f";
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return PLACE_COLOURS[h % PLACE_COLOURS.length];
-}

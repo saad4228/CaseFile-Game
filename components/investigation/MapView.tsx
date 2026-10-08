@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { evidenceCode, formatMinutes, minutesFrom22 } from "@/components/evidence/format";
 import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
 import { useGame } from "@/components/game/GameContext";
@@ -47,6 +47,13 @@ export function MapView({
   const [from, setFrom] = useState<string | null>(null);
   const [hoverRoute, setHoverRoute] = useState<string | null>(null);
 
+  // The plan is bigger than most screens once you lean in, so it can be dragged and zoomed.
+  // "slice" cropped it with no way to reach what fell outside; it fits by default now.
+  const [view, setView] = useState({ x: 0, y: 0, w: W, h: H });
+  const svgRef = useRef<SVGSVGElement>(null);
+  const drag = useRef<{ px: number; py: number; vx: number; vy: number } | null>(null);
+  const [panning, setPanning] = useState(false);
+
   const byId = useMemo(() => new Map(locations.map((l) => [l.id, l])), [locations]);
   const sel = byId.get(selected) ?? locations[0];
   const trip = from && from !== selected ? travel(routes, from, selected) : null;
@@ -54,6 +61,59 @@ export function MapView({
 
   const focus = meta.night?.focus;
   const focusFrom = focus ? minutesFrom22(focus.from) : null;
+
+
+  /** Zoom about a point, or about the middle when none is given. */
+  const zoomBy = (factor: number, at?: { x: number; y: number }) =>
+    setView((v) => {
+      const w = Math.min(W, Math.max(W / 4, v.w / factor));
+      const h = w * (H / W);
+      const fx = at ? (at.x - v.x) / v.w : 0.5;
+      const fy = at ? (at.y - v.y) / v.h : 0.5;
+      // Keep whatever was under the cursor under the cursor, then stay inside the plan.
+      const x = Math.min(W - w, Math.max(0, v.x + (v.w - w) * fx));
+      const y = Math.min(H - h, Math.max(0, v.y + (v.h - h) * fy));
+      return { x, y, w, h };
+    });
+
+  const toPlan = (clientX: number, clientY: number) => {
+    const r = svgRef.current?.getBoundingClientRect();
+    if (!r) return null;
+    return { x: view.x + ((clientX - r.left) / r.width) * view.w, y: view.y + ((clientY - r.top) / r.height) * view.h };
+  };
+
+  /**
+   * Panning listens on the window rather than capturing the pointer: capturing retargets the
+   * click that follows to the <svg>, which stopped the pins underneath from being selected.
+   * A press that never travels more than a few pixels is left alone to become a click.
+   */
+  const onPointerDown = (ev: React.PointerEvent<SVGSVGElement>) => {
+    if (ev.button !== 0) return;
+    const rect = svgRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const from = { px: ev.clientX, py: ev.clientY, vx: view.x, vy: view.y };
+    drag.current = from;
+
+    const move = (e: PointerEvent) => {
+      const dx = e.clientX - from.px;
+      const dy = e.clientY - from.py;
+      if (!panning && Math.hypot(dx, dy) < 4) return;
+      setPanning(true);
+      setView((v) => ({
+        ...v,
+        x: Math.min(W - v.w, Math.max(0, from.vx - (dx / rect.width) * v.w)),
+        y: Math.min(H - v.h, Math.max(0, from.vy - (dy / rect.height) * v.h)),
+      }));
+    };
+    const up = () => {
+      drag.current = null;
+      setPanning(false);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
 
   const P = (id: string) => {
     const l = byId.get(id);
@@ -99,7 +159,19 @@ export function MapView({
   return (
     <div className="flex h-full min-h-0 flex-col lg:flex-row">
       <div className="relative min-h-[320px] flex-1 overflow-hidden">
-        <svg viewBox={`0 0 ${W} ${H}`} className="h-full w-full" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Street plan of Vesper City">
+        <svg
+          ref={svgRef}
+          viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+          className={`h-full w-full touch-none ${panning ? "cursor-grabbing" : "cursor-grab"}`}
+          preserveAspectRatio="xMidYMid meet"
+          role="img"
+          aria-label="Street plan of Vesper City"
+          onPointerDown={onPointerDown}
+          onWheel={(ev) => {
+            const at = toPlan(ev.clientX, ev.clientY);
+            zoomBy(ev.deltaY < 0 ? 1.2 : 1 / 1.2, at ?? undefined);
+          }}
+        >
           <defs>
             <radialGradient id="map-glow" cx="50%" cy="55%" r="65%">
               <stop offset="0%" stopColor="#16202b" />
@@ -253,6 +325,35 @@ export function MapView({
             })}
         </svg>
 
+        {/* zoom, for touch and for anyone who doesn't think to scroll on a map */}
+        <div className="absolute bottom-3 right-3 z-10 flex flex-col gap-1">
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm !px-2.5 bg-ink-950/85"
+            onClick={() => zoomBy(1.4)}
+            aria-label="Zoom in"
+          >
+            +
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm !px-2.5 bg-ink-950/85"
+            onClick={() => zoomBy(1 / 1.4)}
+            aria-label="Zoom out"
+          >
+            −
+          </button>
+          {(view.w < W || view.x > 0 || view.y > 0) && (
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm !px-2 bg-ink-950/85 font-mono !text-[9px]"
+              onClick={() => setView({ x: 0, y: 0, w: W, h: H })}
+            >
+              FIT
+            </button>
+          )}
+        </div>
+
         {/* how the map is worked, and what it just told you */}
         <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center p-3">
           <AnimatePresence mode="wait">
@@ -294,7 +395,7 @@ export function MapView({
                 exit={{ opacity: 0 }}
                 className="panel px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-steel-300"
               >
-                Pick a second place to measure the journey
+                {view.w < W ? "Drag to move the map" : "Scroll or + to zoom in"} · pick a second place to measure the journey
               </motion.p>
             )}
           </AnimatePresence>
