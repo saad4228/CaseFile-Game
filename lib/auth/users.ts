@@ -140,7 +140,7 @@ export async function resolveOAuth(identity: OAuthIdentity, current: { id: strin
   });
 }
 
-/** Move a guest's sessions, messages, achievements and record onto another user, then delete the guest. */
+/** Move a guest's sessions, messages and record onto another user, then delete the guest. */
 export async function mergeGuestInto(guestId: string, targetId: string) {
   if (guestId === targetId) return;
   await db().$transaction(async (tx) => {

@@ -8,10 +8,10 @@ import type { Evidence, Suspect } from "@/lib/game-engine/types";
 import { evidenceCode } from "./format";
 
 /**
- * Renders a record as the physical object it is: a police statement form, a lab report on
- * letterhead, a ticket stub, a tractor-feed printout, a CCTV monitor, a cassette, a phone.
+ * Renders a record as the physical object it is: a police form, an agency report, a ticket
+ * stub, a printout, a CCTV monitor, a cassette, a phone.
  *
- * `speaker` is the person a statement was taken from, so the form can carry their photograph.
+ * `speaker` is the person a statement was taken from, so the form can carry their photo.
  */
 export function EvidenceBody({
   e,
@@ -271,8 +271,7 @@ function Body({
   }
 }
 
-/** Black header bar of an official form. */
-/** Which desk inside the issuing body a record came off, by the kind of record it is. */
+/** Which desk inside the issuing body a record came from. */
 const OFFICE: Partial<Record<Evidence["category"], string>> = {
   DOCUMENT: "Records office",
   FORENSIC: "Forensic services",
@@ -283,7 +282,7 @@ const OFFICE: Partial<Record<Evidence["category"], string>> = {
   NEWS: "Editorial",
 };
 
-/** Seal letters, taken from the capitals of the issuing body: "Vesper City PD" reads VCPD. */
+/** Seal letters from the issuer's capitals: "Vesper City PD" reads VCPD. */
 function sealInitials(source: string) {
   const body = source.split("—")[0];
   return (body.match(/[A-Z]/g) ?? ["V"]).join("").slice(0, 4);
@@ -325,7 +324,7 @@ function AgencySeal({ initials }: { initials: string }) {
   );
 }
 
-/** A filing barcode. Deterministic from the record number, so a record always looks the same. */
+/** Filing barcode, seeded by record number so a record always looks the same. */
 function Barcode({ seed }: { seed: number }) {
   const rand = mulberry32(seed * 977 + 13);
   let x = 0;
@@ -344,11 +343,7 @@ function Barcode({ seed }: { seed: number }) {
   );
 }
 
-/**
- * A record that arrived as an agency form rather than loose prose: seal and letterhead, the
- * particulars ruled off, the filing status boxed, a case-file panel, and the body typed in
- * underneath as notes.
- */
+/** A record filed on agency letterhead: seal, particulars, status, case panel, typed notes. */
 function AgencyForm({
   e,
   office,
@@ -445,7 +440,7 @@ function AgencyForm({
   );
 }
 
-/** One ruled row of a filled-in form: label boxed off from the entry, as a typist left it. */
+/** One ruled row of a filled-in form. */
 function Field({ label, value, strong, last }: { label: string; value: string; strong?: boolean; last?: boolean }) {
   return (
     <div className={`grid grid-cols-[112px_1fr] ${last ? "" : "border-b border-[#1d1a14]/30"}`}>
@@ -466,7 +461,7 @@ function Tape({ className = "" }: { className?: string }) {
   );
 }
 
-/** Two inked prints in the corner of the intake form. Drawn, like the rest of the furniture. */
+/** Two inked fingerprints for the intake form. */
 function Fingerprints() {
   return (
     <svg viewBox="0 0 96 46" className="block h-10 w-full" aria-hidden="true">

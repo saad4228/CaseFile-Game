@@ -6,8 +6,7 @@ import type {
   TranscriptEntry,
 } from "./types";
 
-// Pure interview engine. Given a script and the ordered actions taken, it renders the
-// transcript, works out which questions are on offer, and resolves new actions.
+// Pure engine: replays actions against a script to build the transcript and the open questions.
 
 export interface InterviewRun {
   view: InterviewView;
@@ -20,32 +19,19 @@ export interface InterviewRun {
 
 const code = (n: number) => `#${String(n).padStart(3, "0")}`;
 
-/**
- * The part of a suspect's hidden profile that decides how hard they are to move. Plain
- * numbers on purpose: the profile itself carries solution text, and that never comes near
- * the pure engine.
- */
+/** Numbers only. The full profile carries solution text and must not reach this module. */
 export interface Composure {
   confidence: number;
   alibiStrength: number;
   fear: number;
 }
 
-/**
- * How much pressure a suspect absorbs before a record is allowed to break their story.
- * Someone composed, with an alibi they trust, holds out; someone frightened folds almost at
- * once. For Case 047 this lands on Marcus 4, Elena 3, Sarah 3, Noah 2 — so the publisher has
- * to be worked and the terrified friend barely has to be pushed.
- */
+/** Pressure a suspect absorbs before a record can break their story. Case 047: 4, 3, 3, 2. */
 export function resistance(t: Composure): number {
   return Math.max(0, Math.round((t.confidence * 0.6 + t.alibiStrength * 0.4 - t.fear * 0.3) * 6));
 }
 
-/**
- * How hard the suspect has been worked so far. Asking questions counts, laying records in
- * front of them counts, and actually cornering them counts double — which makes the natural
- * detective rhythm (establish the story, then attack it) the effective one.
- */
+/** How hard they've been worked. Cornering them counts double. */
 const pressure = (run: Pick<InterviewRun, "asked" | "triggered" | "presented">) =>
   run.asked.size + run.presented.size + run.triggered.size * 2;
 
@@ -62,8 +48,7 @@ export function resolvePresent(
   );
   if (reaction) {
     if (run.triggered.has(reaction.id)) return "repeat";
-    // The record landed, but they haven't been worked hard enough to let go of the story.
-    // Nothing is spent: the same record breaks them once there's enough pressure behind it.
+    // Not enough pressure yet. Nothing is spent, so the record still works later.
     if (pressure(run) < resists) return `hold:${reaction.id}`;
     return reaction.id;
   }
@@ -71,10 +56,7 @@ export function resolvePresent(
   return `deflect:${run.deflections % Math.max(1, script.deflections.length)}`;
 }
 
-/**
- * Replay actions into a transcript. Outcomes recorded at the time are honoured when they
- * are still consistent with the script; otherwise they're recomputed.
- */
+/** Replay actions into a transcript, recomputing any stored outcome that no longer fits. */
 export function runInterview(
   script: InterviewScript,
   actions: InterviewAction[],
@@ -116,7 +98,7 @@ export function runInterview(
       lines = script.deflections[Number(outcome.slice(8)) % script.deflections.length] ?? script.repeat;
       run.deflections++;
     } else if (outcome.startsWith("hold:")) {
-      // Held the line. They answer like it means nothing, and the reaction stays unspent.
+      // Held: answers like a deflection, reaction unspent.
       lines = script.deflections[run.deflections % script.deflections.length] ?? script.repeat;
       run.deflections++;
     } else if (outcome !== "repeat") {
@@ -130,8 +112,7 @@ export function runInterview(
     transcript.push({
       key: `p${i}`,
       kind: "PRESENT",
-      // A held record has to read differently from a dead one, or the player never knows to
-      // come back to it once the suspect has been worked harder.
+      // Holds read differently from dead records, so the player knows to come back.
       prompt: `Presented ${code(e.number)} — ${e.title}${outcome.startsWith("hold:") ? " · they don't move" : ""}`,
       lines,
       by: a.by,
@@ -143,15 +124,12 @@ export function runInterview(
   return run;
 }
 
-/**
- * A recorded outcome is honoured if it is still structurally valid. Reactions are only
- * honoured when their prerequisites are met, so a forged outcome can't unlock anything.
- */
+/** Honour a stored outcome only while it stays valid, so a forged one unlocks nothing. */
 function validRecorded(script: InterviewScript, outcome: string, evidenceId: string, have: Set<string>, run: InterviewRun) {
   if (outcome === "repeat") return true;
   if (outcome.startsWith("deflect:")) return Number.isInteger(Number(outcome.slice(8)));
   if (outcome.startsWith("hold:")) {
-    // Honoured so the transcript reads the same on replay, even once the pressure has risen.
+    // Kept on replay so the transcript doesn't change as pressure rises.
     const held = script.reactions.find((x) => x.id === outcome.slice(5));
     return Boolean(held && held.evidence.includes(evidenceId) && !run.triggered.has(held.id));
   }

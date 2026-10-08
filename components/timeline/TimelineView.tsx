@@ -10,12 +10,8 @@ import type { CustomEvent } from "@/lib/game-engine/state";
 import type { Evidence, Suspect } from "@/lib/game-engine/types";
 
 /**
- * The night, as one screen.
- *
- * Every timestamped record the team holds is laid out against the clock in the lane of the
- * person it concerns, so the view answers the only question the case really asks: who can be
- * accounted for while Daniel was dying, and who cannot. Nothing scrolls sideways and nothing
- * has to be placed by hand — the chart is the case file, read back.
+ * The night on one sheet: every timestamped record placed against the clock in the row of
+ * the person it names, so you can see who is accounted for while the victim died.
  */
 
 const PIP_MIN = 52; // just the time, when records are stacked up against each other
@@ -45,7 +41,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
 
   const placeName = useMemo(() => new Map(locations.map((l) => [l.id, l.name])), [locations]);
 
-  // Timestamped records, split into the night itself and what came after the body was found.
+  // Split into the night itself and what came after the body was found.
   const { timed, after } = useMemo(() => {
     const all = evidence
       .map((e) => ({ e, at: e.time ? minutesFrom22(e.time) : null }))
@@ -54,7 +50,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     return { timed: all.filter((r) => r.at <= end), after: all.filter((r) => r.at > end) };
   }, [evidence, end]);
 
-  // Narrow screens read the night as one column, so records and your own moments interleave.
+  // Narrow screens read one column, so records and your own notes interleave.
   const downward = useMemo(() => {
     const rows: { id: string; at: number; e?: Evidence; custom?: CustomEvent }[] = timed.map((r) => ({
       id: r.e.id,
@@ -68,8 +64,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
   const pct = (m: number) => ((m - start) / span) * 100;
 
   const lanes: Lane[] = useMemo(() => {
-    // Pips crowd — 23:43 and 23:46 are three minutes and twenty-six pixels apart — so each
-    // lane stacks its own rows rather than letting them collide.
+    // Records three minutes apart would overlap, so each row stacks its own sub-rows.
     const layout = (items: { id: string; at: number; e?: Evidence; custom?: CustomEvent }[]) => {
       const ends: number[] = [];
       const placed = items
@@ -85,8 +80,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
           ends[row] = x + PIP_MIN + 6;
           return { ...it, row, x };
         });
-      // A record spells out what it is when the next one in its row leaves room, and shrinks
-      // back to the bare time when it doesn't. Nobody should have to hover to read a chart.
+      // Show the title when there's room for it, otherwise just the time.
       const pips: Pip[] = placed.map((it, i) => {
         const next = placed.slice(i + 1).find((o) => o.row === it.row);
         const room = Math.min(PIP_MAX, next ? Math.max(PIP_MIN, next.x - it.x - 6) : PIP_MAX);
@@ -141,10 +135,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     return out;
   }, [lanes, routes, placeName]);
 
-  /**
-   * Nobody can be ruled in or out of a window they left no trace in — so say which it is, in
-   * words, beside their name. Reading a chart is a skill; reading four words is not.
-   */
+  /** Each person's standing during the window, in words, so the chart needn't be read. */
   const standing = useMemo(() => {
     const out = new Map<string, { text: string; cls: string; blind: boolean }>();
     if (focusFrom === null || focusTo === null) return out;
@@ -507,10 +498,10 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
   );
 }
 
-/** Where a slip sits relative to its row's line, so a stack of them straddles it evenly. */
+/** Offset of a slip from its row's line, so stacks straddle it evenly. */
 const stackOffset = (row: number, rows: number) => (row - (rows - 1) / 2) * ROW_H;
 
-/** A small steady tilt per slip, so the night looks pinned up rather than typeset. */
+/** Steady tilt per slip, so slips look pinned rather than typeset. */
 function slipTilt(id: string) {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;

@@ -3,10 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useCalm } from "@/lib/client/settings";
 
-/**
- * Canvas rain. Thin diagonal streaks with depth; a few catch the lamp light when they fall
- * through `glowX`. Off entirely under prefers-reduced-motion.
- */
+/** Canvas rain: thin diagonal streaks with depth, brighter where the lamp catches them. */
 export function Rain({
   className,
   density = 1,
@@ -25,10 +22,7 @@ export function Rain({
   coneTop?: number;
   /** Street level (fraction of height): lit drops splash here. */
   ground?: number;
-  /**
-   * Align the light with a lamp in an SVG drawn with preserveAspectRatio "… slice" behind the
-   * rain: lamp (x, y) and street level in the SVG's own coordinates. Overrides glowX/coneTop/ground.
-   */
+  /** Lamp position and street level in the backdrop SVG's own coordinates. Overrides glowX/coneTop/ground. */
   anchor?: { x: number; y: number; ground: number; vw: number; vh: number; alignX: "min" | "mid" | "max" };
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -46,8 +40,7 @@ export function Rain({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Rain is soft by nature: draw at 1× and let the browser scale it. That alone cuts the
-    // fill cost 4–9× on high-density screens.
+    // Rain is soft, so draw at 1x and let the browser scale it.
     const LAYERS = 4;
     let w = 0;
     let h = 0;
@@ -92,7 +85,7 @@ export function Rain({
       drops = Array.from({ length: count }, () => spawn(true));
     };
 
-    // Rain is nearly invisible in the dark and bright where the lamp catches it (reference 5C).
+    // Nearly invisible in the dark, bright inside the lamp cone.
     const colour = (layer: number, lit: boolean) => {
       const d = (layer + 0.5) / LAYERS;
       return lit ? `rgba(255, 214, 160, ${0.35 + d * 0.5})` : `rgba(170, 190, 205, ${0.035 + d * 0.11})`;
@@ -105,7 +98,7 @@ export function Rain({
       if (lampX === undefined) return false;
       const fy = y / h;
       if (fy < lampTop || fy > street + 0.02) return false;
-      // the cone widens ~0.54 px per px below the lamp, matching the cone drawn in NoirCity
+      // The cone widens about 0.54px per px below the lamp, matching NoirCity.
       const half = 12 + (y - lampTop * h) * 0.54;
       return Math.abs(x - lampX * w) < half;
     };

@@ -6,9 +6,8 @@ import { availableQuestions, resolvePresent, runInterview } from "./interview";
 import { scoreVerdict } from "@/lib/scoring/score.server";
 import { PROOF_SLOTS, VERDICT_FIELDS, type InterviewAction } from "./types";
 
-// Case validator. Cases are content-as-code, so this runs in the unit tests (and CI) and
-// on the admin panel. It checks references, that every record can be reached by play,
-// and that a perfect investigation actually solves the case.
+// Case validator: checks references, that every record is reachable by play, and that the
+// truth file is consistent. Runs in the unit tests, in CI and on the admin panel.
 
 export interface Check {
   id: string;
@@ -48,10 +47,7 @@ export function reachableSet(bundle: CaseBundle) {
       run = runInterview(script, list, have, bundle.evidenceById, resists);
       for (const id of have) {
         const outcome = resolvePresent(script, id, have, run, resists);
-        // "hold:" means the suspect is still too composed to break on this record. Asking
-        // their questions is what buys the pressure, and that has already happened above —
-        // so if a record never gets past the hold, the reachability check should fail loudly
-        // rather than quietly pretend the reaction fired.
+        // A record stuck behind a hold is unreachable, which should fail loudly rather than pass.
         if (outcome.startsWith("deflect") || outcome.startsWith("hold:") || outcome === "repeat") continue;
         list.push({ suspectId, kind: "PRESENT", ref: id, outcome });
         run = runInterview(script, list, have, bundle.evidenceById, resists);

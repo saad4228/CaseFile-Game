@@ -71,8 +71,7 @@ export const truth = {
   /** Partly-right answers earn some credit (fraction of that question's points). */
   partial: {
     when: { w2: 0.4, w4: 0.4 },
-    // Service Stair B is how she left 314 at 23:49, so it is a near miss rather than a wrong
-    // answer; the garage is where Sarah and Noah were, which is the trap, and earns nothing.
+    // Near miss: the stair is how she left 314. The garage is the trap and earns nothing.
     where: { stairs: 0.3 },
     why: { phone: 0.25, source: 0.25 },
   } as Partial<Record<VerdictField, Record<string, number>>>,
@@ -141,18 +140,15 @@ export const truth = {
   relevantLeads: ["L-01", "L-02", "L-03", "L-04", "L-05", "L-06", "L-07", "L-08", "L-09", "L-10", "L-11", "L-12", "L-13"] as LeadId[],
 
   /**
-   * Accepted proof per verdict slot: proven with at least `min` items from `accepted`.
-   * A record belongs here when a careful player could defensibly attach it — not only when
-   * it is the neatest possible choice. The player gets no feedback on these lists, so a
-   * narrow list stops rewarding deduction and starts rewarding guessing the author.
+   * Accepted proof per slot: proven with at least `min` of `accepted`. Include anything a
+   * careful player could defensibly attach, since they get no feedback while choosing.
    */
   proof: {
     motive: { min: 2, accepted: ["E-010", "E-029", "E-028", "E-032", "E-033"] },
     opportunity: { min: 2, accepted: ["E-018", "E-019", "E-013", "E-020", "E-021", "E-034"] },
-    // E-003: one emptied tumbler, a second coaster never used, a chocolate on the pillow —
-    // the drink came in on the turndown tray, not out of the minibar.
+    // E-003: the emptied tumbler, unused second coaster and untouched chocolate.
     means: { min: 2, accepted: ["E-023", "E-024", "E-021", "E-022", "E-034", "E-003"] },
-    // E-002 fixes the window at all (23:40–23:55); E-004 is the 23:46 call inside it.
+    // E-002 fixes the window; E-004 is the 23:46 call inside it.
     timeline: { min: 2, accepted: ["E-018", "E-025", "E-026", "E-027", "E-017", "E-012", "E-034", "E-013", "E-002", "E-004"] },
     // E-027: her own car, through the staff barrier, eight minutes after he died.
     identity: { min: 2, accepted: ["E-025", "E-019", "E-018", "E-020", "E-034", "E-027"] },

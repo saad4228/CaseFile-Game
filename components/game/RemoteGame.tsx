@@ -45,7 +45,7 @@ interface Confirmed {
 }
 
 
-/** Two rosters are the same when nobody has joined, left, or changed what they are showing. */
+/** Same roster: nobody joined, left, or changed what they show. */
 function samePlayers(a: PlayerView[], b: PlayerView[]) {
   if (a === b) return true;
   if (a.length !== b.length) return false;
@@ -139,9 +139,7 @@ export function RemoteGame({
       refs.current.failures = 0;
       setConnection("online");
       if (data.changed && data.view) acceptView(data.view);
-      // An unchanged poll used to allocate a new view every time, re-rendering the whole
-      // workspace once a second for nothing. Hand back the same object when the roster is
-      // the same and React skips the render entirely.
+      // Hand back the same object when nothing changed, so React skips the render.
       else setView((v) => (samePlayers(v.players, data.players) ? v : { ...v, players: data.players }));
     } catch {
       refs.current.failures++;
@@ -203,12 +201,10 @@ export function RemoteGame({
         r.opFailures = 0;
         setConnection("online");
       } else if (res.status >= 500 || res.status === 429 || res.status === 408) {
-        // Busy, rate limited or briefly broken. The edits are still perfectly valid, so they
-        // go back on the queue and are retried — dropping them here is how a board full of
-        // work used to vanish on one unlucky request.
+        // Busy or briefly broken: the edits are still valid, so requeue and retry.
         throw new Error(String(res.status));
       } else {
-        // Genuinely refused (stale, invalid, or not allowed): the server's state is the truth.
+        // Refused outright: the server's state is the truth.
         void sync();
       }
       // Acknowledged (or refused outright): drop everything up to the last op sent.

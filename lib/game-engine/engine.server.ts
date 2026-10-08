@@ -4,13 +4,9 @@ import type { CaseBundle } from "./cases.server";
 import { availableQuestions, resistance, resolvePresent, runInterview } from "./interview";
 import type { ConflictView, EvidenceId, InterviewAction, LeadView, PlayView } from "./types";
 
-// The truth engine's public surface. Everything returned from here describes only what a
-// player has legitimately discovered; nothing in it reveals hidden records or the solution.
+// Public surface of the truth engine: returns only what a player has legitimately found.
 
-/**
- * How hard a suspect is to move, from their hidden profile. Only the number crosses into the
- * interview engine — the profile itself says why they lie.
- */
+/** Resistance from a suspect's hidden profile. Only the number leaves this module. */
 export function resistanceFor(bundle: CaseBundle, suspectId: string) {
   const profile = bundle.truth.suspects[suspectId];
   return profile ? resistance(profile) : 0;
@@ -41,9 +37,8 @@ export function sanitizeActions(raw: unknown): InterviewAction[] {
 }
 
 /**
- * Single-device mode: the browser holds the state, so rebuild what the player could
- * legitimately have reached from the brief, through leads and interviews. Claims that
- * aren't reachable are dropped — a forged list can't pull hidden records.
+ * Single-device mode: the browser holds the state, so re-derive what was actually reachable
+ * from the brief through leads and interviews. Unreachable claims are dropped.
  */
 export function sanitizeLocal(bundle: CaseBundle, claimed: unknown, rawActions: unknown) {
   const claimedSet = toStringSet(claimed);
@@ -153,10 +148,7 @@ export function followLead(bundle: CaseBundle, leadId: string, visible: Set<stri
   return lead.unlocks.filter((u) => !discoveredAll.has(u));
 }
 
-/**
- * Take one interview action. `visible` is what the acting player can see; `discoveredAll`
- * covers everything known in the session (for replaying earlier actions by teammates).
- */
+/** One interview action. `visible` is the actor's view; `discoveredAll` replays teammates'. */
 export function interviewAct(
   bundle: CaseBundle,
   suspectId: string,

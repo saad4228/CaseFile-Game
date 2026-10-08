@@ -1,12 +1,9 @@
 import { sceneArt } from "@/data/cases/case-047/scenes";
 import type { PhotoScene as Scene } from "@/lib/game-engine/types";
 
-// Original inked scenes for photo evidence, 400×300. Monochrome, cold, high contrast.
-// Every object listed in an item's "in frame" text is drawn with equal weight — the
-// illustration never points at the detail that matters.
-//
-// A photographed scene, when one is on file, is placed inside the same 400×300 box rather
-// than replacing the SVG, so the camera burn-in and the source stamp still draw over it.
+// Inked 400x300 scenes for photo evidence: monochrome, cold, high contrast. A photographed
+// scene is placed inside the same box rather than replacing it, so the burn-in and source
+// stamp still draw on top.
 
 const INK = "#0b0e12";
 const MID = "#28323b";

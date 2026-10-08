@@ -1,14 +1,8 @@
 import type { InkDetail } from "@/lib/game-engine/types";
 
-// Drawn close-ups for the resolution comic. Add an image under public/ink/ and list it here;
-// it replaces the drawing for that beat. Anything not listed keeps its drawing, so the set
-// can be filled in one panel at a time.
-//
-// Supply 5:3 (1500×900): the drawn panels are a 400×240 viewBox and the image is placed
-// inside it. The comic crops panels to 16:5 and 3:5, so keep the subject near the centre.
-//
-// "window" has no entry and never will — that beat renders the Blackwood facade with the
-// light in Room 314 going out, not an ink panel.
+// Drawn close-ups for the resolution comic. Drop a 5:3 image in public/ink/ and list it
+// here; anything unlisted keeps its drawing. The comic crops to 16:5 and 3:5, so keep the
+// subject centred. "window" is deliberately absent — that beat renders the Blackwood facade.
 
 export const inkArt: Partial<Record<InkDetail, string>> = {
   console: "/ink/console.webp",

@@ -6,8 +6,7 @@ import type { SharedState } from "@/lib/game-engine/state";
 import type { EdgeKind, VerdictField } from "@/lib/game-engine/types";
 import { PROOF_SLOTS, VERDICT_FIELDS } from "@/lib/game-engine/types";
 
-// Server-authoritative scoring. Never trust a client-sent score; only the verdict, the
-// board and what was discovered go in.
+// Server-authoritative scoring. Inputs are the verdict, the board and what was discovered.
 
 export interface ScoreInput {
   shared: SharedState;
@@ -116,17 +115,13 @@ export function scoreVerdict(bundle: CaseBundle, input: ScoreInput): ScoreResult
       t.assumptions.filter((a) => a.status === "supported" && a.evidence.length > 0).length >= 3,
   );
   const graded = logic.correct + logic.wrong;
-  // Never score a player below the 35 they'd get for leaving the board empty: drawing a
-  // thread and reading it wrong is still reasoning, and the board is the signature mechanic.
-  // Eight sound connections was also more than a first-time player will ever find, with no
-  // way of knowing which pairs the case even has an opinion about.
+  // Floor at 35, what an empty board scores: a wrong thread is still reasoning. Full marks
+  // at five sound connections, since the case has no opinion on most pairs.
   const judged = graded === 0 ? 35 : 100 * (0.6 * (logic.correct / graded) + 0.4 * Math.min(1, logic.correct / 5));
   let logicScore = Math.max(35, judged);
   if (culpritTheory) logicScore += 10;
 
-  // Contradictions. A conflict only surfaces once the team holds both of its records, so
-  // judge them on the ones that actually reached the desk — scoring against all eleven
-  // marked players down for pairs the game never showed them.
+  // A conflict only surfaces once both its records are held, so judge only those.
   const surfaced = bundle.conflicts.filter((x) => input.discovered.has(x.a) && input.discovered.has(x.b));
   const total = surfaced.length;
   let c = 0;
@@ -161,9 +156,7 @@ export function scoreVerdict(bundle: CaseBundle, input: ScoreInput): ScoreResult
   const final = Math.round(
     (Object.keys(WEIGHTS) as (keyof ScoreBreakdown)[]).reduce((sum, k) => sum + scores[k] * WEIGHTS[k], 0),
   );
-  // Name the right person, name the method, and hold two parts of it up with real records:
-  // that is a solved case. Three slots asked a player to also guess which records the file
-  // happens to accept, with no feedback to guide them, for the two they had least to go on.
+  // Solved: right person, right method, and two parts backed by records the file accepts.
   const solved = answers.who.correct && answers.how.correct && provenSlots >= 2;
   let rank: ScoreResult["rank"] = final >= 90 ? "S" : final >= 80 ? "A" : final >= 65 ? "B" : final >= 50 ? "C" : "D";
   if (!solved && (rank === "S" || rank === "A")) rank = "B";

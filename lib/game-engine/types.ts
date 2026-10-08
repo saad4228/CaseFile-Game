@@ -105,7 +105,7 @@ export interface PortraitSpec {
   hat?: boolean;
   glasses?: boolean;
   unknown?: boolean;
-  /** The place behind them in their portrait (reference 2): who they are, where they belong. */
+  /** The place behind them in their portrait. */
   backdrop?: "newsroom" | "lobby" | "skyline" | "street" | "lamp";
 }
 
@@ -151,11 +151,7 @@ export interface CaseMeta {
   brief: string[];
   intro: IntroBeat[];
   counts: { suspects: number; evidence: number };
-  /**
-   * The stretch of the night the case is argued inside, and the part of it that decides the
-   * case. Both are public — case 047 states them on the medical examiner's preliminary — so
-   * this adds nothing the player isn't already holding.
-   */
+  /** The night the case is argued inside, and the part that decides it. Both are public. */
   night?: {
     from: string;
     to: string;

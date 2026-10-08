@@ -1,13 +1,5 @@
-// Painted portraits for Case 047's suspects. When an image file is added to
-// public/suspects/, list it here and it replaces the drawn silhouette in the briefing,
-// People view, board, lobby and interview room. The resolution line-up keeps the drawn
-// silhouettes — its eyes have to close one by one.
-//
-// SuspectPhoto renders these as aspect-[4/5] with object-cover, so supply 4:5 (1024×1280)
-// or anything taller gets cropped top and bottom. The subject must still read at 44px wide
-// (the People list thumbnail), and the interview room fades out the bottom 30%.
-//
-//   sarah_vale: "/suspects/sarah_vale.webp",
+// Painted portraits. Drop a 4:5 image in public/suspects/ and list it here to replace the
+// drawn silhouette everywhere except the resolution line-up. Must still read at 44px wide.
 
 export const portraitArt: Partial<Record<string, string>> = {
   sarah_vale: "/suspects/sarah_vale.webp",

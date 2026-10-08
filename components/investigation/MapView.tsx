@@ -10,9 +10,8 @@ import { onFoot, spokenMinutes, travel } from "@/lib/game-engine/travel";
 import type { Evidence, Location, Route } from "@/lib/game-engine/types";
 
 /**
- * Vesper City, and the one question worth asking of it: could somebody have got from here to
- * there in the time they had? Pick two places and the map answers in the case's own terms —
- * the minutes, and the latest you could have left and still made the window.
+ * Vesper City. Pick two places and it reports the journey in the case's terms: the minutes,
+ * and the latest you could have left to make the window.
  */
 
 const W = 1000;
@@ -47,8 +46,7 @@ export function MapView({
   const [from, setFrom] = useState<string | null>(null);
   const [hoverRoute, setHoverRoute] = useState<string | null>(null);
 
-  // The plan is bigger than most screens once you lean in, so it can be dragged and zoomed.
-  // "slice" cropped it with no way to reach what fell outside; it fits by default now.
+  // Fits by default; drag and zoom to look closer.
   const [view, setView] = useState({ x: 0, y: 0, w: W, h: H });
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{ px: number; py: number; vx: number; vy: number } | null>(null);
@@ -83,9 +81,8 @@ export function MapView({
   };
 
   /**
-   * Panning listens on the window rather than capturing the pointer: capturing retargets the
-   * click that follows to the <svg>, which stopped the pins underneath from being selected.
-   * A press that never travels more than a few pixels is left alone to become a click.
+   * Pan via window listeners, not pointer capture: capture retargets the following click and
+   * the pins underneath stop responding. A press under a few pixels stays a click.
    */
   const onPointerDown = (ev: React.PointerEvent<SVGSVGElement>) => {
     if (ev.button !== 0) return;

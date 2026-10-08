@@ -63,10 +63,7 @@ function Pin() {
   return <span className="pin absolute -top-2 left-1/2 z-10 h-4 w-4 -translate-x-1/2 rounded-full" aria-hidden="true" />;
 }
 
-/**
- * Take an item off the board. Selecting a node and pressing Delete has always worked, but
- * nothing on screen said so, and a touch screen has no Delete key — so the pin gets pulled here.
- */
+/** Visible way to remove a node. Delete also works, but touch screens have no Delete key. */
 function Unpin({ id }: { id: string }) {
   const { dispatch } = useGame();
   const { readOnly } = useBoard();
@@ -190,7 +187,7 @@ function tilt(id: string) {
   return ((Math.abs(h) % 50) - 25) / 10;
 }
 
-/** Thread as a rope pinned at both ends: sags under its own weight, casts a shadow, shows a twist. */
+/** Thread drawn as a sagging rope with a shadow. */
 function ThreadEdge({ id, sourceX, sourceY, targetX, targetY, data, selected }: EdgeProps<Edge<{ kind: EdgeKind }>>) {
   const { editEdge, readOnly, judged } = useBoard();
   const kind = data?.kind ?? "ASSOCIATED_WITH";
@@ -298,15 +295,10 @@ function BoardInner({
   );
 
   /**
-   * React Flow keeps bookkeeping of its own on each node — the size it measured from the DOM
-   * and where that node's handles sit. Rebuilding the nodes from the case file on every drag
-   * frame threw all of that away, and an edge whose endpoint has lost its handles is simply
-   * not drawn: pulling a pinned record around made its threads blink in and out, and took the
-   * record with them.
-   *
-   * So React Flow owns the node list now, and the case file is reconciled into it: records
-   * that are unchanged keep the very same object, which is what lets a drag stay smooth and
-   * the threads stay attached.
+   * React Flow stores each node's measured size and handle positions on the node object.
+   * Rebuilding nodes from the case file every frame discarded that, and an edge whose
+   * endpoint has no handles is not drawn — so threads vanished mid-drag. React Flow owns
+   * the list instead; unchanged nodes keep their identity.
    */
   const toNode = useCallback(
     (n: BoardNode): Node<NodeData> => ({
@@ -349,7 +341,7 @@ function BoardInner({
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<NodeData>>[]) => {
-      // React Flow moves and selects the nodes; the case file only needs to hear the result.
+      // React Flow handles the move; the case file only needs the result.
       onNodesChangeInternal(changes);
       for (const c of changes) {
         if (c.type === "position" && c.dragging === false) {
@@ -415,10 +407,8 @@ function BoardInner({
 
   const editingEdge = shared.board.edges.find((e) => e.id === editing);
 
-  // "Pin to board" places by a fixed grid, because it is dispatched from the evidence viewer
-  // and the suspect file, neither of which knows where the board is scrolled to. So a pin
-  // made while the board is panned elsewhere lands off-screen and looks like nothing
-  // happened. Follow anything newly pinned, but only when it would otherwise be out of sight.
+  // Pins are placed on a fixed grid by callers that don't know the current viewport, so a
+  // new node can land off-screen. Scroll to it only when it would otherwise be out of sight.
   const known = useRef(new Set(shared.board.nodes.map((n) => n.id)));
   useEffect(() => {
     const ids = shared.board.nodes.map((n) => n.id);
@@ -596,7 +586,7 @@ export function Board(props: {
   );
 }
 
-/** A green-shaded banker's lamp hanging over the wall; the light pool is in `.casefile-board`. */
+/** Banker's lamp over the wall. The light pool itself is in `.casefile-board`. */
 function BoardLamp() {
   return (
     <svg
