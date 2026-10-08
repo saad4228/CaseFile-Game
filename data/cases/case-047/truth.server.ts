@@ -130,6 +130,7 @@ export const truth = {
         "That is the whole of Case 047, in the end. A man who could not bring himself to burn the thing that would hang him.",
       ],
       pictures: [
+        { scene: "brother" },
         { detail: "printout" },
       ],
     },

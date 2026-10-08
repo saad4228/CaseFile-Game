@@ -72,6 +72,7 @@ const labels: Record<Scene, string> = {
   archive: "A sub-basement corridor of steel shelving packed with numbered evidence boxes, behind a padlocked gate marked CALDER STREET STORAGE.",
   jarrow: "A police press conference: a composed man in late middle age at a Vesper County podium, a signet ring on his little finger.",
   porter: "A hotel corridor at night: the night porter in the open doorway of 314, his hand still on the handle, the Do Not Disturb card hanging beside it.",
+  brother: "A creased police booking photograph from 2013, clipped to a file card: a tired man holding a Vesper County board.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -304,6 +305,23 @@ const scenes: Record<Scene, React.ReactNode> = {
       {/* the one lit lamp */}
       <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
       <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  brother: (
+    <g>
+      <rect width="400" height="300" fill="#141a1f" />
+      {/* the card the photograph is clipped to */}
+      <rect x="54" y="16" width="250" height="268" fill="#cfc8b8" />
+      <rect x="70" y="30" width="218" height="212" fill="#2b333a" />
+      <rect x="150" y="18" width="18" height="8" fill="#8d949a" />
+      {/* subject */}
+      <circle cx="179" cy="104" r="40" fill="#454f58" />
+      <path d="M118 242 C118 178 146 152 179 152 C212 152 240 178 240 242 Z" fill="#3a434b" />
+      {/* the board */}
+      <rect x="126" y="196" width="106" height="44" fill="#11161b" />
+      {[206, 218, 230].map((y) => (
+        <rect key={y} x={136} y={y} width="86" height="4" fill="#cfc8b8" opacity="0.8" />
+      ))}
     </g>
   ),
   porter: (
