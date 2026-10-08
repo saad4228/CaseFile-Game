@@ -104,7 +104,7 @@ function EvidenceNode({ id, data, selected }: NodeProps<Node<NodeData>>) {
       className={`group relative ${selectedCls(selected)}`}
       style={{ rotate: `${tilt(e.id)}deg` }}
       onDoubleClick={() => onOpen(e.id)}
-      title="Double-click to inspect"
+      title="Double-click to open the record"
     >
       <Pin />
       <EvidenceCard e={e} compact unseen={unseen.has(e.id)} />
@@ -481,7 +481,7 @@ function BoardInner({
                 aria-label="Add an unknown event"
                 title="Something happened here, but you don't know what yet"
               >
-                + ?????
+                + Unknown
               </button>
               <div className="relative">
                 <button

@@ -9,9 +9,9 @@ import { play } from "@/lib/client/sound";
 import type { ConflictMark } from "@/lib/game-engine/types";
 
 const marks: { id: ConflictMark; label: string }[] = [
-  { id: "contradiction", label: "Mark contradiction" },
-  { id: "explained", label: "Explained" },
-  { id: "ignored", label: "Ignore" },
+  { id: "contradiction", label: "One of them is lying" },
+  { id: "explained", label: "There's an innocent reason" },
+  { id: "ignored", label: "Doesn't matter" },
 ];
 
 export type DeskTab = "leads" | "conflicts" | "oracle";
@@ -53,7 +53,7 @@ export function Desk({
     onFound(
       r.found.map((f) => f.id),
       r.found.length
-        ? `New record${r.found.length > 1 ? "s" : ""}${mode === "TEAM" ? " (private to you)" : ""} · ${r.found.map((f) => f.title).join(" · ")}`
+        ? `New record${r.found.length > 1 ? "s" : ""}${mode === "TEAM" ? " — only you can see this until you share it" : ""} · ${r.found.map((f) => f.title).join(" · ")}`
         : "Nothing new turned up.",
     );
   };
@@ -99,6 +99,9 @@ export function Desk({
 
             {tab === "leads" && (
               <>
+                <p className="mb-4 border-l-2 border-ink-600 pl-3 text-sm leading-relaxed text-bone-100/60">
+                  A lead is a thread you can pull — a person to ask, a record to request. Follow one and see what comes back.
+                </p>
                 {error && (
                   <p role="alert" className="mb-3 border-l-4 border-crimson-600 bg-crimson-600/10 px-3 py-2 text-sm">
                     {error}
@@ -116,7 +119,7 @@ export function Desk({
                           disabled={pending !== null || readOnly}
                           onClick={() => follow(l.id)}
                         >
-                          {pending === l.id ? <span className="animate-pulse">Recovering record…</span> : "Investigate"}
+                          {pending === l.id ? <span className="animate-pulse">Chasing it down…</span> : "Follow this lead"}
                         </button>
                       </li>
                     ))}
@@ -128,7 +131,7 @@ export function Desk({
                 )}
                 {followed.length > 0 && (
                   <div className="mt-8">
-                    <p className="label">Already followed · {followed.length}</p>
+                    <p className="label">Leads you&apos;ve already followed · {followed.length}</p>
                     <ul className="mt-2 space-y-1.5">
                       {followed.map((f) => (
                         <li key={f.id} className="flex justify-between gap-3 text-sm text-bone-100/55">
@@ -144,6 +147,11 @@ export function Desk({
 
             {tab === "conflicts" &&
               (conflicts.length ? (
+                <>
+                <p className="mb-4 border-l-2 border-ink-600 pl-3 text-sm leading-relaxed text-bone-100/60">
+                  Two records here can&apos;t both be true. Read them side by side, decide what you think, and say so — your
+                  answer is part of how the case is judged at the end.
+                </p>
                 <ul className="space-y-4">
                   {conflicts.map((c) => {
                     const a = byId.get(c.a);
@@ -183,7 +191,7 @@ export function Desk({
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
                           <button type="button" className="btn btn-ghost btn-sm" onClick={() => onCompare(c.a, c.b)}>
-                            Investigate
+                            Read them side by side
                           </button>
                           {!readOnly &&
                             marks.map((m) => (
@@ -208,6 +216,7 @@ export function Desk({
                     );
                   })}
                 </ul>
+                </>
               ) : (
                 <p className="font-display mt-10 text-center text-2xl italic text-bone-100/60">No records disagree. Yet.</p>
               ))}

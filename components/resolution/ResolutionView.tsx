@@ -15,14 +15,15 @@ import { WEIGHTS } from "@/lib/scoring/types";
 import { useCalm } from "@/lib/client/settings";
 
 const QUESTION = { who: "Who", how: "How", when: "When", where: "Where", why: "Why" } as const;
-const DIMENSIONS: { key: keyof typeof WEIGHTS; label: string }[] = [
-  { key: "deduction", label: "Deduction" },
-  { key: "evidence", label: "Evidence" },
-  { key: "logic", label: "Logic" },
-  { key: "contradictions", label: "Contradictions" },
-  { key: "efficiency", label: "Efficiency" },
-  { key: "proof", label: "Proof" },
-  { key: "time", label: "Time" },
+// A bare score tells you nothing you can act on next time, so each one says what it measured.
+const DIMENSIONS: { key: keyof typeof WEIGHTS; label: string; hint: string }[] = [
+  { key: "deduction", label: "Deduction", hint: "Naming the right person, method, time, place and reason" },
+  { key: "evidence", label: "Evidence", hint: "How much of the case file you found" },
+  { key: "logic", label: "Logic", hint: "Whether the links you drew on the board hold up" },
+  { key: "contradictions", label: "Contradictions", hint: "Spotting which records were lying" },
+  { key: "efficiency", label: "Efficiency", hint: "How many leads you followed turned out to matter" },
+  { key: "proof", label: "Proof", hint: "Whether your records really proved what you filed them under" },
+  { key: "time", label: "Time", hint: "How long you took against the estimate" },
 ];
 const code = (n: number) => `#${String(n).padStart(3, "0")}`;
 const fmt = (s: number) => `${Math.floor(s / 60)}m ${String(s % 60).padStart(2, "0")}s`;
@@ -136,7 +137,12 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
               <tbody>
                 {DIMENSIONS.map((d) => (
                   <tr key={d.key} className="border-b border-[#1d1a14]/15">
-                    <td className="py-2.5 uppercase tracking-[0.15em]">{d.label}</td>
+                    <td className="py-2.5 pr-3 align-top">
+                      <span className="uppercase tracking-[0.15em]">{d.label}</span>
+                      <span className="mt-0.5 block font-sans text-[11px] normal-case leading-snug tracking-normal text-[#1d1a14]/55">
+                        {d.hint}
+                      </span>
+                    </td>
                     <td className="w-1/2 py-2.5">
                       <div className="h-1.5 bg-[#1d1a14]/10">
                         <motion.div
@@ -175,7 +181,7 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
 
           <div className="space-y-6">
             <div>
-              <p className="label">Your proof</p>
+              <p className="label">How your five parts held up</p>
               <ul className="mt-3 space-y-3">
                 {PROOF_SLOTS.map((slot) => {
                   const p = score.details.proof[slot];
@@ -183,22 +189,26 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
                     <li key={slot} className="border border-ink-700 p-3">
                       <p className="flex justify-between font-mono text-[11px] uppercase tracking-[0.2em]">
                         <span>{slot}</span>
-                        <span className={p.proven ? "text-amber-300" : "text-steel-400"}>{p.proven ? "Proven" : "Not proven"}</span>
+                        <span className={p.proven ? "text-amber-300" : "text-steel-400"}>
+                          {p.proven ? "Proved it" : "Didn't prove it"}
+                        </span>
                       </p>
                       <p className="mt-1.5 text-sm text-bone-100/70">
                         {p.attached.length
                           ? p.attached.map((a) => `${a.accepted ? "✓" : "✗"} ${a.id.replace("E-", "#")}`).join("  ·  ")
-                          : "Nothing attached."}
+                          : "You didn't back this one up."}
                       </p>
                     </li>
                   );
                 })}
               </ul>
             </div>
-            <p className="text-sm text-bone-100/60">
-              Board: {score.details.logic.correct} sound connections, {score.details.logic.wrong} that don&apos;t hold. Conflicts
-              classified as contradictions: {score.details.contradictions.contradiction}/{score.details.contradictions.total}. Leads that
-              mattered: {score.details.efficiency.relevant}/{score.details.efficiency.followed}.
+            <p className="text-sm leading-relaxed text-bone-100/60">
+              On the board you drew {score.details.logic.correct} link{score.details.logic.correct === 1 ? "" : "s"} that hold up
+              and {score.details.logic.wrong} that {score.details.logic.wrong === 1 ? "doesn't" : "don't"}. You called{" "}
+              {score.details.contradictions.contradiction} of {score.details.contradictions.total} conflict
+              {score.details.contradictions.total === 1 ? "" : "s"} a lie. Of the {score.details.efficiency.followed} lead
+              {score.details.efficiency.followed === 1 ? "" : "s"} you followed, {score.details.efficiency.relevant} mattered.
             </p>
           </div>
         </motion.section>

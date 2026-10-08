@@ -176,7 +176,7 @@ export function Workspace({ onPlayAgain }: { onPlayAgain?: () => void }) {
               <span aria-hidden="true" className="text-crimson-400">
                 ▲{openConflicts}
               </span>
-              <span className="sr-only">, {openConflicts} conflicts still unclassified</span>
+              <span className="sr-only">, {openConflicts} conflicts you haven&apos;t settled</span>
             </>
           )}
         </button>

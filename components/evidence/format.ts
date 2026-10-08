@@ -26,6 +26,20 @@ export const reliabilityStyle: Record<Reliability, string> = {
   FABRICATED: "border-double text-crimson-600",
 };
 
+/**
+ * What a reliability stamp actually means, in plain words. The stamp is the source's own
+ * claim about its record, not the truth — a reader new to case files has no reason to know
+ * that "unverified" is an invitation rather than a warning.
+ */
+export const reliabilityPlain: Record<Reliability, string> = {
+  VERIFIED: "Checked and confirmed by the people who filed it.",
+  LIKELY: "Probably right, but nobody has confirmed it.",
+  UNVERIFIED: "Nobody has checked this. It may still be wrong.",
+  DISPUTED: "Someone has said this is wrong.",
+  CORRUPTED: "Damaged or incomplete — parts are missing.",
+  FABRICATED: "Known to have been made up.",
+};
+
 export const evidenceCode = (n: number) => `#${String(n).padStart(3, "0")}`;
 
 /** "23:46:13" or "23:46" → minutes since 22:00, wrapping past midnight. */

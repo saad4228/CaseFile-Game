@@ -30,21 +30,21 @@ export const leads: Lead[] = [
   },
   {
     id: "L-03",
-    label: "Request the raw lock-server export",
+    label: "Get the door lock data straight from the maker",
     detail: "Go to the lock vendor directly instead of through hotel management.",
     requires: ["E-005", "E-013"],
     unlocks: ["E-018"],
   },
   {
     id: "L-04",
-    label: "Obtain the staff keycard register",
+    label: "Get the staff keycard register",
     detail: "Find out who holds each staff card.",
     requires: ["E-018"],
     unlocks: ["E-019"],
   },
   {
     id: "L-05",
-    label: "Identify console BW-ADM-02",
+    label: "Find out what console BW-ADM-02 is",
     detail: "Ask the hotel's IT contractor for the asset register.",
     requires: ["E-013"],
     unlocks: ["E-020"],
@@ -93,7 +93,7 @@ export const leads: Lead[] = [
   },
   {
     id: "L-12",
-    label: "Subpoena Reed Media's accounts",
+    label: "Get a court order for Reed Media's accounts",
     detail: "“H.H. pays for quiet.” Follow the money.",
     requires: ["E-010"],
     unlocks: ["E-028"],

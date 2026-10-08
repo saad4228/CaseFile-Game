@@ -8,11 +8,11 @@ import { PROOF_SLOTS, VERDICT_FIELDS, type ProofSlot, type VerdictField } from "
 
 const QUESTION: Record<VerdictField, string> = { who: "Who?", how: "How?", when: "When?", where: "Where?", why: "Why?" };
 const SLOT: Record<ProofSlot, { label: string; hint: string }> = {
-  motive: { label: "Motive", hint: "Why they needed Daniel gone" },
-  opportunity: { label: "Opportunity", hint: "How they reached him" },
-  means: { label: "Means", hint: "What killed him, and where it came from" },
-  timeline: { label: "Timeline", hint: "When it happened, minute by minute" },
-  identity: { label: "Identity", hint: "Why this person and no one else" },
+  motive: { label: "Motive", hint: "Why they wanted Daniel dead" },
+  opportunity: { label: "Opportunity", hint: "How they got to him" },
+  means: { label: "Means", hint: "What killed him, and where they got it" },
+  timeline: { label: "Timeline", hint: "What happened, and in what order" },
+  identity: { label: "Identity", hint: "Why it was them and not someone else" },
 };
 
 export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
@@ -52,8 +52,8 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
         </h2>
         {mode === "TEAM" && (
           <p className="mt-5 max-w-2xl text-sm text-bone-100/65">
-            This sheet is shared — everyone on the team sees every change. Anyone can file it, and filing closes the case for
-            everyone.
+            Everyone on the team sees this sheet, and every change you make. Anyone can file it, and filing it ends the case
+            for all of you.
           </p>
         )}
 
@@ -92,10 +92,10 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
             ))}
           </div>
 
-          <p className="mt-10 font-mono text-[11px] tracking-[0.3em] text-amber-300">PROVE IT</p>
+          <p className="mt-10 font-mono text-[11px] tracking-[0.3em] text-amber-300">NOW BACK IT UP</p>
           <p className="mt-1 text-sm text-bone-100/60">
-            Attach the records that prove each part. A conclusion needs at least two independent traces. Only records shared
-            with the team can be used.
+            Back up each part with the records that show it. Two or more records make a part solid — one on its own can always
+            be argued with. You can only use records the whole team can see.
           </p>
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
             {PROOF_SLOTS.map((slot) => (
@@ -131,7 +131,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
                     onClick={() => setPicker(picker === slot ? null : slot)}
                     aria-expanded={picker === slot}
                   >
-                    + Evidence
+                    + Add a record
                   </button>
                 )}
                 {picker === slot && (
@@ -158,7 +158,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
           </div>
 
           <label className="mt-8 block">
-            <span className="label">In your own words (optional)</span>
+            <span className="label">Tell it in your own words (optional)</span>
             <textarea
               value={v.statement}
               disabled={readOnly}
@@ -172,7 +172,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
           {!readOnly && (
             <div className="mt-8 flex flex-col items-start gap-4 border-t border-ink-700 pt-6 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-steel-300">
-                {answered}/5 answered · {filled}/5 slots hold two or more records
+                {answered} of 5 answered · {filled} of 5 parts backed up
               </p>
               <button type="button" className="btn btn-primary" disabled={!ready} onClick={() => setConfirm(true)}>
                 File the verdict
@@ -199,12 +199,13 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
                 File the verdict?
               </p>
               <p className="mt-4 text-sm leading-relaxed text-[#1d1a14]/80">
-                The case closes {mode === "TEAM" ? "for the whole team " : ""}and the truth is revealed. You can&apos;t change your
-                answers afterwards.
+                This ends the case{mode === "TEAM" ? " for everyone on the team" : ""} and shows you what really happened. You
+                can&apos;t change your answers afterwards.
               </p>
               <p className="mt-3 text-sm leading-relaxed text-[#1d1a14]/70">
-                A case is recorded as closed when the person and the method are right and the proof holds in at least three
-                places. Whether a record proves what you&apos;ve pinned it to is for the evidence to settle — not for the count.
+                It counts as solved if you name the right person, say how they did it, and back up at least three of the five
+                parts with records that genuinely show it. Attaching more records won&apos;t help on its own — what matters is
+                whether each one really proves the part you put it under.
               </p>
               {error && (
                 <p role="alert" className="mt-4 text-sm text-crimson-600">

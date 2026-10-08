@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "@/components/game/GameContext";
 import { EvidenceBody } from "./EvidenceBody";
-import { categoryLabel, evidenceCode, reliabilityStyle } from "./format";
+import { categoryLabel, evidenceCode, reliabilityPlain, reliabilityStyle } from "./format";
 import { play } from "@/lib/client/sound";
 
 export function EvidenceViewer({
@@ -21,7 +21,7 @@ export function EvidenceViewer({
   /** Open side by side with this record (from a conflict). */
   compareWith?: string | null;
 }) {
-  const { evidence: list, suspects, locations, shared, personal, dispatch, dispatchPersonal, holders, share, mode, phase } = useGame();
+  const { evidence: list, suspects, locations, shared, personal, dispatchPersonal, holders, share, mode, phase } = useGame();
   const readOnly = phase === "RESOLVED";
   const [sharing, setSharing] = useState(false);
   const index = list.findIndex((e) => e.id === openId);
@@ -169,17 +169,18 @@ export function EvidenceViewer({
                 <Meta k="Time" v={e.time ?? "—"} />
                 <Meta k="Location" v={e.location ? placeOf(e.location) : "—"} />
                 <div>
-                  <dt className="label">Reliability (as filed)</dt>
+                  <dt className="label">How the source rated it</dt>
                   <dd className="mt-1.5">
                     <span className={`inline-block border-2 bg-paper-100 px-2 py-0.5 font-mono text-[11px] font-semibold tracking-[0.18em] ${reliabilityStyle[e.reliability]}`}>
                       {e.reliability}
                     </span>
+                    <p className="mt-1.5 text-[12px] leading-snug text-bone-100/55">{reliabilityPlain[e.reliability]}</p>
                   </dd>
                 </div>
-                {e.suspects.length > 0 && <Meta k="People named" v={e.suspects.map(nameOf).join(", ")} />}
+                {e.suspects.length > 0 && <Meta k="People named in it" v={e.suspects.map(nameOf).join(", ")} />}
                 {e.related.filter((r) => discovered.has(r)).length > 0 && (
                   <div>
-                    <dt className="label">Cross-referenced</dt>
+                    <dt className="label">Related records</dt>
                     <dd className="mt-1.5 flex flex-wrap gap-1.5">
                       {e.related
                         .filter((r) => discovered.has(r))
@@ -204,7 +205,7 @@ export function EvidenceViewer({
               {holders[e.id] === "me" && mode === "TEAM" && (
                 <div className="mt-6 border border-amber-500/50 bg-amber-500/5 px-4 py-3">
                   <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-amber-300">🔒 Private record</p>
-                  <p className="mt-1 text-sm text-bone-100/75">Only you can see this. Your team can&apos;t pin, cite or use it until you share it.</p>
+                  <p className="mt-1 text-sm text-bone-100/75">Only you can see this one. Share it and the whole team can use it.</p>
                   {!readOnly && (
                     <button
                       type="button"
@@ -231,18 +232,6 @@ export function EvidenceViewer({
                 >
                   {shared.board.nodes.some((n) => n.kind === "evidence" && n.ref === e.id) ? "On board ✓" : "Pin to board"}
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-ghost btn-sm"
-                  disabled={!e.time || readOnly || holders[e.id] === "me"}
-                  onClick={() =>
-                    shared.timeline.placed.includes(e.id)
-                      ? dispatch({ t: "timeline.remove", id: e.id })
-                      : dispatch({ t: "timeline.place", id: e.id })
-                  }
-                >
-                  {shared.timeline.placed.includes(e.id) ? "On timeline ✓" : "Add to timeline"}
-                </button>
                 <label className="col-span-2">
                   <span className="sr-only">Compare with</span>
                   <select
@@ -264,12 +253,12 @@ export function EvidenceViewer({
 
               <div className="mt-6">
                 <label htmlFor={`obs-${e.id}`} className="label">
-                  Observations
+                  Your notes — only you see these
                 </label>
                 <textarea
                   id={`obs-${e.id}`}
                   className="font-hand mt-2 h-40 w-full resize-y border border-ink-600 bg-paper-100 px-4 py-3 text-2xl leading-7 text-[#1f2c55] placeholder:text-[#1f2c55]/40"
-                  placeholder="What do you notice?"
+                  placeholder="What stands out to you?"
                   value={personal.notes[e.id] ?? ""}
                   maxLength={2000}
                   onChange={(ev) => dispatchPersonal({ t: "note", id: e.id, text: ev.target.value })}

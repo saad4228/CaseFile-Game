@@ -8,9 +8,9 @@ import type { AssumptionStatus, ClaimKind, Theory } from "@/lib/game-engine/stat
 import { ASSUMPTION_LIBRARY, ASSUMPTIONS, CLAIMS } from "@/lib/game-engine/theory-templates";
 
 const statusInfo: Record<AssumptionStatus, { mark: string; label: string; cls: string }> = {
-  open: { mark: "○", label: "Open", cls: "text-[#4f4636]" },
-  supported: { mark: "✓", label: "Supported", cls: "text-[#3d5a3a]" },
-  contradicted: { mark: "✗", label: "Contradicted", cls: "text-crimson-600" },
+  open: { mark: "○", label: "Not checked", cls: "text-[#4f4636]" },
+  supported: { mark: "✓", label: "Backed up", cls: "text-[#3d5a3a]" },
+  contradicted: { mark: "✗", label: "Records disagree", cls: "text-crimson-600" },
 };
 const nextStatus: Record<AssumptionStatus, AssumptionStatus> = { open: "supported", supported: "contradicted", contradicted: "open" };
 
@@ -59,7 +59,7 @@ export function TheoriesView({ onOpen, onToVerdict }: { onOpen: (id: string) => 
           })}
         </ul>
         {theories.length === 0 && !creating && (
-          <p className="px-4 pb-4 text-sm italic text-bone-100/50">You haven&apos;t formed a hypothesis yet.</p>
+          <p className="px-4 pb-4 text-sm italic text-bone-100/50">No theories yet.</p>
         )}
       </aside>
 
@@ -91,7 +91,9 @@ export function TheoriesView({ onOpen, onToVerdict }: { onOpen: (id: string) => 
               <TheoryCard theory={current} onOpen={onOpen} onToVerdict={onToVerdict} readOnly={readOnly} />
             </motion.div>
           ) : (
-            <p className="font-display mt-20 text-center text-3xl italic text-bone-100/60">You haven&apos;t formed a hypothesis yet.</p>
+            <p className="font-display mt-20 text-center text-3xl italic text-bone-100/60">
+              No theories yet. Start one as soon as you have a hunch.
+            </p>
           )}
         </AnimatePresence>
       </div>
@@ -119,7 +121,7 @@ function NewTheory({
       <p className="label-ink">New theory</p>
       <p className="font-display mt-2 text-3xl text-[#1d1a14]">What do you think happened?</p>
       <fieldset className="mt-6">
-        <legend className="label-ink">Kind of claim</legend>
+        <legend className="label-ink">What are you saying happened?</legend>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           {CLAIMS.map((c) => (
             <label
@@ -201,7 +203,7 @@ function TheoryCard({
       <div className="paper torn px-6 py-8 md:px-10">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="label-ink">Working theory{theory.by ? ` — opened by ${theory.by}` : ""}</p>
+            <p className="label-ink">Theory{theory.by ? ` — started by ${theory.by}` : ""}</p>
             <h2 className="font-display mt-2 text-3xl leading-tight text-[#1d1a14] md:text-4xl">{theory.title}</h2>
           </div>
           {!readOnly && (
@@ -215,7 +217,7 @@ function TheoryCard({
                     onToVerdict();
                   }}
                 >
-                  Take to verdict →
+                  Use this in the verdict →
                 </button>
               )}
               <button
@@ -223,7 +225,7 @@ function TheoryCard({
                 className="btn btn-sm border-[#1d1a14]/30 text-[#1d1a14]/70"
                 onClick={() => dispatch({ t: "theory.update", id: theory.id, patch: { archived: true } })}
               >
-                Archive
+                Put it aside
               </button>
             </div>
           )}
@@ -245,7 +247,7 @@ function TheoryCard({
                     onClick={() => dispatch({ t: "assumption.update", theoryId: theory.id, id: a.id, patch: { status: nextStatus[a.status] } })}
                     className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center border-2 border-current font-mono text-sm ${st.cls}`}
                     aria-label={`${a.text}: ${st.label}. Change status`}
-                    title="Open → Supported → Contradicted"
+                    title="Click to change: not checked → backed up → records disagree"
                   >
                     {st.mark}
                   </button>
@@ -263,7 +265,7 @@ function TheoryCard({
                             {!readOnly && (
                               <button
                                 type="button"
-                                aria-label="Detach"
+                                aria-label="Take this record off"
                                 className="border-l border-[#1d1a14]/20 px-1.5 text-[#1d1a14]/50 hover:text-crimson-600"
                                 onClick={() => dispatch({ t: "assumption.detach", theoryId: theory.id, id: a.id, evidence: id })}
                               >
@@ -279,7 +281,7 @@ function TheoryCard({
                           className="font-mono text-[11px] text-[#4f4636] underline-offset-2 hover:underline"
                           onClick={() => setAttachFor(attachFor === a.id ? null : a.id)}
                         >
-                          + attach record
+                          + add a record
                         </button>
                       )}
                       {!readOnly && (
@@ -287,7 +289,7 @@ function TheoryCard({
                           type="button"
                           className="ml-auto font-mono text-[10px] text-[#1d1a14]/40 hover:text-crimson-600"
                           onClick={() => dispatch({ t: "assumption.remove", theoryId: theory.id, id: a.id })}
-                          aria-label={`Remove assumption: ${a.text}`}
+                          aria-label={`Remove: ${a.text}`}
                         >
                           remove
                         </button>
@@ -321,7 +323,7 @@ function TheoryCard({
 
         {!readOnly && (
           <div className="mt-6">
-            <p className="label-ink">Add an assumption</p>
+            <p className="label-ink">Add something else that would have to be true</p>
             <div className="mt-2 flex gap-2">
               <input
                 value={addText}
@@ -358,7 +360,7 @@ function TheoryCard({
         )}
       </div>
       <p className="mt-4 text-center text-sm text-bone-100/50">
-        Theories aren&apos;t marked right or wrong until the verdict. Your reasoning is.
+        Nothing here is marked right or wrong. A theory is somewhere to think — the verdict is where it counts.
       </p>
     </div>
   );

@@ -103,9 +103,11 @@ export function OraclePanel({ onOpen }: { onOpen: (id: string) => void }) {
   return (
     <div className="flex min-h-full flex-col">
       <div className="border border-ink-700 bg-ink-950/60 p-4">
-        <p className="label">ORACLE · Records index</p>
+        <p className="label">ORACLE · Ask about the case</p>
         <p className="mt-2 text-sm leading-relaxed text-bone-100/70">
-          ORACLE has read only what you have found. Ask where someone was, whether a journey fits a window, what&rsquo;s missing from the night, or how two records compare. It will not tell you who did it.
+          ORACLE has read the records you&rsquo;ve found, and nothing else. Ask it in plain words — where someone was, whether
+          they had time to get somewhere, what&rsquo;s missing from the night, how two records compare. It won&rsquo;t tell you
+          who did it.
         </p>
       </div>
 
@@ -145,7 +147,7 @@ export function OraclePanel({ onOpen }: { onOpen: (id: string) => void }) {
             </div>
             {!h.error && h.refs.length > 0 && (
               <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.18em] text-steel-400">
-                From {h.refs.length} record{h.refs.length > 1 ? "s" : ""} you hold
+Answered from {h.refs.length} record{h.refs.length > 1 ? "s" : ""} you&apos;ve found
               </p>
             )}
             {hi === history.length - 1 && !pending && phase !== "RESOLVED" && (h.suggestions?.length ?? 0) > 0 && (
@@ -168,7 +170,7 @@ export function OraclePanel({ onOpen }: { onOpen: (id: string) => void }) {
         {pending && (
           <div>
             <p className="font-display text-lg italic leading-snug text-bone-100/90">“{pending}”</p>
-            <p className="mt-2 animate-pulse font-mono text-[11px] uppercase tracking-[0.3em] text-steel-300">Consulting the archive…</p>
+            <p className="mt-2 animate-pulse font-mono text-[11px] uppercase tracking-[0.3em] text-steel-300">Looking through the file…</p>
           </div>
         )}
         <div ref={endRef} className="scroll-mb-24" />
@@ -189,7 +191,7 @@ export function OraclePanel({ onOpen }: { onOpen: (id: string) => void }) {
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
           maxLength={400}
-          placeholder={phase === "RESOLVED" ? "The file is closed." : "Ask about a name, a time, a record…"}
+          placeholder={phase === "RESOLVED" ? "The file is closed." : "Ask anything — a name, a time, a record…"}
           disabled={phase === "RESOLVED"}
           className="min-w-0 flex-1 border border-ink-600 bg-ink-950 px-3 py-2 text-sm outline-none focus:border-amber-500 disabled:opacity-50"
           autoComplete="off"
