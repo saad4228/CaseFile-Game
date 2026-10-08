@@ -88,7 +88,16 @@ export function TheoriesView({ onOpen, onToVerdict }: { onOpen: (id: string) => 
             </motion.div>
           ) : current ? (
             <motion.div key={current.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-              <TheoryCard theory={current} onOpen={onOpen} onToVerdict={onToVerdict} readOnly={readOnly} />
+              <TheoryCard
+                theory={current}
+                onOpen={onOpen}
+                onToVerdict={onToVerdict}
+                readOnly={readOnly}
+                onDelete={() => {
+                  dispatch({ t: "theory.remove", id: current.id });
+                  setSelected(theories.find((t) => t.id !== current.id)?.id ?? null);
+                }}
+              />
             </motion.div>
           ) : (
             <p className="font-display mt-20 text-center text-3xl italic text-bone-100/60">
@@ -186,14 +195,17 @@ function TheoryCard({
   onOpen,
   onToVerdict,
   readOnly,
+  onDelete,
 }: {
   theory: Theory;
   onOpen: (id: string) => void;
   onToVerdict: () => void;
   readOnly: boolean;
+  onDelete: () => void;
 }) {
   const { evidence, holders, dispatch, newId, shared } = useGame();
   const [attachFor, setAttachFor] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [addText, setAddText] = useState("");
   const byId = new Map(evidence.map((e) => [e.id, e]));
   const sharedEvidence = evidence.filter((e) => holders[e.id] !== "me");
@@ -220,13 +232,25 @@ function TheoryCard({
                   Use this in the verdict →
                 </button>
               )}
-              <button
-                type="button"
-                className="btn btn-sm border-[#1d1a14]/30 text-[#1d1a14]/70"
-                onClick={() => dispatch({ t: "theory.update", id: theory.id, patch: { archived: true } })}
-              >
-                Put it aside
-              </button>
+              {confirmDelete ? (
+                <span className="flex items-center gap-2">
+                  <span className="text-[12px] text-[#1d1a14]/70">Delete this theory?</span>
+                  <button type="button" className="btn btn-sm border-crimson-600 text-crimson-600 hover:bg-crimson-600/10" onClick={onDelete}>
+                    Delete
+                  </button>
+                  <button type="button" className="btn btn-sm border-[#1d1a14]/30 text-[#1d1a14]/70" onClick={() => setConfirmDelete(false)}>
+                    Keep it
+                  </button>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  className="btn btn-sm border-[#1d1a14]/30 text-[#1d1a14]/70"
+                  onClick={() => setConfirmDelete(true)}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           )}
         </div>
