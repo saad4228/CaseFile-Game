@@ -71,6 +71,7 @@ const labels: Record<Scene, string> = {
   "mercer-office": "A ransacked rented room: a wall of pinned clippings headed CASE 019, papers across the floor, one desk lamp still lit.",
   archive: "A sub-basement corridor of steel shelving packed with numbered evidence boxes, behind a padlocked gate marked CALDER STREET STORAGE.",
   jarrow: "A police press conference: a composed man in late middle age at a Vesper County podium, a signet ring on his little finger.",
+  porter: "A hotel corridor at night: the night porter in the open doorway of 314, his hand still on the handle, the Do Not Disturb card hanging beside it.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -303,6 +304,23 @@ const scenes: Record<Scene, React.ReactNode> = {
       {/* the one lit lamp */}
       <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
       <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  porter: (
+    <g>
+      <rect width="400" height="300" fill="#0e1216" />
+      {/* corridor receding, lamps along the wall */}
+      <path d="M210 0 L400 60 L400 250 L210 300 Z" fill="#161d23" />
+      {[0, 1, 2].map((i) => (
+        <circle key={i} cx={262 + i * 46} cy={74 + i * 14} r={9 - i * 2} fill="#f0d8a8" opacity={0.35 - i * 0.08} />
+      ))}
+      {/* the door, ajar, light spilling out */}
+      <rect x="0" y="0" width="150" height="300" fill="#141a1f" />
+      <rect x="150" y="30" width="34" height="250" fill="#f0d8a8" opacity="0.18" />
+      <rect x="120" y="150" width="18" height="40" fill="#cfc8b8" opacity="0.7" />
+      {/* the porter, from behind */}
+      <circle cx="196" cy="110" r="26" fill="#1b2228" />
+      <path d="M150 300 C150 190 172 160 196 160 C222 160 248 190 248 300 Z" fill="#11161b" />
     </g>
   ),
   jarrow: (

@@ -14,4 +14,5 @@ export const sceneArt: Partial<Record<PhotoScene, string>> = {
   "mercer-office": "/scenes/mercer-office.webp",
   archive: "/scenes/archive.webp",
   jarrow: "/scenes/jarrow.webp",
+  porter: "/scenes/porter.webp",
 };

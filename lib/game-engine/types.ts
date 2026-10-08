@@ -59,7 +59,8 @@ export type PhotoScene =
   | "conservatory"
   | "mercer-office"
   | "archive"
-  | "jarrow";
+  | "jarrow"
+  | "porter";
 
 /** Close-up ink panels for the resolution comic. */
 export type InkDetail =

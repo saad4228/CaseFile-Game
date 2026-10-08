@@ -109,6 +109,7 @@ export const truth = {
     { time: "23:47", scene: "room-desk" as PhotoScene, detail: "window" as InkDetail, caption: "Daniel Mercer dies. She swaps the tumbler for a clean one, wiped of prints, and takes the tray, his phone, and the top sheet of his notepad." },
     { time: "23:49", scene: "garage" as PhotoScene, detail: "stairs" as InkDetail, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
     { time: "23:58", scene: "conservatory" as PhotoScene, detail: "river" as InkDetail, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
+    { time: "00:31", scene: "porter" as PhotoScene, caption: "The night porter opens 314 with a passkey. The Do Not Disturb card is still hanging on the outside handle." },
     { time: "01:06", scene: "lobby" as PhotoScene, detail: "printout" as InkDetail, caption: "Called back to the hotel, she prints the police a door report — filtered to hide her own card." },
   ],
 
@@ -224,11 +225,13 @@ export const truth = {
         "Daniel died at about 23:47. She swapped the tumbler on the desk for a clean one and wiped it, which is why the glass carried no fingerprints at all — not even his, which is the detail that should have given her away first.",
         "She took the tray, the phone, and the top sheet of his notepad, and went down Service Stair B at 23:49. At 23:52 the third-floor camera came back on from the same console that had switched it off. At 23:55 her car left the staff car park.",
         "At 23:58 Daniel's phone went into the Vesper from the River District embankment, which is the last place his handset ever reported from.",
+        "He was found at 00:31 by the night porter, who let himself in with a passkey because a guest had not answered his room phone all evening. The Do Not Disturb card Daniel had hung on the handle was still there.",
         "At 01:06, called back to her own hotel by the police, she printed them a door report for Room 314 — filtered by hand to remove every entry made with a master card. She was helping. She stood there while they thanked her for it.",
       ],
       pictures: [
         { detail: "stairs" },
         { detail: "river" },
+        { scene: "porter" },
         { detail: "printout" },
       ],
     },
