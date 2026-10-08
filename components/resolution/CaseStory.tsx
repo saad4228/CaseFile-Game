@@ -26,35 +26,40 @@ function Plate({ picture, tilt }: { picture: Picture; tilt: number }) {
 
 export function CaseStory({ story }: { story: Story }) {
   return (
-    <ol className="space-y-20">
+    <ol className="space-y-20 md:space-y-24">
       {story.map((beat, i) => (
         <motion.li
           key={beat.title}
-          className="grid gap-7 md:grid-cols-[minmax(0,1fr)_340px] md:gap-12"
+          className="grid gap-8 md:grid-cols-12 md:gap-10"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.6 }}
         >
-          <div>
+          {/* The text takes a narrow measure and the pictures take the rest, two across, so
+              a chapter with five of them is three rows deep rather than five. */}
+          <div className="md:col-span-5">
             <p className="label">
               {String(i + 1).padStart(2, "0")} · {beat.when}
             </p>
             <h3 className="font-display mt-2 text-3xl leading-tight md:text-4xl">{beat.title}</h3>
             <div className="mt-5 space-y-4">
               {beat.lines.map((line, n) => (
-                <p key={n} className="max-w-prose text-[15px] leading-relaxed text-bone-100/80">
+                <p key={n} className="text-[15px] leading-relaxed text-bone-100/80">
                   {line}
                 </p>
               ))}
             </div>
           </div>
 
-          {/* The pictures run down the margin, pinned up like the rest of the file. */}
           {beat.pictures.length > 0 && (
-            <div className="space-y-6">
+            <div
+              className={`grid gap-4 self-start sm:gap-5 md:col-span-7 ${
+                beat.pictures.length === 1 ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2"
+              }`}
+            >
               {beat.pictures.map((picture, n) => (
-                <Plate key={n} picture={picture} tilt={n % 2 ? 1.2 : -1.1} />
+                <Plate key={n} picture={picture} tilt={n % 2 ? 0.9 : -0.8} />
               ))}
             </div>
           )}
