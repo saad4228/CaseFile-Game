@@ -98,9 +98,11 @@ export const truth = {
 
   /** What actually happened, in order. Revealed as comic panels after the verdict. */
   sequence: [
-    { time: "22:41", scene: "lobby" as PhotoScene, caption: "Sarah Vale arrives. At 22:47 Daniel gives her a drive: copies of the original Case 019 evidence log, for Noah." },
+    { time: "22:41", scene: "lobby" as PhotoScene, caption: "Sarah Vale crosses the lobby. She and Daniel have been working Case 019 together in secret for weeks." },
+    { time: "22:47", scene: "bar" as PhotoScene, detail: "handover" as InkDetail, caption: "In the bar he hands her a drive: scans of the original Case 019 evidence log, to be passed to Noah." },
     { time: "22:53", scene: "bar" as PhotoScene, caption: "Marcus Reed calls Daniel and tells him to stop. Halden money has been slowing the series since August." },
     { time: "23:12", scene: "garage-plate" as PhotoScene, caption: "Noah Grant drives into the garage and texts Daniel from a burner: he's on P2." },
+    { time: "23:22", scene: "bar" as PhotoScene, detail: "envelope" as InkDetail, caption: "Booth four of the Mercury Bar: an envelope crosses the table from a man in a grey overcoat to Marcus Reed." },
     { time: "23:29", scene: "room-desk" as PhotoScene, detail: "console" as InkDetail, caption: "From her office console, Elena Cross switches off the third-floor camera." },
     { time: "23:35", scene: "conservatory" as PhotoScene, detail: "glass" as InkDetail, caption: "She signs out a turndown tray “from management”: a chocolate and a whisky laced with aconitine from her own monkshood." },
     { time: "23:41", scene: "room-desk" as PhotoScene, detail: "keycard" as InkDetail, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
@@ -146,6 +148,7 @@ export const truth = {
       pictures: [
         { scene: "jarrow" },
         { scene: "bar" },
+        { detail: "envelope" },
         { detail: "ring" },
       ],
     },
@@ -174,6 +177,7 @@ export const truth = {
       ],
       pictures: [
         { scene: "conservatory" },
+        { detail: "monkshood" },
         { detail: "keycard" },
       ],
     },
@@ -201,6 +205,7 @@ export const truth = {
         "At 23:41 her master card opened 314 past the Do Not Disturb card hanging on the handle. She apologised for the camera being down. Daniel took the drink from her, because why would he not.",
       ],
       pictures: [
+        { detail: "handover" },
         { detail: "console" },
         { detail: "glass" },
         { detail: "keycard" },

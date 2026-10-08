@@ -76,7 +76,10 @@ export type InkDetail =
   | "printout"
   | "ring"
   | "dying-call"
-  | "burner";
+  | "burner"
+  | "monkshood"
+  | "handover"
+  | "envelope";
 
 export interface Evidence {
   id: EvidenceId;

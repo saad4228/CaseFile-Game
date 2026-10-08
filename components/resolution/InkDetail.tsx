@@ -31,6 +31,9 @@ const LABEL: Record<Kind, string> = {
   ring: "A hand on a bar table beside a whisky glass, wearing a signet ring: a circle cut by a single vertical line.",
   "dying-call": "A hand going slack on hotel carpet, a phone still in the fingers with a call in progress.",
   burner: "A prepaid phone ringing unanswered on the passenger seat of an empty car in a garage.",
+  monkshood: "Monkshood growing in a rooftop conservatory, labelled ACONITUM NAPELLUS.",
+  handover: "Two hands under a bar table, one passing a USB drive into the other.",
+  envelope: "An envelope pushed across a bar table by a hand wearing a circle-and-line signet ring.",
 };
 
 const ink = "#0b0b0c";
@@ -145,6 +148,42 @@ const DRAW: Record<Kind, React.ReactNode> = {
       ))}
       <rect x="250" y="64" width="110" height="10" rx="4" fill={ink} transform="rotate(-24 300 70)" />
       <text x="128" y="172" fontFamily="var(--font-plex-mono), monospace" fontSize="9" fill={ink}>DOOR REPORT · ROOM 314 · 01:06</text>
+    </g>
+  ),
+  monkshood: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* glasshouse bars behind a tall hooded stem */}
+      {[60, 140, 260, 340].map((x) => <rect key={x} x={x} y="10" width="3" height="140" fill={ink} opacity="0.5" />)}
+      <path d="M200 236 L200 70" stroke={ink} strokeWidth="4" />
+      {[80, 108, 136].map((y, i) => (
+        <path key={y} d={`M200 ${y} q${i % 2 ? 26 : -26} -14 ${i % 2 ? 30 : -30} 10 q${i % 2 ? -8 : 8} 18 ${i % 2 ? -30 : 30} 8 Z`} fill={ink} />
+      ))}
+      {[170, 196].map((y) => (
+        <path key={y} d={`M200 ${y} l-48 22 M200 ${y} l48 22`} stroke={ink} strokeWidth="3" fill="none" />
+      ))}
+      <rect x="250" y="190" width="94" height="34" fill="none" stroke={ink} strokeWidth="3" />
+    </g>
+  ),
+  handover: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      <rect x="0" y="86" width="400" height="18" fill={ink} />
+      {/* two hands meeting below the table edge */}
+      <path d="M40 184 C40 162 80 154 118 162 L176 176 C190 180 186 198 172 198 L56 198 C46 198 40 192 40 184 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <path d="M360 190 C360 168 320 160 282 168 L224 182 C210 186 214 204 228 204 L344 204 C354 204 360 198 360 190 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <rect x="182" y="176" width="36" height="14" rx="2" fill={ink} />
+    </g>
+  ),
+  envelope: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* envelope mid-slide, a ringed hand behind it */}
+      <path d="M120 186 L280 170 L300 206 L140 222 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <path d="M120 186 L214 202 L280 170" fill="none" stroke={ink} strokeWidth="2" />
+      <path d="M300 182 C300 160 338 152 366 160 L396 170 L396 206 L312 206 C302 206 300 192 300 182 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <circle cx="336" cy="180" r="11" fill="none" stroke={ink} strokeWidth="3" />
+      <line x1="336" y1="167" x2="336" y2="193" stroke={ink} strokeWidth="3" />
     </g>
   ),
   burner: (

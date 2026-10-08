@@ -15,4 +15,7 @@ export const inkArt: Partial<Record<InkDetail, string>> = {
   ring: "/ink/ring.webp",
   "dying-call": "/ink/dying-call.webp",
   burner: "/ink/burner.webp",
+  monkshood: "/ink/monkshood.webp",
+  handover: "/ink/handover.webp",
+  envelope: "/ink/envelope.webp",
 };
