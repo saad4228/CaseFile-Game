@@ -34,6 +34,7 @@ const LABEL: Record<Kind, string> = {
   monkshood: "Monkshood growing in a rooftop conservatory, labelled ACONITUM NAPELLUS.",
   handover: "Two hands under a bar table, one passing a USB drive into the other.",
   envelope: "An envelope pushed across a bar table by a hand wearing a circle-and-line signet ring.",
+  contract: "A Vesper County document being signed by the Deputy Commissioner, the signet ring on his other hand.",
 };
 
 const ink = "#0b0b0c";
@@ -173,6 +174,21 @@ const DRAW: Record<Kind, React.ReactNode> = {
       <path d="M40 184 C40 162 80 154 118 162 L176 176 C190 180 186 198 172 198 L56 198 C46 198 40 192 40 184 Z" fill="none" stroke={ink} strokeWidth="3" />
       <path d="M360 190 C360 168 320 160 282 168 L224 182 C210 186 214 204 228 204 L344 204 C354 204 360 198 360 190 Z" fill="none" stroke={ink} strokeWidth="3" />
       <rect x="182" y="176" width="36" height="14" rx="2" fill={ink} />
+    </g>
+  ),
+  contract: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* a county document, a pen finishing a signature */}
+      <path d="M24 164 L250 140 L276 226 L50 240 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <circle cx="74" cy="176" r="13" fill="none" stroke={ink} strokeWidth="2.5" />
+      {[192, 202, 212].map((y) => <line key={y} x1="64" y1={y} x2="250" y2={y - 6} stroke={ink} strokeWidth="1.5" />)}
+      <path d="M186 186 q22 -14 36 2" fill="none" stroke={ink} strokeWidth="2.5" />
+      <path d="M232 112 L268 164" stroke={ink} strokeWidth="5" />
+      {/* the resting hand, and the ring on it */}
+      <path d="M296 196 C296 172 334 164 364 172 L396 182 L396 220 L310 220 C300 220 296 206 296 196 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <circle cx="332" cy="192" r="11" fill="none" stroke={ink} strokeWidth="3" />
+      <line x1="332" y1="179" x2="332" y2="205" stroke={ink} strokeWidth="3" />
     </g>
   ),
   envelope: (

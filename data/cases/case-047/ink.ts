@@ -18,4 +18,5 @@ export const inkArt: Partial<Record<InkDetail, string>> = {
   monkshood: "/ink/monkshood.webp",
   handover: "/ink/handover.webp",
   envelope: "/ink/envelope.webp",
+  contract: "/ink/contract.webp",
 };

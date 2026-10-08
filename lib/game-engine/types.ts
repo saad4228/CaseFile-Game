@@ -79,7 +79,8 @@ export type InkDetail =
   | "burner"
   | "monkshood"
   | "handover"
-  | "envelope";
+  | "envelope"
+  | "contract";
 
 export interface Evidence {
   id: EvidenceId;

@@ -162,8 +162,9 @@ export const truth = {
         "A third Halden company, HH Consulting, would later become useful for something else.",
       ],
       pictures: [
-        { scene: "archive" },
+        { detail: "contract" },
         { scene: "lobby" },
+        { scene: "archive" },
       ],
     },
     {
