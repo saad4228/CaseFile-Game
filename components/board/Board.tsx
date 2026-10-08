@@ -10,6 +10,7 @@ import {
   Position,
   ReactFlow,
   ReactFlowProvider,
+  useNodesState,
   useReactFlow,
   type Connection,
   type Edge,
@@ -24,6 +25,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { EvidenceCard } from "@/components/evidence/EvidenceCard";
 import { useGame } from "@/components/game/GameContext";
 import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
+import type { BoardNode } from "@/lib/game-engine/state";
 import type { EdgeKind, Evidence, Suspect } from "@/lib/game-engine/types";
 import { EVIDENCE_DRAG_TYPE } from "./constants";
 import { edgeKindOrder, edgeKinds } from "./edgeKinds";
@@ -275,11 +277,9 @@ function BoardInner({
 }) {
   const { shared, personal, evidence, suspects, holders, dispatch, newId, phase } = useGame();
   const readOnly = phase === "RESOLVED";
-  const { screenToFlowPosition, getViewport, setCenter } = useReactFlow();
+  const { screenToFlowPosition, getViewport, setCenter, getNode } = useReactFlow();
+  const [nodes, setNodes, onNodesChangeInternal] = useNodesState<Node<NodeData>>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
-  const [drag, setDrag] = useState<Record<string, { x: number; y: number }>>({});
-  const dragRef = useRef<Record<string, { x: number; y: number }>>({});
-  const [selectedNodes, setSelectedNodes] = useState<Set<string>>(new Set());
   const [selectedEdges, setSelectedEdges] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState<string | null>(null);
   const [personMenu, setPersonMenu] = useState(false);
@@ -297,27 +297,42 @@ function BoardInner({
     [evidence, suspects, personal.seen, onOpen, readOnly, judged],
   );
 
-  // A drag fires a position change per frame. Deriving every node object from scratch each
-  // time handed React Flow a wholly new set sixty times a second, and the whole board
-  // flickered. The settled nodes are memoised apart from the moving one, so a drag now
-  // replaces exactly one object and leaves every other identity untouched.
-  const settledNodes: Node<NodeData>[] = useMemo(
-    () =>
-      shared.board.nodes.map((n) => ({
-        id: n.id,
-        type: n.kind,
-        position: { x: n.x, y: n.y },
-        data: { ref: n.ref, text: n.text },
-        selected: selectedNodes.has(n.id),
-        draggable: !readOnly,
-      })),
-    [shared.board.nodes, selectedNodes, readOnly],
+  /**
+   * React Flow keeps bookkeeping of its own on each node — the size it measured from the DOM
+   * and where that node's handles sit. Rebuilding the nodes from the case file on every drag
+   * frame threw all of that away, and an edge whose endpoint has lost its handles is simply
+   * not drawn: pulling a pinned record around made its threads blink in and out, and took the
+   * record with them.
+   *
+   * So React Flow owns the node list now, and the case file is reconciled into it: records
+   * that are unchanged keep the very same object, which is what lets a drag stay smooth and
+   * the threads stay attached.
+   */
+  const toNode = useCallback(
+    (n: BoardNode): Node<NodeData> => ({
+      id: n.id,
+      type: n.kind,
+      position: { x: n.x, y: n.y },
+      data: { ref: n.ref, text: n.text },
+      draggable: !readOnly,
+    }),
+    [readOnly],
   );
 
-  const nodes: Node<NodeData>[] = useMemo(
-    () => (Object.keys(drag).length === 0 ? settledNodes : settledNodes.map((n) => (drag[n.id] ? { ...n, position: drag[n.id] } : n))),
-    [settledNodes, drag],
-  );
+  useEffect(() => {
+    setNodes((current) => {
+      const live = new Map(current.map((n) => [n.id, n]));
+      return shared.board.nodes.map((n) => {
+        const prev = live.get(n.id);
+        if (!prev) return toNode(n);
+        const moved = prev.position.x !== n.x || prev.position.y !== n.y;
+        const changed =
+          prev.type !== n.kind || prev.data.ref !== n.ref || prev.data.text !== n.text || prev.draggable !== !readOnly;
+        if (!moved && !changed) return prev;
+        return { ...prev, ...toNode(n), selected: prev.selected };
+      });
+    });
+  }, [shared.board.nodes, readOnly, toNode, setNodes]);
 
   const edges: Edge<{ kind: EdgeKind }>[] = useMemo(
     () =>
@@ -334,35 +349,18 @@ function BoardInner({
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<NodeData>>[]) => {
+      // React Flow moves and selects the nodes; the case file only needs to hear the result.
+      onNodesChangeInternal(changes);
       for (const c of changes) {
-        if (c.type === "position") {
-          if (c.dragging && c.position) {
-            dragRef.current[c.id] = c.position;
-          } else if (c.dragging === false) {
-            const pos = c.position ?? dragRef.current[c.id];
-            if (pos) dispatch({ t: "board.move", id: c.id, x: Math.round(pos.x), y: Math.round(pos.y) });
-            delete dragRef.current[c.id];
-          }
-          // Only re-render when the live position actually moved.
-          setDrag((d) => {
-            const live = dragRef.current;
-            const keys = Object.keys(live);
-            if (keys.length === Object.keys(d).length && keys.every((k) => d[k]?.x === live[k].x && d[k]?.y === live[k].y)) return d;
-            return { ...live };
-          });
-        } else if (c.type === "select") {
-          setSelectedNodes((sel) => {
-            const next = new Set(sel);
-            if (c.selected) next.add(c.id);
-            else next.delete(c.id);
-            return next;
-          });
+        if (c.type === "position" && c.dragging === false) {
+          const pos = c.position ?? getNode(c.id)?.position;
+          if (pos) dispatch({ t: "board.move", id: c.id, x: Math.round(pos.x), y: Math.round(pos.y) });
         } else if (c.type === "remove" && !readOnly) {
           dispatch({ t: "board.remove", id: c.id });
         }
       }
     },
-    [dispatch, readOnly],
+    [dispatch, readOnly, onNodesChangeInternal, getNode],
   );
 
   const onEdgesChange = useCallback(
