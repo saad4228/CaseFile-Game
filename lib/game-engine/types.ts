@@ -61,7 +61,8 @@ export type PhotoScene =
   | "archive"
   | "jarrow"
   | "porter"
-  | "brother";
+  | "brother"
+  | "prison";
 
 /** Close-up ink panels for the resolution comic. */
 export type InkDetail =

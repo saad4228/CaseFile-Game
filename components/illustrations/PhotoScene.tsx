@@ -73,6 +73,7 @@ const labels: Record<Scene, string> = {
   jarrow: "A police press conference: a composed man in late middle age at a Vesper County podium, a signet ring on his little finger.",
   porter: "A hotel corridor at night: the night porter in the open doorway of 314, his hand still on the handle, the Do Not Disturb card hanging beside it.",
   brother: "A creased police booking photograph from 2013, clipped to a file card: a tired man holding a Vesper County board.",
+  prison: "A prison visiting room: a man alone at a long table, barred light across it, the chair opposite him empty.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -305,6 +306,26 @@ const scenes: Record<Scene, React.ReactNode> = {
       {/* the one lit lamp */}
       <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
       <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  prison: (
+    <g>
+      <rect width="400" height="300" fill="#131920" />
+      {/* high barred windows throwing bars of light */}
+      {[40, 150].map((x) => (
+        <rect key={x} x={x} y="22" width="96" height="56" fill="#cfd6dc" opacity="0.5" />
+      ))}
+      {[0, 1, 2, 3].map((i) => (
+        <path key={i} d={`M${48 + i * 26} 78 L${8 + i * 40} 230 L${48 + i * 40} 230 L${74 + i * 26} 78 Z`} fill="#cfd6dc" opacity="0.07" />
+      ))}
+      {/* the long table, a man on the far side, an empty chair near */}
+      <rect y="186" width="400" height="20" fill="#2b333a" />
+      <circle cx="300" cy="140" r="22" fill="#39434b" />
+      <path d="M262 186 C262 156 280 148 300 148 C320 148 340 156 340 186 Z" fill="#2f3840" />
+      <rect x="70" y="200" width="60" height="6" fill="#1d242a" />
+      <rect x="74" y="206" width="8" height="70" fill="#1d242a" />
+      <rect x="118" y="206" width="8" height="70" fill="#1d242a" />
+      <rect x="70" y="150" width="56" height="52" fill="none" stroke="#1d242a" strokeWidth="6" />
     </g>
   ),
   brother: (

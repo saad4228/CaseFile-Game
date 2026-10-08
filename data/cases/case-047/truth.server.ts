@@ -265,6 +265,7 @@ export const truth = {
         "He is still wearing the ring.",
       ],
       pictures: [
+        { scene: "prison" },
         { scene: "archive" },
         { detail: "ring" },
       ],
