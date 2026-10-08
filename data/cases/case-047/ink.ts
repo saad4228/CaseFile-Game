@@ -13,4 +13,5 @@ export const inkArt: Partial<Record<InkDetail, string>> = {
   river: "/ink/river.webp",
   printout: "/ink/printout.webp",
   ring: "/ink/ring.webp",
+  "dying-call": "/ink/dying-call.webp",
 };

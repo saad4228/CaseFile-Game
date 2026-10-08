@@ -105,7 +105,8 @@ export const truth = {
     { time: "23:35", scene: "conservatory" as PhotoScene, detail: "glass" as InkDetail, caption: "She signs out a turndown tray “from management”: a chocolate and a whisky laced with aconitine from her own monkshood." },
     { time: "23:41", scene: "room-desk" as PhotoScene, detail: "keycard" as InkDetail, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
     { time: "23:41", scene: "garage" as PhotoScene, caption: "Two floors down, Sarah has handed Noah the drive and is walking to the Calder Street door." },
-    { time: "23:46", scene: "room-desk" as PhotoScene, detail: "door" as InkDetail, caption: "The poison works fast. Elena lets herself back in — two-tone chime. Daniel calls the last number that texted him. Seven seconds: “Shh. Give it to me, Daniel.”" },
+    { time: "23:46", scene: "room-desk" as PhotoScene, detail: "dying-call" as InkDetail, caption: "The poison works fast. Daniel calls the last number that texted him — Noah's burner, two floors below. Nobody picks up." },
+    { time: "23:46", scene: "room-desk" as PhotoScene, detail: "door" as InkDetail, caption: "Elena lets herself back in. The mailbox records a two-tone chime, then seven seconds: “Shh. Give it to me, Daniel.”" },
     { time: "23:47", scene: "room-desk" as PhotoScene, detail: "window" as InkDetail, caption: "Daniel Mercer dies. She swaps the tumbler for a clean one, wiped of prints, and takes the tray, his phone, and the top sheet of his notepad." },
     { time: "23:49", scene: "garage" as PhotoScene, detail: "stairs" as InkDetail, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
     { time: "23:58", scene: "conservatory" as PhotoScene, detail: "river" as InkDetail, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
@@ -214,6 +215,7 @@ export const truth = {
         "Noah has still never played it.",
       ],
       pictures: [
+        { detail: "dying-call" },
         { detail: "door" },
         { scene: "garage" },
       ],

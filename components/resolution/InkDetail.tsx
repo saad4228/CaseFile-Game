@@ -29,6 +29,7 @@ const LABEL: Record<Kind, string> = {
   river: "A phone drops from a hand into black water.",
   printout: "A printer feeds out a door report; a pen strikes lines through it.",
   ring: "A hand on a bar table beside a whisky glass, wearing a signet ring: a circle cut by a single vertical line.",
+  "dying-call": "A hand going slack on hotel carpet, a phone still in the fingers with a call in progress.",
 };
 
 const ink = "#0b0b0c";
@@ -143,6 +144,20 @@ const DRAW: Record<Kind, React.ReactNode> = {
       ))}
       <rect x="250" y="64" width="110" height="10" rx="4" fill={ink} transform="rotate(-24 300 70)" />
       <text x="128" y="172" fontFamily="var(--font-plex-mono), monospace" fontSize="9" fill={ink}>DOOR REPORT · ROOM 314 · 01:06</text>
+    </g>
+  ),
+  "dying-call": (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* an opening hand on the carpet */}
+      <path d="M96 196 C96 170 132 160 168 168 L246 186 C262 190 258 212 242 212 L112 212 C100 212 96 206 96 196 Z" fill="none" stroke={ink} strokeWidth="3" />
+      {[0, 1, 2].map((i) => (
+        <path key={i} d={`M${120 + i * 26} 212 q-8 14 2 22`} fill="none" stroke={ink} strokeWidth="2.5" />
+      ))}
+      {/* the phone, still lit */}
+      <rect x="150" y="150" width="96" height="52" rx="6" fill={ink} />
+      <rect x="158" y="158" width="80" height="36" rx="3" fill="none" stroke="#f1ede4" strokeWidth="2" />
+      <circle cx="198" cy="176" r="8" fill="#f1ede4" />
     </g>
   ),
   ring: (
