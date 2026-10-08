@@ -106,7 +106,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
       at: dragging?.id === c.id ? dragging.at : (minutesFrom22(c.time) ?? start + span / 2),
       custom: c,
     }));
-    out.push({ id: "__mine", name: "Your reconstruction", ...layout(custom) });
+    out.push({ id: "__mine", name: "What you think", ...layout(custom) });
     return out;
   }, [suspects, timed, shared.timeline.custom, dragging, start, span]);
 
@@ -127,12 +127,12 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
           continue;
         }
         const trip = travel(routes, al, bl);
-        if (!trip) continue;
+        if (!trip || trip.minutes <= spare) continue;
         legs.push({
           from: a.at,
           to: b.at,
-          label: `${placeName.get(al) ?? al} to ${placeName.get(bl) ?? bl} — ${trip.minutes} min${onFoot(trip.mode)}, ${spare} min to make it`,
-          impossible: trip.minutes > spare,
+          label: `couldn't have made it — ${placeName.get(al) ?? al} to ${placeName.get(bl) ?? bl} takes ${trip.minutes} min${onFoot(trip.mode)}, and they had ${spare}`,
+          impossible: true,
           still: false,
         });
       }
@@ -141,18 +141,32 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
     return out;
   }, [lanes, routes, placeName]);
 
-  /** Nobody can be ruled in or out of a window they left no trace in. */
-  const blind = useMemo(() => {
-    if (focusFrom === null || focusTo === null) return new Set<string>();
-    const out = new Set<string>();
+  /**
+   * Nobody can be ruled in or out of a window they left no trace in — so say which it is, in
+   * words, beside their name. Reading a chart is a skill; reading four words is not.
+   */
+  const standing = useMemo(() => {
+    const out = new Map<string, { text: string; cls: string; blind: boolean }>();
+    if (focusFrom === null || focusTo === null) return out;
     for (const lane of lanes) {
       if (!lane.suspect) continue;
-      if (lane.pips.some((p) => p.e && p.at >= focusFrom - 1 && p.at <= focusTo + 1)) continue;
+      if (lane.pips.length === 0) {
+        out.set(lane.id, { text: "Nothing on file at all", cls: "text-steel-400", blind: true });
+        continue;
+      }
+      const inWindow = lane.pips.some((p) => p.e && p.at >= focusFrom - 1 && p.at <= focusTo + 1);
       const covered = (legsOf.get(lane.id) ?? []).some((l) => l.still && l.from <= focusFrom && l.to >= focusTo);
-      if (!covered) out.add(lane.id);
+      out.set(
+        lane.id,
+        inWindow || covered
+          ? { text: "On record while he died", cls: "text-bone-100/55", blind: false }
+          : { text: "Nothing while he died", cls: "text-crimson-400", blind: true },
+      );
     }
     return out;
   }, [lanes, legsOf, focusFrom, focusTo]);
+
+  const blindCount = useMemo(() => [...standing.values()].filter((v) => v.blind).length, [standing]);
 
   const addMoment = () =>
     dispatch({ t: "custom.add", event: { id: newId(), time: formatMinutes(focusFrom ?? start + span / 2), label: "" } });
@@ -176,7 +190,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
   };
 
   const ticks = useMemo(() => {
-    const step = span > 180 ? 30 : 15;
+    const step = span > 180 ? 60 : 30;
     const out: number[] = [];
     for (let m = Math.ceil(start / step) * step; m <= end; m += step) out.push(m);
     return out;
@@ -189,18 +203,22 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
         <p className="label">
           The night · {night.from}–{night.to}
         </p>
-        <p className="text-sm text-bone-100/65">
+        {/* The two layouts need two explanations: a narrow screen reads a list, not rows. */}
+        <p className="hidden text-sm text-bone-100/65 md:block">
           One row per person. Each tag is a record that mentions them, at the time it happened.
           {focus ? " The red band is when Daniel died." : ""}
         </p>
-        {focus && blind.size > 0 && (
+        <p className="text-sm text-bone-100/65 md:hidden">
+          Every record with a time on it, in order.{focus ? " The red ones happened while Daniel died." : ""}
+        </p>
+        {focus && blindCount > 0 && (
           <p className="text-sm text-crimson-400">
-            {blind.size} {blind.size === 1 ? "person has" : "people have"} nothing on file while he died.
+            {blindCount} {blindCount === 1 ? "person has" : "people have"} nothing on file while he died.
           </p>
         )}
         {!readOnly && (
           <button type="button" className="btn btn-ghost btn-sm ml-auto" onClick={addMoment}>
-            + Add a moment
+            + Add your own
           </button>
         )}
       </div>
@@ -237,7 +255,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
           <div className="relative flex min-h-0 flex-1 flex-col border-t border-ink-700">
             {lanes.map((lane) => {
               const blank = lane.pips.length === 0;
-              const dark = blind.has(lane.id);
+              const says = standing.get(lane.id);
               return (
                 <div
                   key={lane.id}
@@ -254,46 +272,35 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                         className={`h-7 w-7 shrink-0 border ${lane.id === "__mine" ? "border-dashed border-crimson-400/60" : "border-ink-600"}`}
                       />
                     )}
-                    <span className={`truncate text-[12px] leading-tight ${blank ? "text-bone-100/35" : "text-bone-100/85"}`}>
-                      {lane.name}
+                    <span className="min-w-0 flex-1">
+                      <span className={`block truncate text-[12px] leading-tight ${blank ? "text-bone-100/45" : "text-bone-100/90"}`}>
+                        {lane.name}
+                      </span>
+                      {says && <span className={`block truncate text-[10.5px] leading-tight ${says.cls}`}>{says.text}</span>}
                     </span>
                   </div>
 
                   <div className="absolute inset-x-0 top-1/2 h-px bg-ink-700" />
 
-                  {/* where they were, between one record and the next */}
+                  {/* where they stayed, said on the bar itself rather than in a key */}
                   {(legsOf.get(lane.id) ?? []).map((leg) => (
                     <div
                       key={`${leg.from}-${leg.to}`}
-                      className={`absolute top-1/2 z-10 h-[3px] -translate-y-1/2 ${
-                        leg.impossible ? "bg-crimson-400" : leg.still ? "bg-amber-500/55" : "bg-steel-400/40"
-                      }`}
-                      style={{
-                        left: `${pct(leg.from)}%`,
-                        width: `${pct(leg.to) - pct(leg.from)}%`,
-                        backgroundImage: leg.still || leg.impossible
-                          ? undefined
-                          : "repeating-linear-gradient(90deg, currentColor 0 3px, transparent 3px 7px)",
-                      }}
-                      title={leg.impossible ? `Couldn't have made it — ${leg.label}` : leg.label}
-                    />
-                  ))}
-
-                  {/* nothing on file while it mattered */}
-                  {dark && !blank && focusFrom !== null && focusTo !== null && (
-                    <div
-                      className="absolute inset-y-1 z-10 border border-dashed border-crimson-400/50"
-                      style={{
-                        left: `${pct(focusFrom)}%`,
-                        width: `${pct(focusTo) - pct(focusFrom)}%`,
-                        background: "repeating-linear-gradient(135deg, rgba(190,60,50,.16) 0 5px, transparent 5px 10px)",
-                      }}
+                      className="absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
+                      style={{ left: `${pct(leg.from)}%`, width: `${pct(leg.to) - pct(leg.from)}%` }}
+                      title={leg.label}
                     >
-                      <span className="absolute inset-x-0 bottom-0.5 whitespace-nowrap text-center font-mono text-[9px] uppercase tracking-[0.15em] text-crimson-400">
-                        No record
+                      <span className={`absolute inset-x-0 h-[3px] ${leg.impossible ? "bg-crimson-400" : "bg-amber-500/55"}`} />
+                      <span
+                        className={`relative px-1.5 text-[10px] leading-none ${
+                          leg.impossible ? "bg-ink-950 text-crimson-400" : "bg-ink-950 text-amber-300/80"
+                        }`}
+                      >
+                        {leg.impossible ? "couldn't have made it" : leg.label}
                       </span>
                     </div>
-                  )}
+                  ))}
+
 
                   {/* the records themselves */}
                   {lane.pips.map((p) =>
@@ -350,9 +357,9 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                     ),
                   )}
 
-                  {blank && (
+                  {blank && !says && (
                     <span className="absolute left-2 top-1/2 -translate-y-1/2 bg-ink-950 px-2 text-[11px] italic text-steel-400">
-                      {lane.id === "__mine" ? "Add what you think happened, and when." : "Nothing on file."}
+                      {lane.id === "__mine" ? "Nothing yet — add your own guess and drag it to a time." : "Nothing on file."}
                     </span>
                   )}
                 </div>
