@@ -197,264 +197,322 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
   }, [start, end, span]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      {/* what the chart is for, said once */}
-      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b border-ink-700 px-4 py-3 md:px-6">
-        <p className="label">
-          The night · {night.from}–{night.to}
-        </p>
-        {/* The two layouts need two explanations: a narrow screen reads a list, not rows. */}
-        <p className="hidden text-sm text-bone-100/65 md:block">
-          One row per person. Each tag is a record that mentions them, at the time it happened.
-          {focus ? " The red band is when Daniel died." : ""}
-        </p>
-        <p className="text-sm text-bone-100/65 md:hidden">
-          Every record with a time on it, in order.{focus ? " The red ones happened while Daniel died." : ""}
-        </p>
-        {focus && blindCount > 0 && (
-          <p className="text-sm text-crimson-400">
-            {blindCount} {blindCount === 1 ? "person has" : "people have"} nothing on file while he died.
-          </p>
-        )}
-        {!readOnly && (
-          <button type="button" className="btn btn-ghost btn-sm ml-auto" onClick={addMoment}>
-            + Add your own
-          </button>
-        )}
-      </div>
+    <div className="desk-surface flex h-full min-h-0 flex-col">
+      {/* ── the sheet ─────────────────────────────────────────────────────────────────── */}
+      <div className="scrollbar-thin hidden min-h-0 flex-1 overflow-y-auto p-4 md:block md:p-6">
+        <div className="paper relative mx-auto flex min-h-full max-w-[1500px] flex-col px-6 pb-6 pt-5 md:px-9">
+          {/* letterhead */}
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-b-2 border-[#1d1a14]/60 pb-3">
+            <p className="font-mono text-[13px] font-semibold uppercase tracking-[0.1em] text-[#1d1a14]">
+              The night · {night.from} – {night.to}
+            </p>
+            <p className="ml-auto text-[12.5px] text-[#4f4636]">
+              One row per person. Every slip is a record that names them, pinned at the time it happened.
+            </p>
+          </div>
 
-      {/* the chart */}
-      <div className="scrollbar-thin relative hidden min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-5 pt-3 md:flex md:px-6">
-        <div ref={trackRef} className="relative ml-[176px] flex min-h-0 flex-1 flex-col">
-          {/* the window that decides the case, drawn once and running the full height */}
-          {focus && focusFrom !== null && focusTo !== null && (
-            <div
-              className="pointer-events-none absolute inset-y-0 z-0 border-x border-crimson-600/45 bg-crimson-600/[.07]"
-              style={{ left: `${pct(focusFrom)}%`, width: `${pct(focusTo) - pct(focusFrom)}%` }}
-            >
-              <p className="absolute -top-0.5 left-1/2 -translate-x-1/2 whitespace-nowrap font-mono text-[9px] uppercase tracking-[0.18em] text-crimson-400">
-                {focus.label}
-              </p>
-            </div>
+          {/* the finding, written in the margin before anyone reads the chart */}
+          {focus && blindCount > 0 && (
+            <p className="mt-3 font-hand text-[26px] leading-none text-crimson-600">
+              {blindCount} of them {blindCount === 1 ? "has" : "have"} nothing on file while he died.
+            </p>
           )}
 
-          {/* ruler */}
-          <div className="relative h-7">
-            {ticks.map((m) => (
+          <div ref={trackRef} className="relative mt-4 flex min-h-0 flex-1 flex-col pl-[244px]">
+            {/* the window that decides the case, struck across the whole sheet */}
+            {focus && focusFrom !== null && focusTo !== null && (
               <div
-                key={m}
-                className={`absolute top-3 ${m === ticks.at(-1) ? "-translate-x-full" : "-translate-x-1/2"}`}
-                style={{ left: `${pct(m)}%` }}
+                className="pointer-events-none absolute inset-y-0 z-0 border-x-2 border-crimson-600/55 bg-crimson-600/[0.09]"
+                style={{ left: `${pct(focusFrom)}%`, width: `${pct(focusTo) - pct(focusFrom)}%` }}
               >
-                <span className="font-mono text-[10px] text-steel-400">{formatMinutes(m)}</span>
+                <p className="absolute -top-1 left-1/2 w-max -translate-x-1/2 bg-crimson-600 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-[#f3e9dc]">
+                  {focus.from} – {focus.to} · he died here
+                </p>
               </div>
-            ))}
-          </div>
+            )}
 
-          {/* one lane per person, then the room, then whatever you make of it */}
-          <div className="relative flex min-h-0 flex-1 flex-col border-t border-ink-700">
-            {lanes.map((lane) => {
-              const blank = lane.pips.length === 0;
-              const says = standing.get(lane.id);
-              return (
+            {/* the hours, printed on the sheet */}
+            <div className="relative h-6">
+              {ticks.map((m) => (
                 <div
-                  key={lane.id}
-                  className="relative flex-1 border-b border-ink-800"
-                  style={{ minHeight: lane.rows * ROW_H + LANE_PAD * 2 }}
+                  key={m}
+                  className={`absolute top-2 ${m === ticks.at(-1) ? "-translate-x-full" : "-translate-x-1/2"}`}
+                  style={{ left: `${pct(m)}%` }}
                 >
-                  {/* name plate, hung outside the track */}
-                  <div className="absolute -left-[176px] top-0 flex h-full w-[168px] items-center gap-2 pr-3">
-                    {lane.suspect ? (
-                      <SuspectPhoto suspect={lane.suspect} tight className="h-7 w-7 shrink-0 grayscale" />
-                    ) : (
-                      <span
-                        aria-hidden="true"
-                        className={`h-7 w-7 shrink-0 border ${lane.id === "__mine" ? "border-dashed border-crimson-400/60" : "border-ink-600"}`}
-                      />
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span className={`block truncate text-[12px] leading-tight ${blank ? "text-bone-100/45" : "text-bone-100/90"}`}>
-                        {lane.name}
-                      </span>
-                      {says && <span className={`block truncate text-[10.5px] leading-tight ${says.cls}`}>{says.text}</span>}
-                    </span>
-                  </div>
+                  <span className="font-mono text-[11px] font-semibold text-[#1d1a14]/70">{formatMinutes(m)}</span>
+                </div>
+              ))}
+            </div>
 
-                  <div className="absolute inset-x-0 top-1/2 h-px bg-ink-700" />
-
-                  {/* where they stayed, said on the bar itself rather than in a key */}
-                  {(legsOf.get(lane.id) ?? []).map((leg) => (
-                    <div
-                      key={`${leg.from}-${leg.to}`}
-                      className="absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
-                      style={{ left: `${pct(leg.from)}%`, width: `${pct(leg.to) - pct(leg.from)}%` }}
-                      title={leg.label}
-                    >
-                      <span className={`absolute inset-x-0 h-[3px] ${leg.impossible ? "bg-crimson-400" : "bg-amber-500/55"}`} />
-                      <span
-                        className={`relative px-1.5 text-[10px] leading-none ${
-                          leg.impossible ? "bg-ink-950 text-crimson-400" : "bg-ink-950 text-amber-300/80"
-                        }`}
-                      >
-                        {leg.impossible ? "couldn't have made it" : leg.label}
+            {/* one ruled row per person */}
+            <div className="relative flex min-h-0 flex-1 flex-col border-t-2 border-[#1d1a14]/40">
+              {lanes.map((lane) => {
+                const blank = lane.pips.length === 0;
+                const says = standing.get(lane.id);
+                return (
+                  <div
+                    key={lane.id}
+                    className="relative flex-1 border-b border-[#1d1a14]/15"
+                    style={{ minHeight: lane.rows * ROW_H + LANE_PAD * 2 + 20 }}
+                  >
+                    {/* who the row belongs to, pinned up beside it */}
+                    <div className="absolute -left-[244px] top-0 flex h-full w-[232px] items-center gap-3 pr-4">
+                      {lane.suspect ? (
+                        <span className="relative shrink-0">
+                          <span className="pin absolute -top-1 left-1/2 z-10 h-2.5 w-2.5 -translate-x-1/2 rounded-full" />
+                          <span className="photo-print block w-12 !p-1 !pb-1.5">
+                            <SuspectPhoto suspect={lane.suspect} tight className="block w-full" />
+                          </span>
+                        </span>
+                      ) : (
+                        <span
+                          aria-hidden="true"
+                          className="h-11 w-12 shrink-0 border border-dashed border-[#1d1a14]/30 bg-[#1d1a14]/[0.03]"
+                        />
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-display text-[17px] leading-tight text-[#1d1a14]">{lane.name}</span>
+                        {says && (
+                          <span
+                            className={`block truncate text-[11px] leading-tight ${says.blind ? "font-semibold text-crimson-600" : "text-[#4f4636]"}`}
+                          >
+                            {says.text}
+                          </span>
+                        )}
                       </span>
                     </div>
-                  ))}
 
+                    {/* the ruled line the slips are pinned along */}
+                    <div className="absolute inset-x-0 top-1/2 h-px bg-[#1d1a14]/12" />
 
-                  {/* the records themselves */}
-                  {lane.pips.map((p) =>
-                    p.e ? (
-                      <motion.button
-                        key={p.id}
-                        type="button"
-                        initial={{ opacity: 0, scale: 0.92 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        onClick={() => onOpen(p.e!.id)}
-                        onMouseEnter={() => setHover(p.id)}
-                        onMouseLeave={() => setHover((h) => (h === p.id ? null : h))}
-                        title={`${p.e.time} · ${p.e.title}${p.e.location ? ` · ${placeName.get(p.e.location)}` : ""}`}
-                        aria-label={`${p.e.time}, ${p.e.title}. Open the record.`}
-                        className={`absolute z-20 flex -translate-y-1/2 items-center gap-1.5 overflow-hidden border px-1.5 py-[3px] text-left leading-none transition-colors ${
-                          hover === p.id
-                            ? "border-amber-400 bg-amber-500/20 text-bone-100"
-                            : "border-ink-600 bg-ink-900 text-bone-100/80 hover:border-amber-500"
-                        }`}
-                        style={{ left: `${pct(p.at)}%`, top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`, width: p.room }}
-                      >
-                        <span className="shrink-0 font-mono text-[10px] text-amber-300">{p.e.time?.slice(0, 5)}</span>
-                        {p.room >= 96 && <span className="truncate text-[11px]">{p.e.title}</span>}
-                      </motion.button>
-                    ) : (
+                    {/* where they stayed, pencilled along the line */}
+                    {(legsOf.get(lane.id) ?? []).map((leg) => (
                       <div
-                        key={p.id}
-                        className="absolute z-20 flex -translate-y-1/2 items-center gap-1 border border-dashed border-crimson-400/80 bg-ink-950 px-1.5 py-[3px]"
-                        style={{ left: `${pct(p.at)}%`, top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`, width: 200 }}
+                        key={`${leg.from}-${leg.to}`}
+                        className="absolute top-1/2 z-10 flex -translate-y-1/2 items-center justify-center"
+                        style={{ left: `${pct(leg.from)}%`, width: `${pct(leg.to) - pct(leg.from)}%` }}
+                        title={leg.label}
                       >
+                        <span className={`absolute inset-x-0 h-[2px] ${leg.impossible ? "bg-crimson-600" : "bg-[#1d1a14]/35"}`} />
                         <span
-                          className="shrink-0 cursor-ew-resize touch-none select-none font-mono text-[10px] leading-none text-crimson-400"
-                          onPointerDown={(ev) => startDrag(ev, p.custom!)}
-                          title="Drag to move it in time"
+                          className={`relative z-30 whitespace-nowrap bg-[#cfc0a0] px-1.5 font-hand text-[19px] leading-none ${
+                            leg.impossible ? "text-crimson-600" : "text-[#1f2c55]"
+                          }`}
                         >
-                          ⇔ {formatMinutes(p.at)}
+                          {leg.impossible ? "couldn’t have made it" : leg.label}
                         </span>
-                        <input
-                          aria-label="What happened?"
-                          className="w-full min-w-0 bg-transparent text-[11px] leading-none text-bone-100 outline-none placeholder:text-steel-400"
-                          placeholder="what happened?"
-                          value={p.custom!.label}
-                          onChange={(ev) => dispatch({ t: "custom.update", event: { ...p.custom!, label: ev.target.value } })}
-                        />
-                        <button
-                          type="button"
-                          className="shrink-0 px-0.5 text-[10px] text-steel-400 hover:text-crimson-400"
-                          onClick={() => dispatch({ t: "custom.remove", id: p.custom!.id })}
-                          aria-label="Remove this moment"
-                        >
-                          ✕
-                        </button>
                       </div>
-                    ),
-                  )}
+                    ))}
 
-                  {blank && !says && (
-                    <span className="absolute left-2 top-1/2 -translate-y-1/2 bg-ink-950 px-2 text-[11px] italic text-steel-400">
-                      {lane.id === "__mine" ? "Nothing yet — add your own guess and drag it to a time." : "Nothing on file."}
-                    </span>
-                  )}
-                </div>
-              );
-            })}
+                    {/* the records themselves, each a slip with a pin through it */}
+                    {lane.pips.map((p) =>
+                      p.e ? (
+                        <motion.button
+                          key={p.id}
+                          type="button"
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          onClick={() => onOpen(p.e!.id)}
+                          onMouseEnter={() => setHover(p.id)}
+                          onMouseLeave={() => setHover((h) => (h === p.id ? null : h))}
+                          title={`${p.e.time} · ${p.e.title}${p.e.location ? ` · ${placeName.get(p.e.location)}` : ""}`}
+                          aria-label={`${p.e.time}, ${p.e.title}. Open the record.`}
+                          className={`slip absolute z-20 flex -translate-y-1/2 items-baseline gap-1.5 overflow-hidden py-1 pl-2 pr-2 text-left leading-none ${
+                            hover === p.id ? "z-30 scale-[1.06]" : ""
+                          }`}
+                          style={{
+                            left: `${pct(p.at)}%`,
+                            top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`,
+                            width: p.room,
+                            rotate: `${slipTilt(p.id)}deg`,
+                          }}
+                        >
+                          <span className="pin absolute -top-1 left-2 h-2 w-2 rounded-full" aria-hidden="true" />
+                          <span className="shrink-0 pl-2.5 font-mono text-[10px] font-semibold text-crimson-600">
+                            {p.e.time?.slice(0, 5)}
+                          </span>
+                          {p.room >= 104 && <span className="truncate text-[11px] text-[#1d1a14]">{p.e.title}</span>}
+                        </motion.button>
+                      ) : (
+                        <div
+                          key={p.id}
+                          className="sticky-note absolute z-20 flex -translate-y-1/2 items-center gap-1 px-2 py-1"
+                          style={{
+                            left: `${pct(p.at)}%`,
+                            top: `calc(50% + ${stackOffset(p.row, lane.rows)}px)`,
+                            width: 248,
+                            rotate: `${slipTilt(p.id)}deg`,
+                          }}
+                        >
+                          <span
+                            className="shrink-0 cursor-ew-resize touch-none select-none font-mono text-[10px] font-semibold leading-none text-[#2a2410]"
+                            onPointerDown={(ev) => startDrag(ev, p.custom!)}
+                            title="Drag to move it in time"
+                          >
+                            ⇔ {formatMinutes(p.at)}
+                          </span>
+                          <input
+                            aria-label="What happened?"
+                            className="w-full min-w-0 bg-transparent font-hand text-[19px] leading-none text-[#2a2410] outline-none placeholder:text-[#2a2410]/45"
+                            placeholder="what happened?"
+                            value={p.custom!.label}
+                            onChange={(ev) => dispatch({ t: "custom.update", event: { ...p.custom!, label: ev.target.value } })}
+                          />
+                          <button
+                            type="button"
+                            className="shrink-0 px-0.5 text-[10px] text-[#2a2410]/50 hover:text-crimson-600"
+                            onClick={() => dispatch({ t: "custom.remove", id: p.custom!.id })}
+                            aria-label="Remove this moment"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ),
+                    )}
+
+                    {blank && !says && (
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 font-hand text-[20px] text-[#4f4636]">
+                        {lane.id === "__mine" ? "add what you think happened, and drag it to a time" : "nothing on file"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* the margin note, and the records that fall outside the night */}
+          <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-[#1d1a14]/20 pt-2.5">
+            {!readOnly ? (
+              <button
+                type="button"
+                className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#4f4636] underline-offset-4 hover:text-[#1d1a14] hover:underline"
+                onClick={addMoment}
+              >
+                + Add what you think happened
+              </button>
+            ) : (
+              <span />
+            )}
+            {after.length > 0 && (
+              <p className="text-[11.5px] text-[#4f4636]">
+                Also on file, after {night.to}:{" "}
+                {after.map((r, i) => (
+                  <button
+                    key={r.e.id}
+                    type="button"
+                    className="underline-offset-2 hover:text-crimson-600 hover:underline"
+                    onClick={() => onOpen(r.e.id)}
+                    title={r.e.title}
+                  >
+                    {i > 0 && ", "}
+                    {r.e.time?.slice(0, 5)}
+                  </button>
+                ))}
+              </p>
+            )}
           </div>
         </div>
-        {after.length > 0 && (
-          <p className="mt-3 text-right text-[12px] text-steel-400">
-            Also on file, after {night.to}:{" "}
-            {after.map((r, i) => (
-              <button
-                key={r.e.id}
-                type="button"
-                className="text-steel-300 hover:text-amber-300"
-                onClick={() => onOpen(r.e.id)}
-                title={r.e.title}
-              >
-                {i > 0 && ", "}
-                {r.e.time?.slice(0, 5)}
-              </button>
-            ))}
-          </p>
-        )}
       </div>
 
-      {/* narrow screens: the same night, read downward — records and your own moments together */}
-      <ol className="scrollbar-thin min-h-0 flex-1 space-y-2 overflow-auto px-4 py-4 md:hidden">
-        {downward.map((item) => {
-          const inside = focusFrom !== null && focusTo !== null && item.at >= focusFrom && item.at <= focusTo;
-          if (item.custom) {
-            return (
-              <li key={item.id} className="grid grid-cols-[52px_1fr] gap-3">
-                <input
-                  aria-label="Time"
-                  type="time"
-                  className="w-full bg-transparent pt-2 font-mono text-xs text-crimson-400 outline-none [color-scheme:dark]"
-                  value={item.custom.time}
-                  onChange={(ev) =>
-                    /^\d{2}:\d{2}$/.test(ev.target.value) &&
-                    dispatch({ t: "custom.update", event: { ...item.custom!, time: ev.target.value } })
-                  }
-                />
-                <div className="flex items-start gap-2 border-l-2 border-dashed border-crimson-400/80 px-3 py-2">
-                  <input
-                    aria-label="What happened?"
-                    className="w-full min-w-0 bg-transparent text-sm text-bone-100 outline-none placeholder:text-steel-400"
-                    placeholder="what happened?"
-                    value={item.custom.label}
-                    onChange={(ev) => dispatch({ t: "custom.update", event: { ...item.custom!, label: ev.target.value } })}
-                  />
+      {/* ── narrow screens: the same night, read downward ─────────────────────────────── */}
+      <div className="scrollbar-thin min-h-0 flex-1 overflow-auto p-4 md:hidden">
+        <div className="paper mx-auto px-4 pb-5 pt-4">
+          <p className="font-mono text-[12px] font-semibold uppercase tracking-[0.1em] text-[#1d1a14]">The night</p>
+          <p className="mt-1 text-[12.5px] leading-snug text-[#4f4636]">
+            Every record with a time on it, in order.{focus ? " The red ones happened while Daniel died." : ""}
+          </p>
+          {focus && blindCount > 0 && (
+            <p className="mt-2 font-hand text-[22px] leading-none text-crimson-600">
+              {blindCount} {blindCount === 1 ? "person has" : "people have"} nothing on file while he died.
+            </p>
+          )}
+          <ol className="mt-4 space-y-2">
+            {downward.map((item) => {
+              const inside = focusFrom !== null && focusTo !== null && item.at >= focusFrom && item.at <= focusTo;
+              if (item.custom) {
+                return (
+                  <li key={item.id} className="grid grid-cols-[52px_1fr] gap-3">
+                    <input
+                      aria-label="Time"
+                      type="time"
+                      className="w-full bg-transparent pt-2 font-mono text-xs font-semibold text-[#1d1a14] outline-none"
+                      value={item.custom.time}
+                      onChange={(ev) =>
+                        /^\d{2}:\d{2}$/.test(ev.target.value) &&
+                        dispatch({ t: "custom.update", event: { ...item.custom!, time: ev.target.value } })
+                      }
+                    />
+                    <div className="sticky-note flex items-start gap-2 px-3 py-2">
+                      <input
+                        aria-label="What happened?"
+                        className="w-full min-w-0 bg-transparent font-hand text-[20px] leading-tight text-[#2a2410] outline-none placeholder:text-[#2a2410]/45"
+                        placeholder="what happened?"
+                        value={item.custom.label}
+                        onChange={(ev) => dispatch({ t: "custom.update", event: { ...item.custom!, label: ev.target.value } })}
+                      />
+                      <button
+                        type="button"
+                        className="shrink-0 px-1 text-[#2a2410]/50 hover:text-crimson-600"
+                        onClick={() => dispatch({ t: "custom.remove", id: item.custom!.id })}
+                        aria-label="Remove this moment"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </li>
+                );
+              }
+              const e = item.e!;
+              return (
+                <li key={item.id} className="grid grid-cols-[52px_1fr] gap-3">
+                  <span className={`pt-2 font-mono text-xs font-semibold ${inside ? "text-crimson-600" : "text-[#1d1a14]/70"}`}>
+                    {e.time?.slice(0, 5)}
+                  </span>
                   <button
                     type="button"
-                    className="shrink-0 px-1 text-steel-400 hover:text-crimson-400"
-                    onClick={() => dispatch({ t: "custom.remove", id: item.custom!.id })}
-                    aria-label="Remove this moment"
+                    className={`slip w-full px-3 py-2 text-left ${inside ? "!border-crimson-600/60" : ""}`}
+                    onClick={() => onOpen(e.id)}
                   >
-                    ✕
+                    <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#4f4636]">
+                      {evidenceCode(e.number)}
+                      {e.location ? ` · ${placeName.get(e.location)}` : ""}
+                    </p>
+                    <p className="text-[13.5px] leading-snug text-[#1d1a14]">{e.title}</p>
+                    {e.suspects.length > 0 && (
+                      <p className="mt-0.5 text-[11px] text-[#4f4636]">
+                        {e.suspects.map((id) => suspects.find((s) => s.id === id)?.name ?? id).join(", ")}
+                      </p>
+                    )}
                   </button>
-                </div>
-              </li>
-            );
-          }
-          const e = item.e!;
-          return (
-            <li key={item.id} className="grid grid-cols-[52px_1fr] gap-3">
-              <span className={`pt-2 font-mono text-xs ${inside ? "text-crimson-400" : "text-amber-300"}`}>
-                {e.time?.slice(0, 5)}
-              </span>
-              <button
-                type="button"
-                className={`border-l-2 px-3 py-2 text-left ${inside ? "border-crimson-600 bg-crimson-600/10" : "border-ink-600"}`}
-                onClick={() => onOpen(e.id)}
-              >
-                <p className="font-mono text-[10px] text-steel-400">
-                  {evidenceCode(e.number)}
-                  {e.location ? ` · ${placeName.get(e.location)}` : ""}
-                </p>
-                <p className="text-sm text-bone-100/90">{e.title}</p>
-                {e.suspects.length > 0 && (
-                  <p className="mt-0.5 text-[11px] text-steel-300">
-                    {e.suspects.map((id) => suspects.find((s) => s.id === id)?.name ?? id).join(", ")}
-                  </p>
-                )}
-              </button>
-            </li>
-          );
-        })}
-        {downward.length === 0 && <li className="py-8 text-center text-sm text-bone-100/50">No timestamped records yet.</li>}
-      </ol>
+                </li>
+              );
+            })}
+            {downward.length === 0 && (
+              <li className="py-8 text-center font-hand text-[22px] text-[#4f4636]">No timestamped records yet.</li>
+            )}
+          </ol>
+          {!readOnly && (
+            <button
+              type="button"
+              className="mt-4 w-full border border-dashed border-[#1d1a14]/35 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-[#4f4636]"
+              onClick={addMoment}
+            >
+              + Add what you think happened
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
-
-/** Where a pip sits relative to its lane's rule, so a stack of them straddles the line evenly. */
+/** Where a slip sits relative to its row's line, so a stack of them straddles it evenly. */
 const stackOffset = (row: number, rows: number) => (row - (rows - 1) / 2) * ROW_H;
 
+/** A small steady tilt per slip, so the night looks pinned up rather than typeset. */
+function slipTilt(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return ((h % 100) / 100) * 2.4 - 1.2;
+}
