@@ -18,12 +18,14 @@ import type {
 // └──────────────────────────────────────────────────────────────────────────┘
 
 /** One chapter of the case told back to the player, once the verdict is filed. */
+export type StoryPicture = { scene: PhotoScene } | { detail: InkDetail };
+
 export interface StoryBeat {
   title: string;
   when: string;
   lines: string[];
-  scene?: PhotoScene;
-  detail?: InkDetail;
+  /** Pictures that run alongside the chapter, in order. */
+  pictures: StoryPicture[];
 }
 
 export interface SuspectProfile {
@@ -124,7 +126,9 @@ export const truth = {
         "Whoever did it made one decision that would cost them eleven years later: they did not destroy the originals. Destroying evidence is a crime with a name and a sentence. Filing it is just filing. The real boxes were sealed, labelled and sent into storage with everything else the county had finished with.",
         "That is the whole of Case 047, in the end. A man who could not bring himself to burn the thing that would hang him.",
       ],
-      detail: "printout",
+      pictures: [
+        { detail: "printout" },
+      ],
     },
     {
       title: "The man in the grey overcoat",
@@ -135,7 +139,10 @@ export const truth = {
         "He is also the second man in the Mercury Bar photograph — booth four, grey overcoat, face turned away from the camera for forty-five straight minutes, pushing an envelope across the table to Daniel's editor. On his little finger, the only part of him the camera ever got clearly: a signet ring, a circle cut by a single vertical line.",
         "Noah Grant is not frightened of a company. He is frightened of the man who put his brother away and still has the reach to do it to him.",
       ],
-      scene: "bar",
+      pictures: [
+        { scene: "bar" },
+        { detail: "ring" },
+      ],
     },
     {
       title: "How you hide a box without burning it",
@@ -146,7 +153,10 @@ export const truth = {
         "Halden is not a conspiracy. It is a filing arrangement. It is the legal structure a careful man builds so that the evidence which could convict him sits in a basement he owns, under a hotel he owns, guarded by a manager he pays, and every piece of paper in the chain is perfectly in order.",
         "A third Halden company, HH Consulting, would later become useful for something else.",
       ],
-      scene: "archive",
+      pictures: [
+        { scene: "archive" },
+        { scene: "lobby" },
+      ],
     },
     {
       title: "The keeper",
@@ -157,7 +167,10 @@ export const truth = {
         "She also kept a garden. The rooftop conservatory is staff-only, keycard access, and the hotel's own guest newsletter ran a piece on it in September with photographs — rosemary, lavender, foxglove, and, hand-lettered on its own label, Aconitum napellus. Monkshood.",
         "She had the thing that killed Daniel Mercer growing on her roof for years before she ever needed it, and a magazine article telling anyone who looked that it was there.",
       ],
-      scene: "conservatory",
+      pictures: [
+        { scene: "conservatory" },
+        { detail: "keycard" },
+      ],
     },
     {
       title: "The reporter",
@@ -168,7 +181,10 @@ export const truth = {
         "Daniel kept going anyway. Sarah Vale, his former partner, worked it with him off the books: fourteen calls in twelve days. Noah Grant fed him Case 019 from the inside, because the man it convicted was his brother.",
         "Two nights before he died Daniel checked into the Blackwood, Room 314, third floor, east wing, beside Service Stair B. He had worked out where the boxes were. His notebook says it in his own shorthand: boxes went to overflow in 2014, overflow equals under Blackwood, the keeper has every key.",
       ],
-      scene: "mercer-office",
+      pictures: [
+        { scene: "mercer-office" },
+        { scene: "room-desk" },
+      ],
     },
     {
       title: "The night it stopped working",
@@ -179,7 +195,11 @@ export const truth = {
         "At 23:29 the third-floor camera went dark, switched off from the console in Elena's own office. At 23:35 she signed out a turndown tray from management: a chocolate, and a whisky she had laced with aconitine cut from her own monkshood.",
         "At 23:41 her master card opened 314 past the Do Not Disturb card hanging on the handle. She apologised for the camera being down. Daniel took the drink from her, because why would he not.",
       ],
-      detail: "glass",
+      pictures: [
+        { detail: "console" },
+        { detail: "glass" },
+        { detail: "keycard" },
+      ],
     },
     {
       title: "Seven seconds",
@@ -191,7 +211,10 @@ export const truth = {
         "That is Elena Cross, letting herself back into Room 314 to take the phone off him. It is the only recording of the killer anywhere in the file, and it exists because a dying man called his friend instead of the police.",
         "Noah has still never played it.",
       ],
-      detail: "door",
+      pictures: [
+        { detail: "door" },
+        { scene: "garage" },
+      ],
     },
     {
       title: "Everything she did in the next nine minutes",
@@ -202,7 +225,11 @@ export const truth = {
         "At 23:58 Daniel's phone went into the Vesper from the River District embankment, which is the last place his handset ever reported from.",
         "At 01:06, called back to her own hotel by the police, she printed them a door report for Room 314 — filtered by hand to remove every entry made with a master card. She was helping. She stood there while they thanked her for it.",
       ],
-      detail: "river",
+      pictures: [
+        { detail: "stairs" },
+        { detail: "river" },
+        { detail: "printout" },
+      ],
     },
     {
       title: "The three people who lied and did not kill him",
@@ -213,7 +240,11 @@ export const truth = {
         "Noah Grant said he was in Lakemoor. He left his phone there and drove down on a burner so that nothing would place him at the Blackwood, and he lied because he was afraid of Jarrow.",
         "Three people with something to hide on the same night in the same building, and not one of them a killer. That is what made it so hard to read — and it is exactly what the arrangement was built to produce.",
       ],
-      scene: "garage",
+      pictures: [
+        { scene: "garage" },
+        { scene: "bar" },
+        { scene: "garage-plate" },
+      ],
     },
     {
       title: "What this actually changes",
@@ -224,7 +255,10 @@ export const truth = {
         "And Alan Jarrow has not been charged with anything, because nothing in this case touches him. He paid an editor through a company, which is not a crime anyone has proved. He signed a storage contract eleven years ago, which is not a crime at all. He was in a bar. The strongest thing anyone ever wrote about him is two words in a dead man's notebook, and a notebook is not evidence.",
         "He is still wearing the ring.",
       ],
-      detail: "ring",
+      pictures: [
+        { scene: "archive" },
+        { detail: "ring" },
+      ],
     },
   ] as StoryBeat[],
 

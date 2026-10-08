@@ -8,13 +8,29 @@ import type { ResultView } from "@/lib/sessions/types";
 // The case told back to the player in full, once the verdict is filed: what was going on
 // before the night, what happened on it, and what this case leaves open.
 
-export function CaseStory({ story }: { story: ResultView["truth"]["story"] }) {
+type Story = ResultView["truth"]["story"];
+type Picture = Story[number]["pictures"][number];
+
+/** A photograph sits in a print; an ink panel sits on its own white. */
+function Plate({ picture, tilt }: { picture: Picture; tilt: number }) {
   return (
-    <ol className="space-y-16">
+    <figure className="photo-print" style={{ rotate: `${tilt}deg` }}>
+      {"scene" in picture ? (
+        <PhotoScene scene={picture.scene} className="block w-full" />
+      ) : (
+        <InkDetail kind={picture.detail} className="block w-full" />
+      )}
+    </figure>
+  );
+}
+
+export function CaseStory({ story }: { story: Story }) {
+  return (
+    <ol className="space-y-20">
       {story.map((beat, i) => (
         <motion.li
           key={beat.title}
-          className="grid gap-6 md:grid-cols-[1fr_300px] md:gap-10"
+          className="grid gap-7 md:grid-cols-[minmax(0,1fr)_340px] md:gap-12"
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
@@ -34,19 +50,13 @@ export function CaseStory({ story }: { story: ResultView["truth"]["story"] }) {
             </div>
           </div>
 
-          {/* Each chapter keeps one image from the file beside it, so the page stays a case. */}
-          {(beat.scene || beat.detail) && (
-            <figure className="self-start md:sticky md:top-10">
-              {beat.scene ? (
-                <div className="photo-print -rotate-1">
-                  <PhotoScene scene={beat.scene} className="block w-full" />
-                </div>
-              ) : (
-                <div className="border border-ink-700 bg-ink-950 p-3">
-                  <InkDetail kind={beat.detail!} className="block w-full" />
-                </div>
-              )}
-            </figure>
+          {/* The pictures run down the margin, pinned up like the rest of the file. */}
+          {beat.pictures.length > 0 && (
+            <div className="space-y-6">
+              {beat.pictures.map((picture, n) => (
+                <Plate key={n} picture={picture} tilt={n % 2 ? 1.2 : -1.1} />
+              ))}
+            </div>
           )}
         </motion.li>
       ))}
