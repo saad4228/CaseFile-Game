@@ -17,4 +17,9 @@ export const sceneArt: Partial<Record<PhotoScene, string>> = {
   porter: "/scenes/porter.webp",
   brother: "/scenes/brother.webp",
   prison: "/scenes/prison.webp",
+  trial: "/scenes/trial.webp",
+  "b2-door": "/scenes/b2-door.webp",
+  daniel: "/scenes/daniel.webp",
+  tray: "/scenes/tray.webp",
+  police: "/scenes/police.webp",
 };

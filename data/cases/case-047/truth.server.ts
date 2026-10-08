@@ -104,7 +104,8 @@ export const truth = {
     { time: "23:12", scene: "garage-plate" as PhotoScene, caption: "Noah Grant drives into the garage and texts Daniel from a burner: he's on P2." },
     { time: "23:22", scene: "bar" as PhotoScene, detail: "envelope" as InkDetail, caption: "Booth four of the Mercury Bar: an envelope crosses the table from a man in a grey overcoat to Marcus Reed." },
     { time: "23:29", scene: "room-desk" as PhotoScene, detail: "console" as InkDetail, caption: "From her office console, Elena Cross switches off the third-floor camera." },
-    { time: "23:35", scene: "conservatory" as PhotoScene, detail: "glass" as InkDetail, caption: "She signs out a turndown tray “from management”: a chocolate and a whisky laced with aconitine from her own monkshood." },
+    { time: "23:33", scene: "conservatory" as PhotoScene, detail: "monkshood" as InkDetail, caption: "On the roof she cuts from her own monkshood. Aconitine is the alkaloid; the plant has been there for years." },
+    { time: "23:35", scene: "tray" as PhotoScene, detail: "glass" as InkDetail, caption: "She signs out a turndown tray “from management” — a chocolate, and a whisky nobody else has touched." },
     { time: "23:41", scene: "room-desk" as PhotoScene, detail: "keycard" as InkDetail, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
     { time: "23:41", scene: "garage" as PhotoScene, caption: "Two floors down, Sarah has handed Noah the drive and is walking to the Calder Street door." },
     { time: "23:46", scene: "room-desk" as PhotoScene, detail: "dying-call" as InkDetail, caption: "The poison works fast. Daniel calls the last number that texted him — Noah's burner, two floors below. Nobody picks up." },
@@ -114,6 +115,7 @@ export const truth = {
     { time: "23:49", scene: "garage" as PhotoScene, detail: "stairs" as InkDetail, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
     { time: "23:58", scene: "conservatory" as PhotoScene, detail: "river" as InkDetail, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
     { time: "00:31", scene: "porter" as PhotoScene, caption: "The night porter opens 314 with a passkey. The Do Not Disturb card is still hanging on the outside handle." },
+    { time: "00:52", scene: "police" as PhotoScene, caption: "Officers attend and photograph 314 before anything is moved. One tumbler on the desk. No phone anywhere in the room." },
     { time: "01:06", scene: "lobby" as PhotoScene, detail: "printout" as InkDetail, caption: "Called back to the hotel, she prints the police a door report — filtered to hide her own card." },
   ],
 
@@ -132,6 +134,7 @@ export const truth = {
         "That is the whole of Case 047, in the end. A man who could not bring himself to burn the thing that would hang him.",
       ],
       pictures: [
+        { scene: "trial" },
         { scene: "brother" },
         { detail: "printout" },
       ],
@@ -177,9 +180,10 @@ export const truth = {
         "She had the thing that killed Daniel Mercer growing on her roof for years before she ever needed it, and a magazine article telling anyone who looked that it was there.",
       ],
       pictures: [
+        { scene: "b2-door" },
+        { detail: "keycard" },
         { scene: "conservatory" },
         { detail: "monkshood" },
-        { detail: "keycard" },
       ],
     },
     {
@@ -192,6 +196,7 @@ export const truth = {
         "Two nights before he died Daniel checked into the Blackwood, Room 314, third floor, east wing, beside Service Stair B. He had worked out where the boxes were. His notebook says it in his own shorthand: boxes went to overflow in 2014, overflow equals under Blackwood, the keeper has every key.",
       ],
       pictures: [
+        { scene: "daniel" },
         { scene: "mercer-office" },
         { scene: "room-desk" },
       ],
@@ -208,6 +213,7 @@ export const truth = {
       pictures: [
         { detail: "handover" },
         { detail: "console" },
+        { scene: "tray" },
         { detail: "glass" },
         { detail: "keycard" },
       ],
@@ -243,6 +249,7 @@ export const truth = {
         { detail: "stairs" },
         { detail: "river" },
         { scene: "porter" },
+        { scene: "police" },
         { detail: "printout" },
       ],
     },

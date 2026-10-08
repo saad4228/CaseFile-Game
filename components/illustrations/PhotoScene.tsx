@@ -74,6 +74,11 @@ const labels: Record<Scene, string> = {
   porter: "A hotel corridor at night: the night porter in the open doorway of 314, his hand still on the handle, the Do Not Disturb card hanging beside it.",
   brother: "A creased police booking photograph from 2013, clipped to a file card: a tired man holding a Vesper County board.",
   prison: "A prison visiting room: a man alone at a long table, barred light across it, the chair opposite him empty.",
+  trial: "A courtroom at the moment of a verdict, seen from the public gallery: the defendant standing with his back to the room.",
+  "b2-door": "A basement service corridor under the hotel, ending at a steel door stencilled B2 with a keycard reader beside it.",
+  daniel: "A journalist working alone at a cluttered desk late at night, writing in a pocket notebook under one lamp.",
+  tray: "A hotel corridor: the manager walking away from the camera with a turndown tray, one glass and one chocolate on it.",
+  police: "Room 314 photographed from the corridor: officers inside, evidence markers on the carpet, one tumbler on the desk.",
 };
 
 const scenes: Record<Scene, React.ReactNode> = {
@@ -306,6 +311,66 @@ const scenes: Record<Scene, React.ReactNode> = {
       {/* the one lit lamp */}
       <circle cx="330" cy="206" r="26" fill="#f0ae55" opacity="0.18" />
       <circle cx="330" cy="206" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  police: (
+    <g>
+      <rect width="400" height="300" fill="#10151a" />
+      {/* seen from the corridor, through a doorway */}
+      <rect x="0" y="0" width="70" height="300" fill="#0a0d11" />
+      <rect x="330" y="0" width="70" height="300" fill="#0a0d11" />
+      <rect x="344" y="40" width="42" height="30" fill="#232b33" />
+      {/* officers and a flash going off */}
+      <circle cx="120" cy="96" r="20" fill="#1d252c" />
+      <path d="M86 230 C86 168 102 150 120 150 C138 150 156 168 156 230 Z" fill="#171e24" />
+      <circle cx="214" cy="84" r="18" fill="#1d252c" />
+      <circle cx="240" cy="92" r="16" fill="#fff6e0" opacity="0.65" />
+      {/* evidence markers and the lamp on the desk */}
+      {[[168, 236], [232, 258]].map(([x, y]) => <rect key={x} x={x} y={y} width="16" height="18" fill="#e6e0cf" opacity="0.8" />)}
+      <circle cx="300" cy="170" r="18" fill="#f0d8a8" opacity="0.3" />
+    </g>
+  ),
+  trial: (
+    <g>
+      <rect width="400" height="300" fill="#141a20" />
+      <rect x="250" y="40" width="130" height="90" fill="#1d252c" />
+      <circle cx="315" cy="78" r="16" fill="#2b343c" />
+      <rect y="150" width="400" height="150" fill="#10151a" />
+      <circle cx="190" cy="128" r="22" fill="#2b343c" />
+      <path d="M150 220 C150 164 168 150 190 150 C212 150 232 164 232 220 Z" fill="#232b33" />
+      {[0, 1, 2, 3].map((i) => <circle key={i} cx={40 + i * 90} cy={248} r="26" fill="#1a2027" />)}
+    </g>
+  ),
+  "b2-door": (
+    <g>
+      <rect width="400" height="300" fill="#0f1317" />
+      <rect x="40" y="0" width="320" height="300" fill="#161c22" />
+      <rect x="150" y="60" width="110" height="190" fill="#232b32" />
+      <rect x="236" y="150" width="12" height="20" fill="#3b454d" />
+      <rect x="120" y="18" width="160" height="10" fill="#e6e0cf" opacity="0.5" />
+      <rect y="250" width="400" height="50" fill="#0b0e12" />
+      <ellipse cx="200" cy="268" rx="90" ry="12" fill="#e6e0cf" opacity="0.09" />
+    </g>
+  ),
+  daniel: (
+    <g>
+      <rect width="400" height="300" fill="#10151a" />
+      <rect x="250" y="20" width="140" height="130" fill="#1b232b" />
+      <circle cx="150" cy="110" r="28" fill="#2d3740" />
+      <path d="M96 230 C96 164 120 150 150 150 C180 150 208 164 208 230 Z" fill="#232b33" />
+      <rect y="214" width="400" height="86" fill="#1a2027" />
+      <circle cx="320" cy="196" r="22" fill="#f0ae55" opacity="0.2" />
+      <circle cx="320" cy="196" r="8" fill="#ffd79a" />
+    </g>
+  ),
+  tray: (
+    <g>
+      <rect width="400" height="300" fill="#10151a" />
+      <path d="M150 0 L250 0 L270 300 L130 300 Z" fill="#171e24" />
+      <circle cx="200" cy="92" r="24" fill="#20282f" />
+      <path d="M150 300 C150 184 172 150 200 150 C228 150 250 184 250 300 Z" fill="#141a20" />
+      <rect x="246" y="186" width="44" height="10" fill="#2f3842" />
+      <rect x="330" y="110" width="60" height="110" fill="#1d252c" />
     </g>
   ),
   prison: (
