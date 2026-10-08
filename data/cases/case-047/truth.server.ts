@@ -106,6 +106,7 @@ export const truth = {
     { time: "23:41", scene: "room-desk" as PhotoScene, detail: "keycard" as InkDetail, caption: "Her master card opens 314 past the Do Not Disturb. She apologises for the camera. Daniel accepts the drink." },
     { time: "23:41", scene: "garage" as PhotoScene, caption: "Two floors down, Sarah has handed Noah the drive and is walking to the Calder Street door." },
     { time: "23:46", scene: "room-desk" as PhotoScene, detail: "dying-call" as InkDetail, caption: "The poison works fast. Daniel calls the last number that texted him — Noah's burner, two floors below. Nobody picks up." },
+    { time: "23:46", scene: "garage" as PhotoScene, detail: "burner" as InkDetail, caption: "Two floors down the burner rings on the passenger seat. Noah is out of the car. It goes to the mailbox." },
     { time: "23:46", scene: "room-desk" as PhotoScene, detail: "door" as InkDetail, caption: "Elena lets herself back in. The mailbox records a two-tone chime, then seven seconds: “Shh. Give it to me, Daniel.”" },
     { time: "23:47", scene: "room-desk" as PhotoScene, detail: "window" as InkDetail, caption: "Daniel Mercer dies. She swaps the tumbler for a clean one, wiped of prints, and takes the tray, his phone, and the top sheet of his notepad." },
     { time: "23:49", scene: "garage" as PhotoScene, detail: "stairs" as InkDetail, caption: "Service Stair B. At 23:52 the camera comes back on. At 23:55 her car leaves the staff car park." },
@@ -216,6 +217,7 @@ export const truth = {
       ],
       pictures: [
         { detail: "dying-call" },
+        { detail: "burner" },
         { detail: "door" },
         { scene: "garage" },
       ],

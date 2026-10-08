@@ -30,6 +30,7 @@ const LABEL: Record<Kind, string> = {
   printout: "A printer feeds out a door report; a pen strikes lines through it.",
   ring: "A hand on a bar table beside a whisky glass, wearing a signet ring: a circle cut by a single vertical line.",
   "dying-call": "A hand going slack on hotel carpet, a phone still in the fingers with a call in progress.",
+  burner: "A prepaid phone ringing unanswered on the passenger seat of an empty car in a garage.",
 };
 
 const ink = "#0b0b0c";
@@ -144,6 +145,20 @@ const DRAW: Record<Kind, React.ReactNode> = {
       ))}
       <rect x="250" y="64" width="110" height="10" rx="4" fill={ink} transform="rotate(-24 300 70)" />
       <text x="128" y="172" fontFamily="var(--font-plex-mono), monospace" fontSize="9" fill={ink}>DOOR REPORT · ROOM 314 · 01:06</text>
+    </g>
+  ),
+  burner: (
+    <g>
+      <rect y="150" width="400" height="90" fill={ink} />
+      {/* windscreen, garage pillars beyond */}
+      <path d="M40 20 L360 20 L330 120 L70 120 Z" fill="none" stroke={ink} strokeWidth="3" />
+      {[110, 200, 290].map((x) => (
+        <rect key={x} x={x} y={34} width="18" height="76" fill={ink} opacity="0.85" />
+      ))}
+      {/* the seat and the phone on it, lit and unanswered */}
+      <path d="M60 240 C60 180 120 164 200 164 L340 164 L340 240 Z" fill="none" stroke={ink} strokeWidth="3" />
+      <rect x="208" y="176" width="44" height="60" rx="5" fill={ink} />
+      <rect x="214" y="182" width="32" height="26" fill="none" stroke="#f1ede4" strokeWidth="2" />
     </g>
   ),
   "dying-call": (

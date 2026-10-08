@@ -73,7 +73,8 @@ export type InkDetail =
   | "river"
   | "printout"
   | "ring"
-  | "dying-call";
+  | "dying-call"
+  | "burner";
 
 export interface Evidence {
   id: EvidenceId;
