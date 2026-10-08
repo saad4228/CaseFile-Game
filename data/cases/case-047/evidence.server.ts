@@ -1,5 +1,6 @@
 import "server-only";
 import type { Evidence } from "@/lib/game-engine/types";
+import { keyBy } from "@/lib/collections";
 
 // Every evidence item in Case 047. Items are revealed to the client only once discovered:
 // the first fifteen form the case brief, the rest sit behind leads (leads.server.ts).
@@ -925,4 +926,4 @@ export const evidence: Evidence[] = [
   },
 ];
 
-export const evidenceById = new Map(evidence.map((e) => [e.id, e]));
+export const evidenceById = keyBy(evidence);

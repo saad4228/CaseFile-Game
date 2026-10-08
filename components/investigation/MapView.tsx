@@ -2,12 +2,14 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
-import { evidenceCode, formatMinutes, minutesFrom22 } from "@/components/evidence/format";
+import {evidenceCode} from "@/components/evidence/format";
 import { BlackwoodHotel } from "@/components/illustrations/Blackwood";
+import { clock, minutesFrom22 } from "@/lib/time";
 import { useGame } from "@/components/game/GameContext";
 import { mulberry32 } from "@/lib/random";
 import { onFoot, spokenMinutes, travel } from "@/lib/game-engine/travel";
 import type { Evidence, Location, Route } from "@/lib/game-engine/types";
+import { keyBy } from "@/lib/collections";
 
 /**
  * Vesper City. Pick two places and it reports the journey in the case's terms: the minutes,
@@ -52,7 +54,7 @@ export function MapView({
   const drag = useRef<{ px: number; py: number; vx: number; vy: number } | null>(null);
   const [panning, setPanning] = useState(false);
 
-  const byId = useMemo(() => new Map(locations.map((l) => [l.id, l])), [locations]);
+  const byId = useMemo(() => keyBy(locations), [locations]);
   const sel = byId.get(selected) ?? locations[0];
   const trip = from && from !== selected ? travel(routes, from, selected) : null;
   const linked = evidence.filter((e) => e.locations.includes(selected));
@@ -372,7 +374,7 @@ export function MapView({
                 {focus && focusFrom !== null && (
                   <p className="mt-1 text-[12px] text-bone-100/75">
                     To be at {sel.name} by {focus.from}, you leave {byId.get(from!)?.name} by{" "}
-                    <span className="text-bone-100">{formatMinutes(focusFrom - trip.minutes)}</span>.
+                    <span className="text-bone-100">{clock(focusFrom - trip.minutes)}</span>.
                   </p>
                 )}
                 {trip.path.length > 2 && (

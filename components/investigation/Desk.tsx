@@ -7,6 +7,7 @@ import { useGame } from "@/components/game/GameContext";
 import { OraclePanel } from "@/components/oracle/OraclePanel";
 import { play } from "@/lib/client/sound";
 import type { ConflictMark } from "@/lib/game-engine/types";
+import { keyBy } from "@/lib/collections";
 
 const marks: { id: ConflictMark; label: string }[] = [
   { id: "contradiction", label: "One of them is lying" },
@@ -36,7 +37,7 @@ export function Desk({
   const { leads, followed, conflicts, evidence, shared, dispatch, followLead, phase, mode } = useGame();
   const [pending, setPending] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const byId = new Map(evidence.map((e) => [e.id, e]));
+  const byId = keyBy(evidence);
   const openConflicts = conflicts.filter((c) => !shared.conflictMarks[c.id]).length;
   const readOnly = phase === "RESOLVED";
 

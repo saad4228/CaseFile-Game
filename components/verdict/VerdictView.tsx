@@ -5,6 +5,7 @@ import { useState } from "react";
 import { evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import { PROOF_SLOTS, VERDICT_FIELDS, type ProofSlot, type VerdictField } from "@/lib/game-engine/types";
+import { keyBy } from "@/lib/collections";
 
 const QUESTION: Record<VerdictField, string> = { who: "Who?", how: "How?", when: "When?", where: "Where?", why: "Why?" };
 const SLOT: Record<ProofSlot, { label: string; hint: string }> = {
@@ -23,7 +24,7 @@ export function VerdictView({ onOpen }: { onOpen: (id: string) => void }) {
   const [filing, setFiling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const readOnly = phase === "RESOLVED";
-  const byId = new Map(evidence.map((e) => [e.id, e]));
+  const byId = keyBy(evidence);
   const sharedEvidence = evidence.filter((e) => holders[e.id] !== "me");
   const answered = VERDICT_FIELDS.filter((f) => v[f]).length;
   // How many slots the player has *filled*. Whether those records actually prove anything is

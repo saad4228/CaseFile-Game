@@ -2,7 +2,8 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
-import { evidenceCode, formatMinutes, minutesFrom22 } from "@/components/evidence/format";
+import {evidenceCode} from "@/components/evidence/format";
+import { clock, minutesFrom22 } from "@/lib/time";
 import { useGame } from "@/components/game/GameContext";
 import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { onFoot, travel } from "@/lib/game-engine/travel";
@@ -160,7 +161,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
   const blindCount = useMemo(() => [...standing.values()].filter((v) => v.blind).length, [standing]);
 
   const addMoment = () =>
-    dispatch({ t: "custom.add", event: { id: newId(), time: formatMinutes(focusFrom ?? start + span / 2), label: "" } });
+    dispatch({ t: "custom.add", event: { id: newId(), time: clock(focusFrom ?? start + span / 2), label: "" } });
 
   const startDrag = (ev: React.PointerEvent, c: CustomEvent) => {
     const track = trackRef.current;
@@ -171,7 +172,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
       Math.max(start, Math.min(end, Math.round(start + ((clientX - rect.left) / rect.width) * span)));
     const move = (e: PointerEvent) => setDragging({ id: c.id, at: toMin(e.clientX) });
     const up = (e: PointerEvent) => {
-      dispatch({ t: "custom.update", event: { ...c, time: formatMinutes(toMin(e.clientX)) } });
+      dispatch({ t: "custom.update", event: { ...c, time: clock(toMin(e.clientX)) } });
       setDragging(null);
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
@@ -230,7 +231,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                   className={`absolute top-2 ${m === ticks.at(-1) ? "-translate-x-full" : "-translate-x-1/2"}`}
                   style={{ left: `${pct(m)}%` }}
                 >
-                  <span className="font-mono text-[11px] font-semibold text-[#1d1a14]/70">{formatMinutes(m)}</span>
+                  <span className="font-mono text-[11px] font-semibold text-[#1d1a14]/70">{clock(m)}</span>
                 </div>
               ))}
             </div>
@@ -340,7 +341,7 @@ export function TimelineView({ onOpen }: { onOpen: (id: string) => void }) {
                             onPointerDown={(ev) => startDrag(ev, p.custom!)}
                             title="Drag to move it in time"
                           >
-                            ⇔ {formatMinutes(p.at)}
+                            ⇔ {clock(p.at)}
                           </span>
                           <input
                             aria-label="What happened?"

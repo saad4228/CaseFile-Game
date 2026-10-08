@@ -7,6 +7,7 @@ import { meta } from "@/data/cases/case-047/meta";
 import { suspects } from "@/data/cases/case-047/suspects";
 import { truth } from "@/data/cases/case-047/truth.server";
 import { verdictOptions } from "@/data/cases/case-047/verdict";
+import { keyBy } from "@/lib/collections";
 import type {
   CaseMeta,
   Evidence,
@@ -42,7 +43,7 @@ const bundles: Record<string, CaseBundle> = {
     locations,
     routes,
     evidence,
-    evidenceById: new Map(evidence.map((e) => [e.id, e])),
+    evidenceById: keyBy(evidence),
     brief: BRIEF_EVIDENCE,
     common: ["E-001"],
     leads,

@@ -6,6 +6,7 @@ import { evidenceCode } from "@/components/evidence/format";
 import { useGame } from "@/components/game/GameContext";
 import type { AssumptionStatus, ClaimKind, Theory } from "@/lib/game-engine/state";
 import { ASSUMPTION_LIBRARY, ASSUMPTIONS, CLAIMS } from "@/lib/game-engine/theory-templates";
+import { keyBy } from "@/lib/collections";
 
 const statusInfo: Record<AssumptionStatus, { mark: string; label: string; cls: string }> = {
   open: { mark: "○", label: "Not checked", cls: "text-[#4f4636]" },
@@ -207,7 +208,7 @@ function TheoryCard({
   const [attachFor, setAttachFor] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [addText, setAddText] = useState("");
-  const byId = new Map(evidence.map((e) => [e.id, e]));
+  const byId = keyBy(evidence);
   const sharedEvidence = evidence.filter((e) => holders[e.id] !== "me");
 
   return (

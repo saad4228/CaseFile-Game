@@ -25,6 +25,7 @@ import { BoardContext, type BoardCtx, type NodeData } from "./context";
 import { edgeKindOrder, edgeKinds } from "./edgeKinds";
 import { ArrowDefs, edgeTypes } from "./edges";
 import { nodeTypes } from "./nodes";
+import { keyBy } from "@/lib/collections";
 
 function BoardInner({
   onOpen,
@@ -46,8 +47,8 @@ function BoardInner({
 
   const ctx = useMemo<BoardCtx>(
     () => ({
-      evidence: new Map(evidence.map((e) => [e.id, e])),
-      suspects: new Map(suspects.map((s) => [s.id, s])),
+      evidence: keyBy(evidence),
+      suspects: keyBy(suspects),
       unseen: new Set(evidence.filter((e) => !personal.seen.includes(e.id)).map((e) => e.id)),
       readOnly,
       judged,
@@ -76,7 +77,7 @@ function BoardInner({
 
   useEffect(() => {
     setNodes((current) => {
-      const live = new Map(current.map((n) => [n.id, n]));
+      const live = keyBy(current);
       return shared.board.nodes.map((n) => {
         const prev = live.get(n.id);
         if (!prev) return toNode(n);

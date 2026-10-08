@@ -1,7 +1,7 @@
 import "server-only";
 import type { CaseBundle } from "@/lib/game-engine/cases.server";
 import type { ConflictView, Evidence, Location, Reliability } from "@/lib/game-engine/types";
-import { clock, minutesFromTen, nightMinutes } from "./time";
+import { clock, minutesFrom22, nightMinutes } from "@/lib/time";
 
 // ORACLE assists reasoning; it never solves. It only ever reads records the asking player
 // has legitimately discovered, plus the public map and the public suspect files — the truth
@@ -159,8 +159,9 @@ function buildMoments(bundle: CaseBundle, visible: Evidence[], people: Person[],
     const m = /(\d{1,2})[:.](\d{2})/.exec(time);
     if (!m) return;
     // People say "about 11:20" for 23:20; systems write 24-hour clocks ("08:12" is morning).
-    const min = (claim ? nightMinutes : minutesFromTen)(`${m[1]}:${m[2]}`);
-    if (min < -240 || min > 270) return; // the night itself: 18:00 → 02:30
+    const at = `${m[1]}:${m[2]}`;
+    const min = claim ? nightMinutes(at) : minutesFrom22(at);
+    if (min === null || min < -240 || min > 270) return; // the night itself: 18:00 → 02:30
     const key = `${e.id}|${min}|${text}`;
     if (seen.has(key)) return;
     seen.add(key);

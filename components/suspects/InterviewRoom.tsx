@@ -9,6 +9,7 @@ import { SuspectPhoto } from "@/components/illustrations/SuspectPhoto";
 import { InterrogationRoom } from "./InterrogationRoom";
 import type { Suspect } from "@/lib/game-engine/types";
 import { play } from "@/lib/client/sound";
+import { keyBy } from "@/lib/collections";
 
 export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (id: string) => void }) {
   const { interviews, evidence, interview, phase } = useGame();
@@ -21,7 +22,7 @@ export function InterviewRoom({ suspect, onOpen }: { suspect: Suspect; onOpen: (
   const [flare, setFlare] = useState(0);
   const endRef = useRef<HTMLDivElement>(null);
   const readOnly = phase === "RESOLVED";
-  const byId = useMemo(() => new Map(evidence.map((e) => [e.id, e])), [evidence]);
+  const byId = useMemo(() => keyBy(evidence), [evidence]);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
