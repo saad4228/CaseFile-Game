@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useGame } from "@/components/game/GameContext";
 import { RingSymbol } from "@/components/ui/RingSymbol";
 import { play } from "@/lib/client/sound";
+import { CaseStory } from "./CaseStory";
 import { ComicStrip } from "./ComicStrip";
 import { LineUp } from "./LineUp";
 import { Stamp } from "@/components/ui/Stamp";
@@ -126,6 +127,21 @@ export function ResolutionView({ onReview, onPlayAgain }: { onReview: () => void
           </motion.h2>
           <div className="mt-10">
             <ComicStrip sequence={truth.sequence} />
+          </div>
+        </section>
+
+        {/* The whole case, told back. The strip gives the beats; this gives the reasons. */}
+        <section aria-labelledby="r-story">
+          <motion.div {...fade()}>
+            <h2 id="r-story" className="font-display text-5xl md:text-6xl">
+              The whole story
+            </h2>
+            <p className="mt-4 max-w-2xl text-bone-100/65">
+              Everything the file knows, in order — including the parts no record spells out.
+            </p>
+          </motion.div>
+          <div className="mt-12">
+            <CaseStory story={truth.story} />
           </div>
         </section>
 

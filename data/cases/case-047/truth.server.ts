@@ -17,6 +17,15 @@ import type {
 // │  client except inside the post-verdict resolution.                        │
 // └──────────────────────────────────────────────────────────────────────────┘
 
+/** One chapter of the case told back to the player, once the verdict is filed. */
+export interface StoryBeat {
+  title: string;
+  when: string;
+  lines: string[];
+  scene?: PhotoScene;
+  detail?: InkDetail;
+}
+
 export interface SuspectProfile {
   truthfulness: number; // 0–1
   fear: number;
@@ -100,6 +109,102 @@ export const truth = {
     { time: "23:58", scene: "conservatory" as PhotoScene, detail: "river" as InkDetail, caption: "Daniel's phone goes into the Vesper from the River District embankment." },
     { time: "01:06", scene: "lobby" as PhotoScene, detail: "printout" as InkDetail, caption: "Called back to the hotel, she prints the police a door report — filtered to hide her own card." },
   ],
+
+  /**
+   * The case told as a story, start to finish, once the verdict is in. The sequence above
+   * gives the beats of the night; this gives the reason there was a night at all.
+   */
+  story: [
+    {
+      title: "The conviction that would not stay buried",
+      when: "2014 – 2015",
+      lines: [
+        "Case 019 ended in a conviction. The man it convicted is Noah Grant's brother.",
+        "The evidence log that secured it was rewritten. Whoever did it never destroyed the originals — the boxes went into storage with everything else.",
+        "In 2014 Vesper County contracted out its overflow storage for closed cases. In 2015 a company called Halden Holdings S.A. bought the Blackwood Hotel, and a second Halden company, Calder Street Storage Ltd, registered its premises as sub-basement B2 of that same hotel.",
+        "The boxes that could overturn the conviction were moved, entirely legally, into a building owned by the people who needed them to stay shut.",
+      ],
+      scene: "lobby",
+    },
+    {
+      title: "The keeper",
+      when: "2015 – 2024",
+      lines: [
+        "Elena Cross has managed the Blackwood since Halden bought it. The hotel was never the whole job.",
+        "She holds the master card. She controls the camera system. She signs the storage leases. For nine years her work was to make sure nobody went down to B2 and nobody asked why a hotel had a records vault under it.",
+        "She also keeps a garden. The rooftop conservatory is staff-only, keycard access, and the guest newsletter ran a piece on it in September — hand-lettered labels, rosemary, lavender, foxglove, and Aconitum napellus. Monkshood.",
+        "Nothing she did in those nine years was a crime. She kept a door closed.",
+      ],
+      scene: "conservatory",
+    },
+    {
+      title: "Daniel gets close",
+      when: "August – 14 November",
+      lines: [
+        "Daniel Mercer had spent four months reopening old convictions built on evidence he believed had been handled. Case 019 was the one that went somewhere.",
+        "From August, HH Consulting — Halden again — paid Reed Media forty thousand dollars a month as an advisory retainer. No invoices were ever filed. Marcus Reed, the sole signatory, slowed his own reporter's series and told himself it was editorial judgement.",
+        "Daniel kept going anyway. Sarah Vale, his former partner, worked it with him off the books: fourteen calls in twelve days. Noah Grant fed him the inside of Case 019, because the man it convicted was his brother.",
+        "Two nights before he died Daniel checked into the Blackwood — Room 314, third floor, east wing, beside Service Stair B. He had worked out where the boxes were. His notebook says it plainly: 019 — evidence log REWRITTEN. Originals never destroyed.",
+      ],
+      detail: "printout",
+    },
+    {
+      title: "Why that night and no other",
+      when: "14 November, 22:47",
+      lines: [
+        "At 22:47, in the hotel bar, Daniel handed Sarah a USB drive: scans of the original Case 019 evidence log, to be passed to Noah.",
+        "A locked basement survives almost anything except a copy leaving the building. The moment that drive went into Sarah's bag, nine years of keeping a door shut stopped working.",
+        "At 23:29 the third-floor camera went dark, switched off from the console in Elena's own office. At 23:35 she signed out a turndown tray from management — a chocolate, and a whisky she had laced with aconitine cut from her own monkshood.",
+        "At 23:41 her master card opened 314 past the Do Not Disturb card on the handle. She apologised for the camera being down. Daniel took the drink.",
+      ],
+      detail: "glass",
+    },
+    {
+      title: "Seven seconds",
+      when: "23:46",
+      lines: [
+        "Aconitine is fast. Within minutes it takes the mouth, then the heart.",
+        "At 23:46, dying, Daniel called the last number that had texted him — Noah's prepaid burner, two floors below him in the garage. Noah did not pick up. It went to the mailbox.",
+        "The mailbox recorded seven seconds: a two-tone door chime, and then a woman's voice, close to the handset. “Shh. Give it to me, Daniel.”",
+        "That is Elena Cross, letting herself back into Room 314 to take the phone. It is the only recording of the killer anywhere in the file, and it exists because a dying man called his friend instead of the police.",
+        "Noah has never played it.",
+      ],
+      detail: "door",
+    },
+    {
+      title: "Tidying up",
+      when: "23:47 – 01:06",
+      lines: [
+        "Daniel died at about 23:47. Elena swapped the tumbler for a clean one and wiped it, so the glass on the desk carried no prints at all — not even his.",
+        "She took the tray, the phone, and the top sheet of his notepad, and left by Service Stair B at 23:49. At 23:52 the third-floor camera came back on. At 23:55 her car left the staff car park.",
+        "At 23:58 Daniel's phone went into the Vesper from the River District embankment, which is the last place his handset ever reported.",
+        "At 01:06, called back to her own hotel by the police, she printed them a door report for Room 314 — filtered by hand to remove every entry made with a master card.",
+      ],
+      detail: "river",
+    },
+    {
+      title: "What the others were doing",
+      when: "the same night",
+      lines: [
+        "Sarah Vale lied about being upstairs because she was in the garage handing Noah the drive, and she was protecting him.",
+        "Marcus Reed lied because the payments would end his career. He was in the Mercury Bar from 23:05 to 23:50, meeting a Halden go-between — and that meeting is the thread that leads to the registry, and so to the motive.",
+        "Noah Grant lied because he was frightened. He left his phone at home in Lakemoor and drove down on a burner so nothing would place him here.",
+        "Three people with something to hide, and not one of them a killer. That is what made the night so difficult to read.",
+      ],
+      scene: "garage",
+    },
+    {
+      title: "What this case does not close",
+      when: "after",
+      lines: [
+        "The murder closes. Elena Cross poisoned Daniel Mercer in Room 314 to stop him reaching the archive underneath the building she runs.",
+        "The archive does not close. The Case 019 boxes are still in sub-basement B2. Noah Grant's brother is still convicted on an evidence log somebody rewrote.",
+        "And the lease is held by a company, not a person. Halden Holdings has no face in this file — only money moving towards a journalist's employer, and a hand in a bar photograph wearing a signet ring: a circle cut by a single vertical line.",
+        "Nobody has put a name to it yet.",
+      ],
+      scene: "bar",
+    },
+  ] as StoryBeat[],
 
   /** Records filed with the wrong reliability, and what they really are. */
   evidenceTruth: {

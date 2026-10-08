@@ -61,6 +61,8 @@ export interface ResultView {
     answers: Record<VerdictField, { id: string; label: string }>;
     summary: Record<VerdictField, string>;
     sequence: { time: string; scene: PhotoScene; caption: string; detail?: InkDetail }[];
+    /** The whole case told as a story, so the player leaves understanding all of it. */
+    story: { title: string; when: string; lines: string[]; scene?: PhotoScene; detail?: InkDetail }[];
     conflicts: { id: string; number: number; prompt: string; explanation: string; implicates: string }[];
     redHerrings: { suspect: string; name: string; looksLike: string; actually: string }[];
     /** What each person was actually holding back, and why — revealed only after the verdict. */

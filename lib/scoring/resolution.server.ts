@@ -38,6 +38,7 @@ export function buildResolution(
       answers,
       summary: truth.summary,
       sequence: truth.sequence,
+      story: truth.story,
       conflicts: bundle.conflicts.map((c) => ({
         id: c.id,
         number: c.number,
